@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mi Entreno">
     <title>Gestor de Gimnasio Matrix Pro</title>
-    <!-- Carga de PDF.js para lectura de PDFs de rutinas -->
+    <!-- Librería para procesar PDFs de rutinas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         :root {
@@ -40,9 +40,14 @@
         .day-selector { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
         .day-btn { flex: 0 0 auto; padding: 10px 16px; border-radius: 20px; background-color: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; }
         .day-btn.active { background-color: var(--accent); color: white; border-color: var(--accent); }
-        .ex-img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid var(--border); }
+        
+        .machine-icon { width: 52px; height: 52px; border-radius: 12px; background: var(--bg-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 6px; border: 1px solid var(--border); }
+        .machine-icon svg { width: 100%; height: 100%; }
+        
+        .ex-img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid var(--border); }
         .matrix-guide { background: rgba(255, 149, 0, 0.12); border-left: 4px solid var(--matrix-orange); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 13px; line-height: 1.4; }
         .matrix-guide strong { color: var(--matrix-orange); display: block; margin-bottom: 2px; }
+        
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-size: 15px; }
         .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 600; text-align: center; border: none; cursor: pointer; }
         .btn-primary { background-color: var(--accent); color: white; margin-bottom: 8px; }
@@ -50,14 +55,17 @@
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-small { width: auto; display: inline-block; padding: 8px 14px; font-size: 13px; border-radius: 8px; }
         .row { display: flex; gap: 10px; } .row > * { flex: 1; }
+        
         nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0 var(--safe-bottom); z-index: 1000; }
         @media (prefers-color-scheme: dark) { nav { background-color: rgba(28, 28, 30, 0.92); } }
         .nav-item { color: var(--text-muted); text-decoration: none; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; width: 33%; }
         .nav-item.active { color: var(--accent); }
         .view { display: none; } .view.active { display: block; }
-        .set-row { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        
+        .set-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
         .set-row:last-child { border-bottom: none; }
-        #timer { font-size: 38px; font-weight: 700; text-anchor: center; text-align: center; color: var(--accent); margin: 10px 0; }
+        
+        #timer { font-size: 38px; font-weight: 700; text-align: center; color: var(--accent); margin: 10px 0; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; padding: 20px; overflow-y: auto; }
         .modal-content { background: var(--card-bg); border-radius: 16px; padding: 20px; max-width: 500px; margin: 20px auto; }
         .svg-chart-container { width: 100%; height: 200px; margin-top: 10px; }
@@ -65,6 +73,7 @@
     </style>
 </head>
 <body>
+
     <!-- CABECERA -->
     <div class="container" style="padding-bottom:0;">
         <div class="user-bar">
@@ -80,6 +89,7 @@
     <div id="view-workout" class="view active container">
         <h1>Mi Plan de Entreno</h1>
         <div class="day-selector" id="day-selector-list"></div>
+        
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h2 id="routine-title" style="margin:0;">Cargando...</h2>
@@ -96,14 +106,20 @@
                 <button class="btn btn-primary btn-small" onclick="startTimer(90)">+90s</button>
                 <button class="btn btn-danger btn-small" style="background:var(--border); color:var(--text-main);" onclick="stopTimer()">Parar</button>
             </div>
+            
             <div class="card">
                 <h2>Anotar Serie</h2>
                 <select id="exercise-select" onchange="updateSelectedExercisePreview()"></select>
+                
                 <div id="exercise-preview-container" style="display:none; flex-direction:column; gap:8px; margin-bottom:12px; padding:10px; background:var(--bg-color); border-radius:10px;">
-                    <span id="preview-name" style="font-size:15px; font-weight:600;"></span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="machine-icon" id="preview-icon"></div>
+                        <span id="preview-name" style="font-size:15px; font-weight:600;"></span>
+                    </div>
                     <img id="preview-img" class="ex-img-preview" style="display:none;" />
                     <div id="preview-guide"></div>
                 </div>
+                
                 <div class="row">
                     <div>
                         <label style="font-size: 12px; color: var(--text-muted);">Peso (kg)</label>
@@ -116,6 +132,7 @@
                 </div>
                 <button class="btn btn-primary" onclick="addSet()">Guardar Serie</button>
             </div>
+            
             <div class="card">
                 <h2>Series Guardadas Hoy</h2>
                 <div id="current-sets-list"></div>
@@ -139,25 +156,25 @@
         <div id="history-list"></div>
     </div>
 
-    <!-- VISTA 3: AJUSTES, BIBLIOTECA E IMPORTACIÓN DE PDF -->
+    <!-- VISTA 3: BIBLIOTECA, PDF Y AJUSTES -->
     <div id="view-library" class="view container">
         <h1>Biblioteca y PDF</h1>
         
-        <!-- IMPORTADOR DE PDF -->
+        <!-- IMPORTADOR PDF -->
         <div class="card">
             <h2>📄 Importar Rutina desde PDF</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
-                Selecciona un PDF con tu tabla de ejercicios. Extraeremos automáticamente la información para añadirla a tu plan.
+                Sube tu PDF para extraer automáticamente los ejercicios a tu biblioteca.
             </p>
             <input type="file" id="pdf-file-input" accept="application/pdf">
             <button class="btn btn-primary" onclick="processPDF()">Procesar PDF</button>
             <div id="pdf-status" style="font-size:13px; margin-top:8px;"></div>
         </div>
 
-        <!-- CREAR EJERCICIO -->
+        <!-- AÑADIR EJERCICIO -->
         <div class="card">
             <h2>➕ Añadir Ejercicio Personalizado</h2>
-            <input type="text" id="new-ex-name" placeholder="Nombre del ejercicio (Ej. Prensa Inclinada)">
+            <input type="text" id="new-ex-name" placeholder="Nombre del ejercicio">
             <select id="new-ex-group">
                 <option value="Pecho">Pecho</option>
                 <option value="Espalda">Espalda</option>
@@ -167,9 +184,16 @@
                 <option value="Core">Core</option>
                 <option value="Cardio">Cardio</option>
             </select>
+            <select id="new-ex-icon">
+                <option value="leg">Ilustración: Pierna / Prensa</option>
+                <option value="chest">Ilustración: Pecho / Press</option>
+                <option value="back">Ilustración: Espalda / Remo</option>
+                <option value="arm">Ilustración: Brazos / Curl</option>
+                <option value="core">Ilustración: Core / Abdominal</option>
+                <option value="cardio">Ilustración: Cardio / Cinta</option>
+            </select>
             <input type="text" id="new-ex-guide" placeholder="Ajuste Matrix (Ej. Asiento en pivote 3)">
-            <label style="font-size:12px; color:var(--text-muted);">Imagen del Ejercicio (URL o Subir archivo):</label>
-            <input type="text" id="new-ex-img-url" placeholder="URL de la imagen (Opcional)">
+            <label style="font-size:12px; color:var(--text-muted);">Imagen / Foto del Ejercicio (Opcional):</label>
             <input type="file" id="new-ex-img-file" accept="image/*" onchange="convertImageToBase64(this)">
             <input type="hidden" id="new-ex-img-base64">
             <button class="btn btn-primary" onclick="addExercise()">Guardar en Biblioteca</button>
@@ -190,7 +214,7 @@
             <hr style="margin:15px 0; border:none; border-top:1px solid var(--border);">
             
             <h3>Crear Nuevo Usuario</h3>
-            <input type="text" id="new-user-name" placeholder="Nombre (Ej. Kike)">
+            <input type="text" id="new-user-name" placeholder="Nombre de usuario">
             <select id="new-user-days">
                 <option value="1">1 Día / Semana</option>
                 <option value="2">2 Días / Semana</option>
@@ -209,11 +233,13 @@
             <h2>Personalizar Rutina</h2>
             <select id="edit-day-select" onchange="loadDayToEdit()"></select>
             <input type="text" id="edit-day-title" placeholder="Título del día">
-            <label style="font-size:12px; color:var(--text-muted);">Añadir Ejercicio al Día:</label>
+            
+            <label style="font-size:12px; color:var(--text-muted);">Añadir Ejercicio desde Biblioteca Completa:</label>
             <select id="edit-add-ex-select"></select>
             <input type="text" id="edit-add-ex-detail" placeholder="Ej. 3x12 reps">
-            <button class="btn btn-secondary" onclick="addExerciseToDay()">+ Añadir Ejercicio</button>
-            <div id="edit-day-exercises-list"></div>
+            <button class="btn btn-secondary" onclick="addExerciseToDay()">+ Añadir Ejercicio al Día</button>
+            
+            <div id="edit-day-exercises-list" style="margin-top:10px;"></div>
             <div class="row" style="margin-top:15px;">
                 <button class="btn btn-primary" onclick="saveDayChanges()">Guardar Cambios</button>
                 <button class="btn btn-secondary" onclick="closeEditRoutineModal()">Cerrar</button>
@@ -231,21 +257,30 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+        const svgIcons = {
+            cardio: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#E3F2FD"/><path d="M18 48h28M22 48l4-22h12l4 22M24 26l2-10h12l2 10" stroke="#007AFF" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="32" cy="12" r="3" fill="#007AFF"/></svg>`,
+            leg: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#E8F5E9"/><path d="M16 44l12-16 12 4 8-16M16 48h32" stroke="#34C759" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="48" cy="16" r="4" fill="#34C759"/><rect x="12" y="38" width="10" height="10" rx="2" fill="#34C759"/></svg>`,
+            chest: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#FFEBEE"/><path d="M14 20v24M50 20v24M14 32h36" stroke="#FF3B30" stroke-width="4" stroke-linecap="round"/><rect x="22" y="24" width="20" height="16" rx="3" fill="#FF3B30"/></svg>`,
+            back: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#FFF3E0"/><path d="M12 20h40M20 20v24M44 20v24M20 36h24" stroke="#FF9500" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="44" r="5" fill="#FF9500"/></svg>`,
+            arm: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#F3E5F5"/><path d="M20 44l8-20 12 12 12-16" stroke="#AF52DE" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="20" cy="44" r="4" fill="#AF52DE"/><circle cx="52" cy="20" r="4" fill="#AF52DE"/></svg>`,
+            core: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#E0F7FA"/><circle cx="32" cy="32" r="18" stroke="#5AC8FA" stroke-width="4" fill="none"/><path d="M26 32l4 4 8-8" stroke="#5AC8FA" stroke-width="4" stroke-linecap="round"/></svg>`
+        };
+
         const baseExerciseLibrary = [
-            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: "" },
-            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste respaldo con pivote naranja.", img: "" },
-            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: "" },
-            { nombre: "Extensión de Gemelos", grupo: "Piernas", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: "" },
-            { nombre: "Extensión de Espalda", grupo: "Espalda", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste almohadilla de la espalda en posición cómoda.", img: "" },
-            { nombre: "Contracción Abdominal", grupo: "Core", guide: "⚙️ Ajuste la altura del asiento de forma que los brazos reposen por completo sobre los reposabrazos.", img: "" },
-            { nombre: "Press de Pecho Máquina", grupo: "Pecho", guide: "⚙️ Ajuste respaldo para alinear asas con parte frontal del pecho. Asiento a mitad de pecho.", img: "" },
-            { nombre: "Press de Hombro Máquina", grupo: "Hombros", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: "" },
-            { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", guide: "⚙️ Baje almohadillas hasta la parte superior de los muslos para evitar elevarse. 1➔2 Traccione hacia abajo.", img: "" },
-            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", guide: "⚙️ Ajuste almohadilla de pecho para alcance de asas. Asiento alineado con las asas.", img: "" }
+            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", icon: "arm", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: "" },
+            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste respaldo con pivote naranja.", img: "" },
+            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", icon: "leg", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: "" },
+            { nombre: "Extensión de Gemelos", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: "" },
+            { nombre: "Extensión de Espalda", grupo: "Espalda", icon: "back", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste almohadilla de la espalda en posición cómoda.", img: "" },
+            { nombre: "Contracción Abdominal", grupo: "Core", icon: "core", guide: "⚙️ Ajuste la altura del asiento de forma que los brazos reposen por completo sobre los reposabrazos.", img: "" },
+            { nombre: "Press de Pecho Máquina", grupo: "Pecho", icon: "chest", guide: "⚙️ Ajuste respaldo para alinear asas con parte frontal del pecho. Asiento a mitad de pecho.", img: "" },
+            { nombre: "Press de Hombro Máquina", grupo: "Hombros", icon: "chest", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: "" },
+            { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", icon: "back", guide: "⚙️ Baje almohadillas hasta la parte superior de los muslos para evitar elevarse. 1➔2 Traccione hacia abajo.", img: "" },
+            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", icon: "back", guide: "⚙️ Ajuste almohadilla de pecho para alcance de asas. Asiento alineado con las asas.", img: "" }
         ];
 
-        let users = JSON.parse(localStorage.getItem('app_matrix_v3_users')) || [];
-        let currentUserId = localStorage.getItem('app_matrix_v3_current_user') || null;
+        let users = JSON.parse(localStorage.getItem('app_matrix_v4_users')) || [];
+        let currentUserId = localStorage.getItem('app_matrix_v4_current_user') || null;
         let userData = {};
         let timerInterval, timerSeconds = 0, currentActiveDayKey = 'lunes';
 
@@ -253,7 +288,7 @@
             if (users.length === 0) {
                 const defaultUser = {
                     id: 'usr_' + Date.now(),
-                    name: 'Usuario Principal',
+                    name: 'Usuario 1',
                     planData: buildProfessionalPlan("4"),
                     exercises: [...baseExerciseLibrary],
                     workouts: []
@@ -267,8 +302,8 @@
         }
 
         function saveUsersToStorage() {
-            localStorage.setItem('app_matrix_v3_users', JSON.stringify(users));
-            localStorage.setItem('app_matrix_v3_current_user', currentUserId);
+            localStorage.setItem('app_matrix_v4_users', JSON.stringify(users));
+            localStorage.setItem('app_matrix_v4_current_user', currentUserId);
         }
 
         function loadCurrentUserData() {
@@ -327,9 +362,12 @@
                 const exData = userData.exercises.find(e => e.nombre === ex.name);
                 const guideText = exData && exData.guide ? `<div class="matrix-guide"><strong>Ajuste Máquina Matrix:</strong>${exData.guide}</div>` : '';
                 const imgHtml = exData && exData.img ? `<img src="${exData.img}" class="ex-img-preview" />` : '';
+                const iconSvg = svgIcons[exData ? exData.icon || 'leg' : 'leg'];
+                
                 return `
                 <div class="set-row">
-                    <div>
+                    <div class="machine-icon">${iconSvg}</div>
+                    <div style="flex:1;">
                         <strong style="font-size: 15px;">${ex.name}</strong><br>
                         <span style="color: var(--text-muted); font-size: 13px;">${ex.detail}</span>
                         ${guideText}
@@ -360,10 +398,12 @@
             const select = document.getElementById('exercise-select');
             const exObj = userData.exercises.find(e => e.nombre === select.value);
             const container = document.getElementById('exercise-preview-container');
+            const iconDiv = document.getElementById('preview-icon');
             const imgEl = document.getElementById('preview-img');
             
             if (exObj) {
                 container.style.display = 'flex';
+                iconDiv.innerHTML = svgIcons[exObj.icon || 'leg'];
                 document.getElementById('preview-name').innerText = exObj.nombre;
                 document.getElementById('preview-guide').innerHTML = exObj.guide ? `<div class="matrix-guide"><strong>Ajustes Matrix:</strong>${exObj.guide}</div>` : '';
                 if(exObj.img) {
@@ -391,7 +431,7 @@
             const list = document.getElementById('current-sets-list');
             const sets = (userData.currentWorkout && userData.currentWorkout.sets) || [];
             if (sets.length === 0) { list.innerHTML = "<p style='color: var(--text-muted); font-size: 13px;'>Sin series anotadas hoy.</p>"; return; }
-            list.innerHTML = sets.map((set, i) => `
+            list.innerHTML = sets.map((set) => `
                 <div class="set-row">
                     <div>
                         <strong>${set.exercise}</strong><br>
@@ -441,19 +481,17 @@
         function addExercise() {
             const name = document.getElementById('new-ex-name').value.trim();
             const group = document.getElementById('new-ex-group').value;
+            const icon = document.getElementById('new-ex-icon').value;
             const guide = document.getElementById('new-ex-guide').value.trim();
-            const imgUrl = document.getElementById('new-ex-img-url').value.trim();
             const imgBase64 = document.getElementById('new-ex-img-base64').value;
             
             if (!name) return alert("Escribe el nombre del ejercicio.");
             
-            const finalImg = imgBase64 || imgUrl || "";
-            userData.exercises.push({ nombre: name, grupo: group, guide: guide, img: finalImg });
+            userData.exercises.push({ nombre: name, grupo: group, icon: icon, guide: guide, img: imgBase64 });
             saveUsersToStorage();
             
             document.getElementById('new-ex-name').value = '';
             document.getElementById('new-ex-guide').value = '';
-            document.getElementById('new-ex-img-url').value = '';
             document.getElementById('new-ex-img-base64').value = '';
             document.getElementById('new-ex-img-file').value = '';
             
@@ -474,10 +512,19 @@
         }
 
         function updateExerciseDropdown() {
+            const buildOptions = () => {
+                const groups = [...new Set((userData.exercises || []).map(ex => ex.grupo))];
+                return groups.map(g => {
+                    const exs = userData.exercises.filter(ex => ex.grupo === g);
+                    return `<optgroup label="${g}">${exs.map(ex => `<option value="${ex.nombre}">${ex.nombre}</option>`).join('')}</optgroup>`;
+                }).join('');
+            };
+
             const select = document.getElementById('exercise-select');
-            select.innerHTML = (userData.exercises || []).map(ex => `<option value="${ex.nombre}">${ex.nombre}</option>`).join('');
+            select.innerHTML = buildOptions();
+            
             const editSelect = document.getElementById('edit-add-ex-select');
-            if(editSelect) editSelect.innerHTML = select.innerHTML;
+            if(editSelect) editSelect.innerHTML = buildOptions();
         }
 
         function updateChartDropdown() {
@@ -505,14 +552,16 @@
         function renderLibrary() {
             document.getElementById('exercise-list').innerHTML = (userData.exercises || []).map((ex, i) => `
                 <div class="set-row">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div>
-                            <strong>${ex.nombre}</strong> <small style="color:var(--text-muted);">(${ex.grupo})</small>
+                    <div class="machine-icon">${svgIcons[ex.icon || 'leg']}</div>
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>${ex.nombre}</strong>
+                            <button class="btn-small btn-danger" onclick="deleteExercise(${i})">X</button>
                         </div>
-                        <button class="btn-small btn-danger" onclick="deleteExercise(${i})">X</button>
+                        <small style="color:var(--text-muted);">${ex.grupo}</small>
+                        ${ex.guide ? `<div class="matrix-guide">${ex.guide}</div>` : ''}
+                        ${ex.img ? `<img src="${ex.img}" class="ex-img-preview" />` : ''}
                     </div>
-                    ${ex.guide ? `<div class="matrix-guide">${ex.guide}</div>` : ''}
-                    ${ex.img ? `<img src="${ex.img}" class="ex-img-preview" />` : ''}
                 </div>`).join('');
         }
 
@@ -547,13 +596,12 @@
                     fullText += strings.join(" ") + "\n";
                 }
                 
-                // Extraer posibles ejercicios por líneas
                 const lines = fullText.split("\n").map(l => l.trim()).filter(l => l.length > 3);
                 let addedCount = 0;
                 
                 lines.forEach(line => {
                     if(!userData.exercises.some(e => e.nombre.toLowerCase() === line.toLowerCase()) && line.length < 50) {
-                        userData.exercises.push({ nombre: line, grupo: "General", guide: "Importado desde PDF", img: "" });
+                        userData.exercises.push({ nombre: line, grupo: "General", icon: "leg", guide: "Importado desde PDF", img: "" });
                         addedCount++;
                     }
                 });
@@ -622,6 +670,7 @@
         function openEditRoutineModal() {
             const daySelect = document.getElementById('edit-day-select');
             daySelect.innerHTML = Object.keys(userData.planData).map(k => `<option value="${k}">${k.toUpperCase()}</option>`).join('');
+            updateExerciseDropdown();
             document.getElementById('edit-modal').style.display = 'block';
             loadDayToEdit();
         }
@@ -638,7 +687,7 @@
             const container = document.getElementById('edit-day-exercises-list');
             container.innerHTML = exList.map((ex, i) => `
                 <div class="set-row">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
                         <div>
                             <strong>${ex.name}</strong><br>
                             <small style="color:var(--text-muted);">${ex.detail}</small>
@@ -653,6 +702,8 @@
             const exName = document.getElementById('edit-add-ex-select').value;
             const detail = document.getElementById('edit-add-ex-detail').value.trim() || "3x12 reps";
             
+            if(!exName) return alert("Selecciona un ejercicio.");
+
             userData.planData[key].exercises.push({ name: exName, detail: detail });
             renderEditDayExercisesList(userData.planData[key].exercises);
             document.getElementById('edit-add-ex-detail').value = '';
