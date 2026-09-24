@@ -41,7 +41,7 @@
         .day-btn { flex: 0 0 auto; padding: 10px 16px; border-radius: 20px; background-color: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; }
         .day-btn.active { background-color: var(--accent); color: white; border-color: var(--accent); }
         
-        .ex-img-preview { width: 100%; max-height: 220px; object-fit: contain; background: #000; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
+        .ex-img-preview { width: 100%; max-height: 220px; object-fit: contain; background: #1a1a1a; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
         .matrix-guide { background: rgba(255, 149, 0, 0.12); border-left: 4px solid var(--matrix-orange); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 13px; line-height: 1.4; }
         .matrix-guide strong { color: var(--matrix-orange); display: block; margin-bottom: 2px; }
         
@@ -249,38 +249,38 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // Paleta de colores para las distintas líneas del gráfico de evolución
         const chartColors = ["#007AFF", "#FF9500", "#34C759", "#FF3B30", "#AF52DE", "#5AC8FA", "#FFCC00", "#E040FB", "#00E676", "#FF6D00"];
         let disabledSeries = {};
 
-        const realMatrixImages = {
-            biceps: "https://lh3.googleusercontent.com/d/1yZ-b88j4O8bY2u_biceps_matrix",
-            curl_piernas: "https://lh3.googleusercontent.com/d/1yZ-curl_piernas_sentado",
-            leg_extension: "https://lh3.googleusercontent.com/d/1yZ-leg_extension",
-            gemelos: "https://lh3.googleusercontent.com/d/1yZ-extension_gemelos",
-            espalda_ext: "https://lh3.googleusercontent.com/d/1yZ-extension_espalda",
-            abdominal: "https://lh3.googleusercontent.com/d/1yZ-contraccion_abdominal",
-            pecho: "https://lh3.googleusercontent.com/d/1yZ-press_de_pecho",
-            hombro: "https://lh3.googleusercontent.com/d/1yZ-press_de_hombro",
-            jalon: "https://lh3.googleusercontent.com/d/1yZ-jalon_al_pecho",
-            remo: "https://lh3.googleusercontent.com/d/1yZ-remo_sentado"
+        // Ilustraciones SVG auto-contenidas para las máquinas Matrix Pro
+        const matrixSvg = {
+            biceps: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>CURL DE BÍCEPS MATRIX</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='120' cy='92' r='20' fill='%23FF9500'/><text x='120' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M180 110 L230 75' stroke='%23FF9500' stroke-width='6' stroke-linecap='round'/><circle cx='280' cy='92' r='20' fill='%2334C759'/><text x='280' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            curl_piernas: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>CURL DE PIERNAS SENTADO</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23007AFF'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M200 75 L200 110' stroke='%2334C759' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%2334C759'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            leg_extension: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>LEG EXTENSION (CUÁDRICEPS)</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23007AFF'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M190 105 L230 75' stroke='%2334C759' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%2334C759'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            gemelos: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>EXTENSIÓN DE GEMELOS</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23007AFF'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M190 92 L230 92' stroke='%23FF9500' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%2334C759'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            espalda_ext: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>EXTENSIÓN DE ESPALDA</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%2334C759'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M180 80 C210 60, 230 110, 250 90' stroke='%2334C759' stroke-width='5' stroke-dasharray='4' fill='none'/><circle cx='270' cy='92' r='20' fill='%2334C759'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            abdominal: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>CONTRACCIÓN ABDOMINAL</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%2334C759'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M190 70 L210 110' stroke='%2334C759' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%2334C759'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            pecho: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>PRESS DE PECHO MATRIX</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23FF3B30'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M180 92 L230 92' stroke='%23FF3B30' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%23FF3B30'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            hombro: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>PRESS DE HOMBRO MATRIX</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23FF9500'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M190 110 L220 70' stroke='%23FF9500' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%23FF9500'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            jalon: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>JALÓN AL PECHO MATRIX</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23FF9500'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M220 70 L190 110' stroke='%23FF9500' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%23FF9500'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>",
+            remo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'><rect width='400' height='160' fill='%23111827' rx='10'/><text x='200' y='35' fill='%23FF9500' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>MÁQUINA DE REMO SENTADO</text><rect x='80' y='55' width='240' height='75' fill='%231F2937' rx='8' stroke='%23374151' stroke-width='2'/><circle cx='130' cy='92' r='20' fill='%23FF9500'/><text x='130' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>1</text><path d='M230 92 L180 92' stroke='%23FF9500' stroke-width='6' stroke-linecap='round'/><circle cx='270' cy='92' r='20' fill='%23FF9500'/><text x='270' y='98' fill='white' font-weight='bold' font-size='16' text-anchor='middle'>2</text></svg>"
         };
 
         const baseExerciseLibrary = [
-            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: realMatrixImages.biceps },
-            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: realMatrixImages.curl_piernas },
-            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: realMatrixImages.leg_extension },
-            { nombre: "Extensión de Gemelos", grupo: "Piernas", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: realMatrixImages.gemelos },
-            { nombre: "Extensión de Espalda", grupo: "Espalda", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste la almohadilla de la espalda en una posición de inicio cómoda.", img: realMatrixImages.espalda_ext },
-            { nombre: "Contracción Abdominal", grupo: "Core", guide: "⚙️ Ajuste la altura del asiento de forma que la parte superior de los brazos se pose por completo sobre los reposabrazos.", img: realMatrixImages.abdominal },
-            { nombre: "Press de Pecho Máquina", grupo: "Pecho", guide: "⚙️ Ajuste el respaldo para alinear las asas con la parte frontal del pecho. Ajuste la altura del asiento a la mitad del pecho.", img: realMatrixImages.pecho },
-            { nombre: "Press de Hombro Máquina", grupo: "Hombros", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: realMatrixImages.hombro },
-            { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", guide: "⚙️ Baje las almohadillas hasta la parte superior de los muslos para evitar que el cuerpo se eleve. Ajuste la altura del asiento.", img: realMatrixImages.jalon },
-            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", guide: "⚙️ Ajuste la almohadilla del pecho de forma que tenga las asas a su alcance. Ajuste el asiento para alinear el pecho con las asas.", img: realMatrixImages.remo }
+            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: matrixSvg.biceps },
+            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: matrixSvg.curl_piernas },
+            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: matrixSvg.leg_extension },
+            { nombre: "Extensión de Gemelos", grupo: "Piernas", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: matrixSvg.gemelos },
+            { nombre: "Extensión de Espalda", grupo: "Espalda", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste la almohadilla de la espalda en una posición de inicio cómoda.", img: matrixSvg.espalda_ext },
+            { nombre: "Contracción Abdominal", grupo: "Core", guide: "⚙️ Ajuste la altura del asiento de forma que la parte superior de los brazos se pose por completo sobre los reposabrazos.", img: matrixSvg.abdominal },
+            { nombre: "Press de Pecho Máquina", grupo: "Pecho", guide: "⚙️ Ajuste el respaldo para alinear las asas con la parte frontal del pecho. Ajuste la altura del asiento a la mitad del pecho.", img: matrixSvg.pecho },
+            { nombre: "Press de Hombro Máquina", grupo: "Hombros", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: matrixSvg.hombro },
+            { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", guide: "⚙️ Baje las almohadillas hasta la parte superior de los muslos para evitar que el cuerpo se eleve. Ajuste la altura del asiento.", img: matrixSvg.jalon },
+            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", guide: "⚙️ Ajuste la almohadilla del pecho de forma que tenga las asas a su alcance. Ajuste el asiento para alinear el pecho con las asas.", img: matrixSvg.remo }
         ];
 
-        let users = JSON.parse(localStorage.getItem('app_matrix_v7_users')) || [];
-        let currentUserId = localStorage.getItem('app_matrix_v7_current_user') || null;
+        let users = JSON.parse(localStorage.getItem('app_matrix_v8_users')) || [];
+        let currentUserId = localStorage.getItem('app_matrix_v8_current_user') || null;
         let userData = {};
         let timerInterval, timerSeconds = 0, currentActiveDayKey = 'lunes';
 
@@ -302,8 +302,8 @@
         }
 
         function saveUsersToStorage() {
-            localStorage.setItem('app_matrix_v7_users', JSON.stringify(users));
-            localStorage.setItem('app_matrix_v7_current_user', currentUserId);
+            localStorage.setItem('app_matrix_v8_users', JSON.stringify(users));
+            localStorage.setItem('app_matrix_v8_current_user', currentUserId);
         }
 
         function loadCurrentUserData() {
@@ -536,7 +536,6 @@
                 return;
             }
 
-            // Agrupar los pesos máximos por ejercicio y por sesión
             const exerciseData = {};
             workouts.forEach((w, sessionIdx) => {
                 w.sets.forEach(s => {
@@ -553,7 +552,6 @@
                 return;
             }
 
-            // Calcular el peso máximo global para la escala del eje Y
             let maxGlobalWeight = 10;
             exerciseNames.forEach(name => {
                 exerciseData[name].forEach(pt => {
@@ -563,7 +561,6 @@
 
             const maxSessions = Math.max(...exerciseNames.map(n => exerciseData[n].length), 1);
             
-            // Generar las líneas en SVG para cada ejercicio
             let svgPolylines = "";
             let legendHtml = "";
 
@@ -571,7 +568,6 @@
                 const color = chartColors[idx % chartColors.length];
                 const isDisabled = disabledSeries[name];
 
-                // Crear elemento en la leyenda
                 legendHtml += `
                     <div class="legend-item ${isDisabled ? 'disabled':''}" onclick="toggleSeries('${name}')">
                         <div class="legend-color" style="background:${color};"></div>
@@ -591,7 +587,6 @@
                         <polyline fill="none" stroke="${color}" stroke-width="3" points="${pointsStr}" />
                     `;
                     
-                    // Dibujar puntos decorativos en las coordenadas
                     pts.forEach((pt, i) => {
                         const x = (i / Math.max(maxSessions - 1, 1)) * 260 + 20;
                         const y = 190 - (pt.weight / maxGlobalWeight) * 160;
