@@ -267,20 +267,43 @@
         };
 
         const baseExerciseLibrary = [
-            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", icon: "arm", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: "" },
-            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste respaldo con pivote naranja.", img: "" },
-            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", icon: "leg", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: "" },
-            { nombre: "Extensión de Gemelos", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: "" },
-            { nombre: "Extensión de Espalda", grupo: "Espalda", icon: "back", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste almohadilla de la espalda en posición cómoda.", img: "" },
-            { nombre: "Contracción Abdominal", grupo: "Core", icon: "core", guide: "⚙️ Ajuste la altura del asiento de forma que los brazos reposen por completo sobre los reposabrazos.", img: "" },
+            // PECHO
             { nombre: "Press de Pecho Máquina", grupo: "Pecho", icon: "chest", guide: "⚙️ Ajuste respaldo para alinear asas con parte frontal del pecho. Asiento a mitad de pecho.", img: "" },
-            { nombre: "Press de Hombro Máquina", grupo: "Hombros", icon: "chest", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: "" },
+            { nombre: "Pec Deck / Aperturas Pecho", grupo: "Pecho", icon: "chest", guide: "⚙️ Ajuste los brazos de la máquina a la amplitud de hombros. Asiento a altura del pecho.", img: "" },
+            { nombre: "Cruce de Poleas", grupo: "Pecho", guide: "⚙️ Coloque las poleas en la posición superior o inferior según la variante deseada.", img: "" },
+            { nombre: "Press Inclinado con Mancuernas", grupo: "Pecho", icon: "chest", guide: "⚙️ Banco a 30-45°. Controle la bajada hasta el nivel del tórax.", img: "" },
+
+            // ESPALDA
             { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", icon: "back", guide: "⚙️ Baje almohadillas hasta la parte superior de los muslos para evitar elevarse. 1➔2 Traccione hacia abajo.", img: "" },
-            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", icon: "back", guide: "⚙️ Ajuste almohadilla de pecho para alcance de asas. Asiento alineado con las asas.", img: "" }
+            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", icon: "back", guide: "⚙️ Ajuste almohadilla de pecho para alcance de asas. Asiento alineado con las asas.", img: "" },
+            { nombre: "Extensión de Espalda", grupo: "Espalda", icon: "back", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste almohadilla de la espalda en posición cómoda.", img: "" },
+            { nombre: "Remo Gironda en Polea", grupo: "Espalda", icon: "back", guide: "⚙️ Mantenga la espalda recta y lleve el agarre hacia el abdomen bajo.", img: "" },
+
+            // PIERNAS
+            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", icon: "leg", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: "" },
+            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste respaldo con pivote naranja.", img: "" },
+            { nombre: "Prensa de Piernas Inclinada", grupo: "Piernas", icon: "leg", guide: "⚙️ Posicione los pies a la anchura de caderas en la plataforma. Suelte los topes de seguridad antes de bajar.", img: "" },
+            { nombre: "Extensión de Gemelos", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: "" },
+            { nombre: "Prensa Abductora / Adductora", grupo: "Piernas", icon: "leg", guide: "⚙️ Seleccione el rango de apertura con el pivote naranja según la zona a trabajar.", img: "" },
+
+            // HOMBROS
+            { nombre: "Press de Hombro Máquina", grupo: "Hombros", icon: "chest", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: "" },
+            { nombre: "Elevaciones Laterales con Mancuernas", grupo: "Hombros", icon: "chest", guide: "⚙️ Codos ligeramente flexionados, eleve hasta la altura de los hombros de forma controlada.", img: "" },
+            { nombre: "Pájaro en Máquina / Deltoides Posterior", grupo: "Hombros", icon: "chest", guide: "⚙️ Ajuste los brazos hacia adelante. Siéntese de cara a la máquina.", img: "" },
+
+            // BRAZOS
+            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", icon: "arm", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: "" },
+            { nombre: "Extensión de Tríceps en Polea", grupo: "Brazos", icon: "arm", guide: "⚙️ Agarre cuerda o barra. Mantenga los codos pegados al costado durante el movimiento.", img: "" },
+            { nombre: "Curl de Bíceps en Polea Baja", grupo: "Brazos", icon: "arm", guide: "⚙️ Agarre barra recta o Z. Mantenga cuerpo erguido.", img: "" },
+
+            // CORE & CARDIO
+            { nombre: "Contracción Abdominal", grupo: "Core", icon: "core", guide: "⚙️ Ajuste la altura del asiento de forma que los brazos reposen por completo sobre los reposabrazos.", img: "" },
+            { nombre: "Cinta de Correr", grupo: "Cardio", icon: "cardio", guide: "⚙️ Seleccione la velocidad e inclinación deseadas.", img: "" },
+            { nombre: "Elíptica", grupo: "Cardio", icon: "cardio", guide: "⚙️ Mantenga la postura erguida y agarre los bastones móviles.", img: "" }
         ];
 
-        let users = JSON.parse(localStorage.getItem('app_matrix_v4_users')) || [];
-        let currentUserId = localStorage.getItem('app_matrix_v4_current_user') || null;
+        let users = JSON.parse(localStorage.getItem('app_matrix_v5_users')) || [];
+        let currentUserId = localStorage.getItem('app_matrix_v5_current_user') || null;
         let userData = {};
         let timerInterval, timerSeconds = 0, currentActiveDayKey = 'lunes';
 
@@ -302,8 +325,8 @@
         }
 
         function saveUsersToStorage() {
-            localStorage.setItem('app_matrix_v4_users', JSON.stringify(users));
-            localStorage.setItem('app_matrix_v4_current_user', currentUserId);
+            localStorage.setItem('app_matrix_v5_users', JSON.stringify(users));
+            localStorage.setItem('app_matrix_v5_current_user', currentUserId);
         }
 
         function loadCurrentUserData() {
@@ -326,6 +349,7 @@
                 lunes: { title: "Día 1: Piernas Matrix", exercises: [
                     { name: "Leg Extension (Cuádriceps)", detail: "3x12 reps" },
                     { name: "Curl de Piernas Sentado", detail: "3x12 reps" },
+                    { name: "Prensa de Piernas Inclinada", detail: "3x10 reps" },
                     { name: "Extensión de Gemelos", detail: "3x15 reps" }
                 ]},
                 martes: { title: "Día 2: Torso Matrix", exercises: [
@@ -336,6 +360,7 @@
                 ]},
                 jueves: { title: "Día 3: Espalda & Core", exercises: [
                     { name: "Máquina de Remo Sentado", detail: "3x12 reps" },
+                    { name: "Remo Gironda en Polea", detail: "3x12 reps" },
                     { name: "Extensión de Espalda", detail: "3x12 reps" },
                     { name: "Contracción Abdominal", detail: "3x15 reps" }
                 ]}
