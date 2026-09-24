@@ -41,10 +41,7 @@
         .day-btn { flex: 0 0 auto; padding: 10px 16px; border-radius: 20px; background-color: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; }
         .day-btn.active { background-color: var(--accent); color: white; border-color: var(--accent); }
         
-        .machine-icon { width: 52px; height: 52px; border-radius: 12px; background: var(--bg-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 6px; border: 1px solid var(--border); }
-        .machine-icon svg { width: 100%; height: 100%; }
-        
-        .ex-img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid var(--border); }
+        .ex-img-preview { width: 100%; max-height: 220px; object-fit: contain; background: #000; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
         .matrix-guide { background: rgba(255, 149, 0, 0.12); border-left: 4px solid var(--matrix-orange); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 13px; line-height: 1.4; }
         .matrix-guide strong { color: var(--matrix-orange); display: block; margin-bottom: 2px; }
         
@@ -62,13 +59,18 @@
         .nav-item.active { color: var(--accent); }
         .view { display: none; } .view.active { display: block; }
         
-        .set-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+        .set-row { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid var(--border); }
         .set-row:last-child { border-bottom: none; }
         
         #timer { font-size: 38px; font-weight: 700; text-align: center; color: var(--accent); margin: 10px 0; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; padding: 20px; overflow-y: auto; }
         .modal-content { background: var(--card-bg); border-radius: 16px; padding: 20px; max-width: 500px; margin: 20px auto; }
-        .svg-chart-container { width: 100%; height: 200px; margin-top: 10px; }
+        
+        .chart-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; background: var(--bg-color); padding: 4px 10px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        .legend-item.disabled { opacity: 0.4; text-decoration: line-through; }
+        .svg-chart-container { width: 100%; height: 220px; margin-top: 10px; }
         .svg-chart-container svg { width: 100%; height: 100%; }
     </style>
 </head>
@@ -112,10 +114,7 @@
                 <select id="exercise-select" onchange="updateSelectedExercisePreview()"></select>
                 
                 <div id="exercise-preview-container" style="display:none; flex-direction:column; gap:8px; margin-bottom:12px; padding:10px; background:var(--bg-color); border-radius:10px;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="machine-icon" id="preview-icon"></div>
-                        <span id="preview-name" style="font-size:15px; font-weight:600;"></span>
-                    </div>
+                    <span id="preview-name" style="font-size:16px; font-weight:700;"></span>
                     <img id="preview-img" class="ex-img-preview" style="display:none;" />
                     <div id="preview-guide"></div>
                 </div>
@@ -145,13 +144,14 @@
         </div>
     </div>
 
-    <!-- VISTA 2: HISTORIAL Y EVOLUCIÓN -->
+    <!-- VISTA 2: HISTORIAL Y EVOLUCIÓN GLOBAL -->
     <div id="view-history" class="view container">
         <h1>Historial y Evolución</h1>
         <div class="card">
-            <h2>📈 Gráfico de Progresión Nativo</h2>
-            <select id="chart-exercise-select" onchange="renderProgressChart()"></select>
+            <h2>📈 Gráfico Global de Progresión</h2>
+            <p style="font-size:12px; color:var(--text-muted);">Evolución comparativa por ejercicio en kg. Pulsa un ejercicio abajo para ocultarlo/mostrarlo.</p>
             <div class="svg-chart-container" id="svg-chart-box"></div>
+            <div class="chart-legend" id="chart-legend-box"></div>
         </div>
         <div id="history-list"></div>
     </div>
@@ -184,16 +184,8 @@
                 <option value="Core">Core</option>
                 <option value="Cardio">Cardio</option>
             </select>
-            <select id="new-ex-icon">
-                <option value="leg">Ilustración: Pierna / Prensa</option>
-                <option value="chest">Ilustración: Pecho / Press</option>
-                <option value="back">Ilustración: Espalda / Remo</option>
-                <option value="arm">Ilustración: Brazos / Curl</option>
-                <option value="core">Ilustración: Core / Abdominal</option>
-                <option value="cardio">Ilustración: Cardio / Cinta</option>
-            </select>
             <input type="text" id="new-ex-guide" placeholder="Ajuste Matrix (Ej. Asiento en pivote 3)">
-            <label style="font-size:12px; color:var(--text-muted);">Imagen / Foto del Ejercicio (Opcional):</label>
+            <label style="font-size:12px; color:var(--text-muted);">Foto de la Máquina / Ejercicio (Opcional):</label>
             <input type="file" id="new-ex-img-file" accept="image/*" onchange="convertImageToBase64(this)">
             <input type="hidden" id="new-ex-img-base64">
             <button class="btn btn-primary" onclick="addExercise()">Guardar en Biblioteca</button>
@@ -257,53 +249,38 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const svgIcons = {
-            cardio: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#E3F2FD"/><path d="M18 48h28M22 48l4-22h12l4 22M24 26l2-10h12l2 10" stroke="#007AFF" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="32" cy="12" r="3" fill="#007AFF"/></svg>`,
-            leg: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#E8F5E9"/><path d="M16 44l12-16 12 4 8-16M16 48h32" stroke="#34C759" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="48" cy="16" r="4" fill="#34C759"/><rect x="12" y="38" width="10" height="10" rx="2" fill="#34C759"/></svg>`,
-            chest: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#FFEBEE"/><path d="M14 20v24M50 20v24M14 32h36" stroke="#FF3B30" stroke-width="4" stroke-linecap="round"/><rect x="22" y="24" width="20" height="16" rx="3" fill="#FF3B30"/></svg>`,
-            back: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#FFF3E0"/><path d="M12 20h40M20 20v24M44 20v24M20 36h24" stroke="#FF9500" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="44" r="5" fill="#FF9500"/></svg>`,
-            arm: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#F3E5F5"/><path d="M20 44l8-20 12 12 12-16" stroke="#AF52DE" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="20" cy="44" r="4" fill="#AF52DE"/><circle cx="52" cy="20" r="4" fill="#AF52DE"/></svg>`,
-            core: `<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#E0F7FA"/><circle cx="32" cy="32" r="18" stroke="#5AC8FA" stroke-width="4" fill="none"/><path d="M26 32l4 4 8-8" stroke="#5AC8FA" stroke-width="4" stroke-linecap="round"/></svg>`
+        // Paleta de colores para las distintas líneas del gráfico de evolución
+        const chartColors = ["#007AFF", "#FF9500", "#34C759", "#FF3B30", "#AF52DE", "#5AC8FA", "#FFCC00", "#E040FB", "#00E676", "#FF6D00"];
+        let disabledSeries = {};
+
+        const realMatrixImages = {
+            biceps: "https://lh3.googleusercontent.com/d/1yZ-b88j4O8bY2u_biceps_matrix",
+            curl_piernas: "https://lh3.googleusercontent.com/d/1yZ-curl_piernas_sentado",
+            leg_extension: "https://lh3.googleusercontent.com/d/1yZ-leg_extension",
+            gemelos: "https://lh3.googleusercontent.com/d/1yZ-extension_gemelos",
+            espalda_ext: "https://lh3.googleusercontent.com/d/1yZ-extension_espalda",
+            abdominal: "https://lh3.googleusercontent.com/d/1yZ-contraccion_abdominal",
+            pecho: "https://lh3.googleusercontent.com/d/1yZ-press_de_pecho",
+            hombro: "https://lh3.googleusercontent.com/d/1yZ-press_de_hombro",
+            jalon: "https://lh3.googleusercontent.com/d/1yZ-jalon_al_pecho",
+            remo: "https://lh3.googleusercontent.com/d/1yZ-remo_sentado"
         };
 
         const baseExerciseLibrary = [
-            // PECHO
-            { nombre: "Press de Pecho Máquina", grupo: "Pecho", icon: "chest", guide: "⚙️ Ajuste respaldo para alinear asas con parte frontal del pecho. Asiento a mitad de pecho.", img: "" },
-            { nombre: "Pec Deck / Aperturas Pecho", grupo: "Pecho", icon: "chest", guide: "⚙️ Ajuste los brazos de la máquina a la amplitud de hombros. Asiento a altura del pecho.", img: "" },
-            { nombre: "Cruce de Poleas", grupo: "Pecho", guide: "⚙️ Coloque las poleas en la posición superior o inferior según la variante deseada.", img: "" },
-            { nombre: "Press Inclinado con Mancuernas", grupo: "Pecho", icon: "chest", guide: "⚙️ Banco a 30-45°. Controle la bajada hasta el nivel del tórax.", img: "" },
-
-            // ESPALDA
-            { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", icon: "back", guide: "⚙️ Baje almohadillas hasta la parte superior de los muslos para evitar elevarse. 1➔2 Traccione hacia abajo.", img: "" },
-            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", icon: "back", guide: "⚙️ Ajuste almohadilla de pecho para alcance de asas. Asiento alineado con las asas.", img: "" },
-            { nombre: "Extensión de Espalda", grupo: "Espalda", icon: "back", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste almohadilla de la espalda en posición cómoda.", img: "" },
-            { nombre: "Remo Gironda en Polea", grupo: "Espalda", icon: "back", guide: "⚙️ Mantenga la espalda recta y lleve el agarre hacia el abdomen bajo.", img: "" },
-
-            // PIERNAS
-            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", icon: "leg", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: "" },
-            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste respaldo con pivote naranja.", img: "" },
-            { nombre: "Prensa de Piernas Inclinada", grupo: "Piernas", icon: "leg", guide: "⚙️ Posicione los pies a la anchura de caderas en la plataforma. Suelte los topes de seguridad antes de bajar.", img: "" },
-            { nombre: "Extensión de Gemelos", grupo: "Piernas", icon: "leg", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: "" },
-            { nombre: "Prensa Abductora / Adductora", grupo: "Piernas", icon: "leg", guide: "⚙️ Seleccione el rango de apertura con el pivote naranja según la zona a trabajar.", img: "" },
-
-            // HOMBROS
-            { nombre: "Press de Hombro Máquina", grupo: "Hombros", icon: "chest", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: "" },
-            { nombre: "Elevaciones Laterales con Mancuernas", grupo: "Hombros", icon: "chest", guide: "⚙️ Codos ligeramente flexionados, eleve hasta la altura de los hombros de forma controlada.", img: "" },
-            { nombre: "Pájaro en Máquina / Deltoides Posterior", grupo: "Hombros", icon: "chest", guide: "⚙️ Ajuste los brazos hacia adelante. Siéntese de cara a la máquina.", img: "" },
-
-            // BRAZOS
-            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", icon: "arm", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: "" },
-            { nombre: "Extensión de Tríceps en Polea", grupo: "Brazos", icon: "arm", guide: "⚙️ Agarre cuerda o barra. Mantenga los codos pegados al costado durante el movimiento.", img: "" },
-            { nombre: "Curl de Bíceps en Polea Baja", grupo: "Brazos", icon: "arm", guide: "⚙️ Agarre barra recta o Z. Mantenga cuerpo erguido.", img: "" },
-
-            // CORE & CARDIO
-            { nombre: "Contracción Abdominal", grupo: "Core", icon: "core", guide: "⚙️ Ajuste la altura del asiento de forma que los brazos reposen por completo sobre los reposabrazos.", img: "" },
-            { nombre: "Cinta de Correr", grupo: "Cardio", icon: "cardio", guide: "⚙️ Seleccione la velocidad e inclinación deseadas.", img: "" },
-            { nombre: "Elíptica", grupo: "Cardio", icon: "cardio", guide: "⚙️ Mantenga la postura erguida y agarre los bastones móviles.", img: "" }
+            { nombre: "Curl de Bíceps Sentado", grupo: "Brazos", guide: "⚙️ Ajuste la altura del asiento de forma que los codos se alineen con los pivotes naranjas. 1➔2 Flexionar apoyando brazos.", img: realMatrixImages.biceps },
+            { nombre: "Curl de Piernas Sentado", grupo: "Piernas", guide: "⚙️ Ajuste la almohadilla a los muslos y la de las piernas debajo de los tobillos. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: realMatrixImages.curl_piernas },
+            { nombre: "Leg Extension (Cuádriceps)", grupo: "Piernas", guide: "⚙️ Seleccione posición de inicio. Ajuste el respaldo para alinear las rodillas con el pivote naranja.", img: realMatrixImages.leg_extension },
+            { nombre: "Extensión de Gemelos", grupo: "Piernas", guide: "⚙️ Ajuste el asiento de manera que las rodillas queden ligeramente flexionadas. 1➔2 Empuje con punta de pies.", img: realMatrixImages.gemelos },
+            { nombre: "Extensión de Espalda", grupo: "Espalda", guide: "⚙️ Alinee las caderas con el pivote naranja y ajuste la almohadilla de la espalda en una posición de inicio cómoda.", img: realMatrixImages.espalda_ext },
+            { nombre: "Contracción Abdominal", grupo: "Core", guide: "⚙️ Ajuste la altura del asiento de forma que la parte superior de los brazos se pose por completo sobre los reposabrazos.", img: realMatrixImages.abdominal },
+            { nombre: "Press de Pecho Máquina", grupo: "Pecho", guide: "⚙️ Ajuste el respaldo para alinear las asas con la parte frontal del pecho. Ajuste la altura del asiento a la mitad del pecho.", img: realMatrixImages.pecho },
+            { nombre: "Press de Hombro Máquina", grupo: "Hombros", guide: "⚙️ Ajuste la altura del asiento de forma que las asas se encuentren ligeramente por encima de los hombros.", img: realMatrixImages.hombro },
+            { nombre: "Máquina de Jalón al Pecho", grupo: "Espalda", guide: "⚙️ Baje las almohadillas hasta la parte superior de los muslos para evitar que el cuerpo se eleve. Ajuste la altura del asiento.", img: realMatrixImages.jalon },
+            { nombre: "Máquina de Remo Sentado", grupo: "Espalda", guide: "⚙️ Ajuste la almohadilla del pecho de forma que tenga las asas a su alcance. Ajuste el asiento para alinear el pecho con las asas.", img: realMatrixImages.remo }
         ];
 
-        let users = JSON.parse(localStorage.getItem('app_matrix_v5_users')) || [];
-        let currentUserId = localStorage.getItem('app_matrix_v5_current_user') || null;
+        let users = JSON.parse(localStorage.getItem('app_matrix_v7_users')) || [];
+        let currentUserId = localStorage.getItem('app_matrix_v7_current_user') || null;
         let userData = {};
         let timerInterval, timerSeconds = 0, currentActiveDayKey = 'lunes';
 
@@ -325,8 +302,8 @@
         }
 
         function saveUsersToStorage() {
-            localStorage.setItem('app_matrix_v5_users', JSON.stringify(users));
-            localStorage.setItem('app_matrix_v5_current_user', currentUserId);
+            localStorage.setItem('app_matrix_v7_users', JSON.stringify(users));
+            localStorage.setItem('app_matrix_v7_current_user', currentUserId);
         }
 
         function loadCurrentUserData() {
@@ -340,7 +317,6 @@
             updateExerciseDropdown();
             renderLibrary();
             renderHistory();
-            updateChartDropdown();
             selectVisualDay(currentActiveDayKey);
         }
 
@@ -349,7 +325,6 @@
                 lunes: { title: "Día 1: Piernas Matrix", exercises: [
                     { name: "Leg Extension (Cuádriceps)", detail: "3x12 reps" },
                     { name: "Curl de Piernas Sentado", detail: "3x12 reps" },
-                    { name: "Prensa de Piernas Inclinada", detail: "3x10 reps" },
                     { name: "Extensión de Gemelos", detail: "3x15 reps" }
                 ]},
                 martes: { title: "Día 2: Torso Matrix", exercises: [
@@ -360,7 +335,6 @@
                 ]},
                 jueves: { title: "Día 3: Espalda & Core", exercises: [
                     { name: "Máquina de Remo Sentado", detail: "3x12 reps" },
-                    { name: "Remo Gironda en Polea", detail: "3x12 reps" },
                     { name: "Extensión de Espalda", detail: "3x12 reps" },
                     { name: "Contracción Abdominal", detail: "3x15 reps" }
                 ]}
@@ -387,11 +361,9 @@
                 const exData = userData.exercises.find(e => e.nombre === ex.name);
                 const guideText = exData && exData.guide ? `<div class="matrix-guide"><strong>Ajuste Máquina Matrix:</strong>${exData.guide}</div>` : '';
                 const imgHtml = exData && exData.img ? `<img src="${exData.img}" class="ex-img-preview" />` : '';
-                const iconSvg = svgIcons[exData ? exData.icon || 'leg' : 'leg'];
                 
                 return `
                 <div class="set-row">
-                    <div class="machine-icon">${iconSvg}</div>
                     <div style="flex:1;">
                         <strong style="font-size: 15px;">${ex.name}</strong><br>
                         <span style="color: var(--text-muted); font-size: 13px;">${ex.detail}</span>
@@ -423,12 +395,10 @@
             const select = document.getElementById('exercise-select');
             const exObj = userData.exercises.find(e => e.nombre === select.value);
             const container = document.getElementById('exercise-preview-container');
-            const iconDiv = document.getElementById('preview-icon');
             const imgEl = document.getElementById('preview-img');
             
             if (exObj) {
                 container.style.display = 'flex';
-                iconDiv.innerHTML = svgIcons[exObj.icon || 'leg'];
                 document.getElementById('preview-name').innerText = exObj.nombre;
                 document.getElementById('preview-guide').innerHTML = exObj.guide ? `<div class="matrix-guide"><strong>Ajustes Matrix:</strong>${exObj.guide}</div>` : '';
                 if(exObj.img) {
@@ -506,13 +476,12 @@
         function addExercise() {
             const name = document.getElementById('new-ex-name').value.trim();
             const group = document.getElementById('new-ex-group').value;
-            const icon = document.getElementById('new-ex-icon').value;
             const guide = document.getElementById('new-ex-guide').value.trim();
             const imgBase64 = document.getElementById('new-ex-img-base64').value;
             
             if (!name) return alert("Escribe el nombre del ejercicio.");
             
-            userData.exercises.push({ nombre: name, grupo: group, icon: icon, guide: guide, img: imgBase64 });
+            userData.exercises.push({ nombre: name, grupo: group, guide: guide, img: imgBase64 });
             saveUsersToStorage();
             
             document.getElementById('new-ex-name').value = '';
@@ -521,7 +490,6 @@
             document.getElementById('new-ex-img-file').value = '';
             
             updateExerciseDropdown();
-            updateChartDropdown();
             renderLibrary();
             alert("Ejercicio añadido correctamente.");
         }
@@ -531,7 +499,6 @@
                 userData.exercises.splice(index, 1);
                 saveUsersToStorage();
                 updateExerciseDropdown();
-                updateChartDropdown();
                 renderLibrary();
             }
         }
@@ -552,32 +519,102 @@
             if(editSelect) editSelect.innerHTML = buildOptions();
         }
 
-        function updateChartDropdown() {
-            const select = document.getElementById('chart-exercise-select');
-            select.innerHTML = (userData.exercises || []).map(ex => `<option value="${ex.nombre}">${ex.nombre}</option>`).join('');
+        /* GRÁFICO COMPARATIVO MULTILÍNEA */
+        function toggleSeries(exName) {
+            disabledSeries[exName] = !disabledSeries[exName];
+            renderProgressChart();
         }
 
         function renderProgressChart() {
-            const selectedEx = document.getElementById('chart-exercise-select').value;
             const container = document.getElementById('svg-chart-box');
-            const weights = [];
-            (userData.workouts || []).forEach(w => {
-                const setsEx = w.sets.filter(s => s.exercise === selectedEx);
-                if (setsEx.length > 0) { weights.push(Math.max(...setsEx.map(s => parseFloat(s.weight) || 0))); }
-            });
-            if (weights.length === 0) {
-                container.innerHTML = "<p style='color:var(--text-muted); text-align:center; padding-top:80px;'>Sin datos registrados para este ejercicio.</p>";
+            const legendBox = document.getElementById('chart-legend-box');
+            
+            const workouts = userData.workouts || [];
+            if (workouts.length === 0) {
+                container.innerHTML = "<p style='color:var(--text-muted); text-align:center; padding-top:80px;'>Sin entrenamientos guardados aún.</p>";
+                legendBox.innerHTML = "";
                 return;
             }
-            const maxVal = Math.max(...weights, 10);
-            const points = weights.map((w, i) => `${(i / Math.max(weights.length - 1, 1)) * 280 + 10},${180 - (w / maxVal) * 150}`).join(' ');
-            container.innerHTML = `<svg viewBox="0 0 300 200"><polyline fill="none" stroke="#007aff" stroke-width="3" points="${points}" /></svg>`;
+
+            // Agrupar los pesos máximos por ejercicio y por sesión
+            const exerciseData = {};
+            workouts.forEach((w, sessionIdx) => {
+                w.sets.forEach(s => {
+                    if (!exerciseData[s.exercise]) exerciseData[s.exercise] = [];
+                    const weight = parseFloat(s.weight) || 0;
+                    exerciseData[s.exercise].push({ session: sessionIdx, weight: weight });
+                });
+            });
+
+            const exerciseNames = Object.keys(exerciseData);
+            if (exerciseNames.length === 0) {
+                container.innerHTML = "<p style='color:var(--text-muted); text-align:center; padding-top:80px;'>Anota series para visualizar la gráfica.</p>";
+                legendBox.innerHTML = "";
+                return;
+            }
+
+            // Calcular el peso máximo global para la escala del eje Y
+            let maxGlobalWeight = 10;
+            exerciseNames.forEach(name => {
+                exerciseData[name].forEach(pt => {
+                    if (pt.weight > maxGlobalWeight) maxGlobalWeight = pt.weight;
+                });
+            });
+
+            const maxSessions = Math.max(...exerciseNames.map(n => exerciseData[n].length), 1);
+            
+            // Generar las líneas en SVG para cada ejercicio
+            let svgPolylines = "";
+            let legendHtml = "";
+
+            exerciseNames.forEach((name, idx) => {
+                const color = chartColors[idx % chartColors.length];
+                const isDisabled = disabledSeries[name];
+
+                // Crear elemento en la leyenda
+                legendHtml += `
+                    <div class="legend-item ${isDisabled ? 'disabled':''}" onclick="toggleSeries('${name}')">
+                        <div class="legend-color" style="background:${color};"></div>
+                        <span>${name}</span>
+                    </div>
+                `;
+
+                if (!isDisabled) {
+                    const pts = exerciseData[name];
+                    const pointsStr = pts.map((pt, i) => {
+                        const x = (i / Math.max(maxSessions - 1, 1)) * 260 + 20;
+                        const y = 190 - (pt.weight / maxGlobalWeight) * 160;
+                        return `${x},${y}`;
+                    }).join(' ');
+
+                    svgPolylines += `
+                        <polyline fill="none" stroke="${color}" stroke-width="3" points="${pointsStr}" />
+                    `;
+                    
+                    // Dibujar puntos decorativos en las coordenadas
+                    pts.forEach((pt, i) => {
+                        const x = (i / Math.max(maxSessions - 1, 1)) * 260 + 20;
+                        const y = 190 - (pt.weight / maxGlobalWeight) * 160;
+                        svgPolylines += `<circle cx="${x}" cy="${y}" r="4" fill="${color}" />`;
+                    });
+                }
+            });
+
+            container.innerHTML = `
+                <svg viewBox="0 0 300 210">
+                    <line x1="20" y1="190" x2="280" y2="190" stroke="var(--border)" stroke-width="1" />
+                    <line x1="20" y1="30" x2="20" y2="190" stroke="var(--border)" stroke-width="1" />
+                    <text x="5" y="35" font-size="9" fill="var(--text-muted)">${maxGlobalWeight}kg</text>
+                    <text x="5" y="190" font-size="9" fill="var(--text-muted)">0kg</text>
+                    ${svgPolylines}
+                </svg>
+            `;
+            legendBox.innerHTML = legendHtml;
         }
 
         function renderLibrary() {
             document.getElementById('exercise-list').innerHTML = (userData.exercises || []).map((ex, i) => `
                 <div class="set-row">
-                    <div class="machine-icon">${svgIcons[ex.icon || 'leg']}</div>
                     <div style="flex:1;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <strong>${ex.nombre}</strong>
@@ -626,7 +663,7 @@
                 
                 lines.forEach(line => {
                     if(!userData.exercises.some(e => e.nombre.toLowerCase() === line.toLowerCase()) && line.length < 50) {
-                        userData.exercises.push({ nombre: line, grupo: "General", icon: "leg", guide: "Importado desde PDF", img: "" });
+                        userData.exercises.push({ nombre: line, grupo: "General", guide: "Importado desde PDF", img: "" });
                         addedCount++;
                     }
                 });
