@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gym Pro - Sistema Completo 38 Ejercicios</title>
+    <title>Gym Pro - Sistema Completo 50 Ejercicios</title>
     <!-- Tone.js para sintetizador de sonido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- PDF.js para lectura e importación de PDFs -->
@@ -115,11 +115,8 @@
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
 
-        .preview-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border); }
-
         canvas#progressChart { width: 100%; height: 200px; background: #0f172a; border-radius: 8px; border: 1px solid var(--border); margin-top: 8px; }
 
-        /* Toast de notificaciones */
         #toast {
             position: fixed;
             bottom: 70px;
@@ -151,13 +148,11 @@
         <span id="periodization-tag" class="ex-badge" style="color: var(--primary); border-color: var(--primary);">Ciclo: Día 1</span>
     </div>
 
-    <!-- TOAST NOTIFICACIÓN -->
     <div id="toast" class="hidden"></div>
 
     <!-- PESTAÑA: MI PLAN DE ENTRENAMIENTO -->
     <div id="tab-workout" class="container">
         
-        <!-- BANNER ALERTA PERIODIZACIÓN TRIMESTRAL (75 DÍAS) -->
         <div id="periodization-alert" class="card hidden" style="border-color: var(--primary); background: linear-gradient(135deg, #1e293b, #334155);">
             <div class="card-title">
                 <span>🔔 Periodización Trimestral</span>
@@ -169,7 +164,6 @@
             <button class="btn" onclick="renewRoutineAI()">🔄 Renovación Trimestral de Rutina con IA</button>
         </div>
 
-        <!-- PAUTAS FISIOLÓGICAS DE LA RUTINA -->
         <div class="card" id="clinical-guidelines-card" style="border-left: 4px solid var(--primary);">
             <div class="card-title">
                 <span>💡 Pautas Fisiológicas Personalizadas</span>
@@ -203,7 +197,6 @@
                 <option value="">Cargando ejercicios...</option>
             </select>
 
-            <!-- DETALLE DE EJERCICIO SELECCIONADO -->
             <div id="exercise-info-box" class="hidden" style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4;"></div>
 
             <div style="display: flex; gap: 10px;">
@@ -217,7 +210,6 @@
                 </div>
             </div>
 
-            <!-- CRONÓMETRO TUT -->
             <div class="timer-box">
                 <div style="font-size: 0.75rem; color: var(--text-sec); margin-bottom: 4px;">TIEMPO DE EJECUCIÓN POR SERIE (TUT)</div>
                 <div id="exec-timer" class="timer-time">00s</div>
@@ -230,7 +222,6 @@
             <button class="btn btn-success" onclick="submitSet()">💾 Guardar Serie y Descansar</button>
         </div>
 
-        <!-- TEMPORIZADOR DE DESCANSO -->
         <div id="rest-card" class="card hidden" style="border-color: var(--success); text-align: center;">
             <div style="font-size: 0.85rem; color: var(--text-sec);">TEMPORIZADOR DE DESCANSO</div>
             <div id="rest-timer-display" class="timer-time" style="color: var(--success); font-size: 2.5rem;">01:30</div>
@@ -241,7 +232,6 @@
             </div>
         </div>
 
-        <!-- LISTA DE EJERCICIOS DEL DÍA -->
         <div id="daily-exercises-list"></div>
     </div>
 
@@ -311,7 +301,7 @@
         </div>
     </div>
 
-    <!-- PESTAÑA: EDITOR MANUAL DE RUTINA CON VINCULACIÓN A LA BIBLIOTECA DE 38 EJERCICIOS -->
+    <!-- PESTAÑA: EDITOR MANUAL DE RUTINA CON VINCULACIÓN A LA BIBLIOTECA DE 50 EJERCICIOS -->
     <div id="tab-editor" class="container hidden">
         <div class="card">
             <div class="card-title">
@@ -319,7 +309,7 @@
                 <button class="btn btn-sm" onclick="addNewDayToRoutine()">+ Día</button>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Selecciona cualquier ejercicio de la biblioteca completa de 38 movimientos para cargar automáticamente sus pautas y posiciones.
+                Selecciona cualquier ejercicio de la biblioteca completa de 50 movimientos para cargar automáticamente sus pautas y posiciones.
             </p>
             <div id="routine-editor-container"></div>
         </div>
@@ -345,11 +335,11 @@
         </div>
     </div>
 
-    <!-- PESTAÑA: BIBLIOTECA COMPLETA DE 38 EJERCICIOS -->
+    <!-- PESTAÑA: BIBLIOTECA COMPLETA DE 50 EJERCICIOS -->
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
-                <span>📚 Biblioteca del Sistema (38 Ejercicios)</span>
+                <span>📚 Biblioteca del Sistema (50 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
             <div id="library-container"></div>
@@ -453,8 +443,8 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (38 EJERCICIOS) ---
-        const MASTER_38_LIBRARY = [
+        // --- BASE DE DATOS MASTER COMPLETA (50 EJERCICIOS) ---
+        const MASTER_50_LIBRARY = [
             // COMPUESTOS HEAVY (7)
             { name: "Press de Pecho Guiado", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Retraer omóplatos. Bajar el peso de forma controlada en 2s.", errors: "Despegar la zona lumbar del respaldo o bloquear codos bruscamente." },
             { name: "Sentadilla con Barra", category: "Compuesto Heavy", settings: "Soporte a la altura del esternón", recommendations: "Mantener pies a anchura de hombros y empujar con los talones.", errors: "Guiar con las rodillas hacia adentro o curvar la espalda baja." },
@@ -471,20 +461,24 @@
             { name: "Cruces de Polea Alta", category: "Pecho", settings: "Polea en máxima altura", recommendations: "Cruzar las manos levemente en la fase final.", errors: "Usar inercia del torso al bajar." },
             { name: "Fondos en Paralelas (Pectoral)", category: "Pecho", settings: "Agarre ancho", recommendations: "Inclinar el torso 30° hacia adelante.", errors: "Bajar demasiado forzando la articulación del hombro." },
 
-            // ESPALDA (5)
+            // ESPALDA (6)
             { name: "Jalón al Pecho Guiado", category: "Espalda", settings: "Agarre neutro ancho", recommendations: "Inclinación leve de torso de 15°. Llevar la barra al esternón.", errors: "Llevar la barra detrás de la nuca." },
             { name: "Dominadas Asistidas", category: "Espalda", settings: "Plataforma de asistencia ajustada", recommendations: "Subir hasta superar la barbilla completando el rango.", errors: "Kipping o impulso con piernas." },
             { name: "Pull-over con Cuerda en Polea", category: "Espalda", settings: "Polea alta con cuerda", recommendations: "Codos bloqueados en leve flexión, llevar manos a la cadera.", errors: "Flexionar codos convirtiéndolo en tríceps." },
             { name: "Remo Unilateral con Mancuerna", category: "Espalda", settings: "Apoyo en banco plano", recommendations: "Llevar la mancuerna hacia la cadera marcando el arco.", errors: "Rotar el torso excesivamente." },
             { name: "Remo en Barra T", category: "Espalda", settings: "Agarre estrecho", recommendations: "Mantener la columna neutra durante toda la tirada.", errors: "Usar rebotes lumbares." },
+            { name: "Hiperextensiones a 45°", category: "Espalda", settings: "Almohadilla bajo la cresta ilíaca", recommendations: "Subir alineando la columna con las piernas sin sobrepasar.", errors: "Hiperextender la zona lumbar en la parte alta." },
 
-            // PIERNAS (6)
-            { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo sobre tobillos", re: "Pausar 1s arriba comprimiendo el cuádriceps.", errors: "Patear con inercia o despegar el glúteo." },
+            // PIERNAS Y GLÚTEOS (9)
+            { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo sobre tobillos", recommendations: "Pausar 1s arriba comprimiendo el cuádriceps.", errors: "Patear con inercia o despegar el glúteo." },
             { name: "Curl Femoral Sentado", category: "Piernas", settings: "Rodillo superior firme en muslos", recommendations: "Flexionar de forma fluida y frenar la bajada.", errors: "Soltar el peso sin control excéntrico." },
             { name: "Curl Femoral Tumbado", category: "Piernas", settings: "Eje de rotación alineado a rodilla", recommendations: "Mantener la cadera pegada al banco.", errors: "Levantar la pelvis al flexionar." },
             { name: "Zancadas Guiadas (Lunge)", category: "Piernas", settings: "Paso largo hacia adelante", recommendations: "Mantener la rodilla en línea con el segundo dedo del pie.", errors: "Superar excesivamente la punta del pie desestabilizando." },
-            { name: "Elevação de Calcanhares (Gemelos)", category: "Piernas", settings: "Apoyo en metatarsos", recommendations: "Bajar al máximo estirando el sóleo y pausar arriba.", errors: "Rebotar rápido sin pausa." },
+            { name: "Elevación de Calcanhares (Gemelos)", category: "Piernas", settings: "Apoyo en metatarsos", recommendations: "Bajar al máximo estirando el sóleo y pausar arriba.", errors: "Rebotar rápido sin pausa." },
             { name: "Sentadilla Búlgara", category: "Piernas", settings: "Pie trasero sobre banco a 40cm", recommendations: "Bajar verticalmente repartiendo el peso.", errors: "Inclinarse hacia adelante perdiendo equilibrio." },
+            { name: "Hip Thrust con Barra / Máquina", category: "Piernas", settings: "Borde del banco en las escápulas", recommendations: "Empujar con talones marcando retroversión pélvica 1s arriba.", errors: "Arquear la zona lumbar o levantar talones." },
+            { name: "Máquina Abductora de Cadera", category: "Piernas", settings: "Almohadillas cara externa", recommendations: "Abrir de forma constante marcando 1s de contracción.", errors: "Usar impulso del torso hacia adelante." },
+            { name: "Máquina Adductora de Cadera", category: "Piernas", settings: "Almohadillas cara interna", recommendations: "Cerrar suavemente concentrando la fuerza interna.", errors: "Dejar que las placas choquen bruscamente." },
 
             // HOMBROS (5)
             { name: "Elevaciones Laterales con Mancuernas", category: "Hombros", settings: "Ligera inclinación hacia adelante", recommendations: "Guiar con los codos ligeramente por delante del cuerpo.", errors: "Subir las pesas por encima de la altura de hombros." },
@@ -493,22 +487,31 @@
             { name: "Elevaciones Frontales con Disco", category: "Hombros", settings: "Sujeción lateral de disco", recommendations: "Subir hasta la línea de la mirada de forma controlada.", errors: "Balancear el cuerpo hacia atrás." },
             { name: "Remo al Mentón con Barra Z", category: "Hombros", settings: "Agarre a anchura de hombros", recommendations: "Subir los codos por encima de la barra.", errors: "Usar agarre demasiado estrecho que pille el hombro." },
 
-            // BRAZOS (6)
+            // BRAZOS (8)
             { name: "Extensión de Tríceps en Polea", category: "Brazos", settings: "Cuerda alta", recommendations: "Codos pegados al costado. Abrir la cuerda abajo.", errors: "Mover los codos hacia adelante." },
             { name: "Curl de Bíceps con Barra Z", category: "Brazos", settings: "Agarre medio", recommendations: "Mantener codos fijos sin mover los hombros.", errors: "Usar balanceo de cadera." },
             { name: "Press Francés con Barra", category: "Brazos", settings: "Banco plano", recommendations: "Bajar la barra hacia la frente manteniendo codos cerrados.", errors: "Abrir codos hacia afuera." },
             { name: "Curl Martillo con Mancuernas", category: "Brazos", settings: "Agarre neutro", recommendations: "Enfocar la contracción en el braquial.", errors: "Girar la muñeca durante el recorrido." },
             { name: "Tríceps Copa a dos Manos", category: "Brazos", settings: "Sentado en banco corto", recommendations: "Bajar la mancuerna por detrás de la cabeza de forma segura.", errors: "Abrir los codos excesivamente." },
             { name: "Curl en Banco Scott (Predicador)", category: "Brazos", settings: "Axilas apoyadas en la almohadilla", recommendations: "Estirar hasta el 90% sin hiperprolongar el codo.", errors: "Soltar el peso bruscamente al final." },
+            { name: "Curl Concentrado con Mancuerna", category: "Brazos", settings: "Codo apoyado en muslo interno", recommendations: "Flexionar aislando por completo sin mover el hombro.", errors: "Usar balanceo del torso o despegar el codo." },
+            { name: "Patada de Tríceps en Polea", category: "Brazos", settings: "Torso inclinado a 45°", recommendations: "Extender el codo hacia atrás completamente.", errors: "Mover el brazo desde el hombro reduciendo recorrido." },
 
-            // CORE & CARDIO (4)
+            // CORE (3)
             { name: "Prensa de Abdominales", category: "Core", settings: "Carga moderada", recommendations: "Exhalar todo el aire al encoger el abdomen.", errors: "Tirar con la fuerza del cuello." },
             { name: "Plancha Abdominal ISO", category: "Core", settings: "Antebrazos apoyados", recommendations: "Mantener cuerpo en línea recta activando glúteos.", errors: "Dejar caer la cadera." },
             { name: "Elevación de Piernas en Suspensión", category: "Core", settings: "Sujeción en torre de fondos", recommendations: "Elevar la pelvis rodando el abdomen.", errors: "Balancear las piernas usando inercia." },
-            { name: "Remo Ergómetro (Cardio)", category: "Cardio", settings: "Resistencia nivel 5", recommendations: "Empujar con piernas antes de tirar con brazos.", errors: "Curvar la espalda al recuperar el movimiento." }
+
+            // CARDIO Y CONDICIONAMIENTO (7)
+            { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
+            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones.", errors: "Encorvar hombros o pedalear solo en puntas." },
+            { name: "Escaladora / Escaleras", category: "Cardio", settings: "Velocidad constante", recommendations: "Mantener centro de gravedad alineado.", errors: "Volcar todo el peso sobre los brazos en la consola." },
+            { name: "Remo Ergómetro", category: "Cardio", settings: "Resistencia nivel 5", recommendations: "Empujar con piernas antes de tirar con brazos.", errors: "Curvar la espalda al recuperar el movimiento." },
+            { name: "SkiErg / Esquiador de Poleas", category: "Cardio", settings: "Poleas en altura máxima", recommendations: "Iniciar la tracción flexionando cadera y rodillas.", errors: "Tirar únicamente con la fuerza de los brazos." },
+            { name: "Saco de Boxeo / Pao", category: "Cardio", settings: "Postura de guardia neutra", recommendations: "Rotar la cadera y hombros al lanzar los golpes.", errors: "Golpear con muñecas dobladas sin vender la pierna." },
+            { name: "Salto a la Comba", category: "Cardio", settings: "Comba a la altura de axilas", recommendations: "Saltos cortos sobre metatarsos usando muñecas.", errors: "Saltar flexionando excesivamente las rodillas." }
         ];
 
-        // --- SISTEMA DE ALMACENAMIENTO SEGURO ---
         let appData = {
             users: [{ name: 'Atleta Principal', quiz: { level: 'Intermedio', goal: 'Hipertrofia', days: '4', injury: 'Ninguna' } }],
             activeUserIdx: 0,
@@ -519,24 +522,24 @@
                         id: "dia1",
                         name: "Día 1: Torso Pesado",
                         exercises: [
-                            MASTER_38_LIBRARY[0], // Press Pecho Guiado
-                            MASTER_38_LIBRARY[4], // Remo Sentado
-                            MASTER_38_LIBRARY[7]  // Aperturas Polea
+                            MASTER_50_LIBRARY[0], // Press Pecho Guiado
+                            MASTER_50_LIBRARY[4], // Remo Sentado
+                            MASTER_50_LIBRARY[7]  // Aperturas Polea
                         ]
                     },
                     {
                         id: "dia2",
-                        name: "Día 2: Pierna y Core",
+                        name: "Día 2: Pierna y Glúteo",
                         exercises: [
-                            MASTER_38_LIBRARY[1], // Sentadilla
-                            MASTER_38_LIBRARY[6], // Prensa Piernas
-                            MASTER_38_LIBRARY[34] // Prensa Abdominales
+                            MASTER_50_LIBRARY[1], // Sentadilla
+                            MASTER_50_LIBRARY[24], // Hip Thrust
+                            MASTER_50_LIBRARY[6]  // Prensa Piernas
                         ]
                     }
                 ]
             },
             logs: [],
-            library: MASTER_38_LIBRARY,
+            library: MASTER_50_LIBRARY,
             completedMap: {},
             activeDayId: "dia1",
             selectedExerciseName: ""
@@ -544,16 +547,16 @@
 
         function saveToStorage() {
             try {
-                localStorage.setItem('gymPro_v38_data', JSON.stringify(appData));
+                localStorage.setItem('gymPro_v50_data', JSON.stringify(appData));
             } catch(e) { console.log('Storage no disponible'); }
         }
 
         function loadFromStorage() {
             try {
-                const stored = localStorage.getItem('gymPro_v38_data');
+                const stored = localStorage.getItem('gymPro_v50_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (parsed && parsed.library && parsed.library.length >= 35) {
+                    if (parsed && parsed.library && parsed.library.length >= 45) {
                         appData = parsed;
                     }
                 }
@@ -567,7 +570,6 @@
             setTimeout(() => toast.classList.add('hidden'), 2500);
         }
 
-        // --- NAVEGACIÓN Y TABS ---
         function switchTab(tabName, el) {
             document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -581,7 +583,6 @@
             if (tabName === 'editor') renderRoutineEditor();
         }
 
-        // --- PLAN DE ENTRENAMIENTO Y LISTA DETALLADA ---
         function renderDaysNav() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
@@ -679,7 +680,6 @@
             });
         }
 
-        // --- ACTUALIZACIÓN DINÁMICA DE LA INFORMACIÓN DEBAJO DE ANOTAR SERIE ---
         function onExerciseSelectChange() {
             const exName = document.getElementById('exercise-select').value;
             appData.selectedExerciseName = exName;
@@ -718,7 +718,6 @@
             document.getElementById('clinical-guidelines-content').innerHTML = content;
         }
 
-        // --- ANOTAR SERIE Y CRONÓMETROS ---
         let execTimerInterval = null, execSeconds = 0, isExecRunning = false;
         let restTimerInterval = null, restSecondsLeft = 0;
 
@@ -816,7 +815,6 @@
         function addRestTime(sec) { restSecondsLeft += sec; updateRestDisplay(); }
         function cancelRest() { clearInterval(restTimerInterval); document.getElementById('rest-card').classList.add('hidden'); }
 
-        // --- EDITOR MANUAL CON DESPLEGABLE DE LOS 38 EJERCICIOS ---
         function renderRoutineEditor() {
             const container = document.getElementById('routine-editor-container');
             container.innerHTML = '';
@@ -845,7 +843,6 @@
                     exRow.style.padding = '8px';
                     exRow.style.borderRadius = '6px';
 
-                    // Generar desplegable con los 38 ejercicios
                     let selectOptions = appData.library.map(libEx => 
                         `<option value="${libEx.name}" ${libEx.name === ex.name ? 'selected' : ''}>${libEx.name} (${libEx.category})</option>`
                     ).join('');
@@ -911,7 +908,6 @@
             renderRoutineEditor();
         }
 
-        // --- GRÁFICO DE PROGRESIÓN EN CANVAS ---
         function populateChartExerciseFilter() {
             const select = document.getElementById('chart-exercise-select');
             if (!select) return;
@@ -992,7 +988,6 @@
             ctx.stroke();
         }
 
-        // --- BIBLIOTECA COMPLETA (38 EJERCICIOS) ---
         function renderLibrary() {
             const container = document.getElementById('library-container');
             container.innerHTML = '';
@@ -1050,7 +1045,6 @@
             showToast('Guardado correctamente');
         }
 
-        // --- USUARIOS & HISTORIAL ---
         function renderUsersTab() {
             const selector = document.getElementById('user-selector');
             selector.innerHTML = '';
@@ -1144,7 +1138,6 @@
             });
         }
 
-        // --- INICIALIZACIÓN GENERAL ---
         window.onload = function() {
             loadFromStorage();
             renderDaysNav();
@@ -1153,4 +1146,3 @@
     </script>
 </body>
 </html>
-    
