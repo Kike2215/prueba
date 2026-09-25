@@ -301,7 +301,7 @@
         </div>
     </div>
 
-    <!-- PESTAÑA: EDITOR MANUAL DE RUTINA CON VINCULACIÓN A LA BIBLIOTECA DE 50 EJERCICIOS -->
+    <!-- PESTAÑA: EDITOR MANUAL DE RUTINA -->
     <div id="tab-editor" class="container hidden">
         <div class="card">
             <div class="card-title">
@@ -309,7 +309,7 @@
                 <button class="btn btn-sm" onclick="addNewDayToRoutine()">+ Día</button>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Selecciona cualquier ejercicio de la biblioteca completa de 50 movimientos para cargar automáticamente sus pautas y posiciones.
+                Selecciona cualquier ejercicio de la biblioteca completa para copiar automáticamente todos sus parámetros (posiciones, recomendaciones, errores).
             </p>
             <div id="routine-editor-container"></div>
         </div>
@@ -382,13 +382,16 @@
         </div>
     </div>
 
-    <!-- MODAL: EDITAR / AÑADIR EJERCICIO -->
+    <!-- MODAL: EDITAR / AÑADIR EJERCICIO CON DESPLEGABLE DE SELECCIÓN COMPLETA -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="card-title">
                 <span id="modal-edit-title">Editar Ejercicio</span>
                 <span style="cursor: pointer;" onclick="closeEditModal()">✖</span>
             </div>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Cargar Datos desde la Base de Datos:</label>
+            <select id="edit-ex-selector" onchange="onModalExerciseSelectChange(this.value)"></select>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre del ejercicio:</label>
             <input type="text" id="edit-ex-name">
@@ -425,7 +428,7 @@
             <span>Plan</span>
         </div>
         <div class="nav-item" onclick="switchTab('users', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             <span>Usuarios</span>
         </div>
         <div class="nav-item" onclick="switchTab('editor', this)">
@@ -861,12 +864,13 @@
             });
         }
 
+        // COPIADO Y COPIADO AUTOMÁTICO DE TODOS LOS CAMPOS AL SELECCIONAR UN EJERCICIO
         function selectLibraryExForDay(dIdx, eIdx, exName) {
             const masterEx = appData.library.find(l => l.name === exName);
             if (masterEx) {
                 appData.routine.days[dIdx].exercises[eIdx] = Object.assign({}, masterEx, { target: appData.routine.days[dIdx].exercises[eIdx].target || "3x12" });
                 saveToStorage();
-                showToast(`Cargado: ${exName}`);
+                showToast(`Cargado completamente: ${exName}`);
             }
         }
 
@@ -1008,13 +1012,34 @@
             });
         }
 
+        // AUTOCOMPLETA TODOS LOS CAMPOS AL CAMBIAR DE OPCIÓN EN EL MODAL DE EDICIÓN
         function openEditModal(exName = '') {
-            const ex = appData.library.find(e => e.name === exName);
-            document.getElementById('edit-ex-name').value = exName;
-            document.getElementById('edit-ex-settings').value = ex ? (ex.settings || '') : '';
-            document.getElementById('edit-ex-recommendations').value = ex ? (ex.recommendations || '') : '';
-            document.getElementById('edit-ex-errors').value = ex ? (ex.errors || '') : '';
+            const selector = document.getElementById('edit-ex-selector');
+            selector.innerHTML = '<option value="">-- Seleccionar Ejercicio de la Base de Datos --</option>' + 
+                appData.library.map(e => `<option value="${e.name}" ${e.name === exName ? 'selected' : ''}>${e.name} (${e.category})</option>`).join('');
+
+            if (exName) {
+                onModalExerciseSelectChange(exName);
+            } else {
+                document.getElementById('edit-ex-name').value = '';
+                document.getElementById('edit-ex-category').value = 'Compuesto Heavy';
+                document.getElementById('edit-ex-settings').value = '';
+                document.getElementById('edit-ex-recommendations').value = '';
+                document.getElementById('edit-ex-errors').value = '';
+            }
+
             document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function onModalExerciseSelectChange(exName) {
+            const ex = appData.library.find(e => e.name === exName);
+            if (ex) {
+                document.getElementById('edit-ex-name').value = ex.name;
+                document.getElementById('edit-ex-category').value = ex.category || 'Compuesto Heavy';
+                document.getElementById('edit-ex-settings').value = ex.settings || '';
+                document.getElementById('edit-ex-recommendations').value = ex.recommendations || '';
+                document.getElementById('edit-ex-errors').value = ex.errors || '';
+            }
         }
 
         function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
@@ -1038,11 +1063,23 @@
                 appData.library.push({ name, category, settings, recommendations, errors });
             }
 
+            // Sincronizar actualización con la rutina del día activo
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            if (currentDay) {
+                const exInDay = currentDay.exercises.find(e => e.name === name);
+                if (exInDay) {
+                    exInDay.category = category;
+                    exInDay.settings = settings;
+                    exInDay.recommendations = recommendations;
+                    exInDay.errors = errors;
+                }
+            }
+
             saveToStorage();
             closeEditModal();
             renderLibrary();
             renderWorkoutTab();
-            showToast('Guardado correctamente');
+            showToast('Guardado e integrado correctamente');
         }
 
         function renderUsersTab() {
