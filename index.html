@@ -232,7 +232,18 @@
             <select id="user-selector" onchange="switchUserAccount()">
                 <!-- Opciones generadas por JS -->
             </select>
-            <button class="btn btn-outline btn-sm" onclick="showNewUserForm()">+ Crear Nuevo Usuario</button>
+
+            <!-- FICHA DETALLADA DEL USUARIO ACTIVO -->
+            <div id="active-user-details" style="background:#0f172a; padding:12px; border-radius:8px; border:1px solid var(--border); margin-top:10px;">
+                <div style="font-weight:bold; color:var(--primary);" id="ud-name">Cargando...</div>
+                <div style="font-size:0.8rem; color:var(--text-sec); margin-top:4px;" id="ud-info">...</div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="showNewUserForm()">+ Nuevo Usuario</button>
+                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="editCurrentActiveUser()">✏️ Editar Perfil</button>
+                <button class="btn btn-danger btn-sm" style="flex:1;" onclick="deleteCurrentActiveUser()">🗑️ Eliminar</button>
+            </div>
         </div>
 
         <!-- LECTOR / IMPORTADOR DE ARCHIVOS Y PDF -->
@@ -367,7 +378,7 @@
         </div>
     </div>
 
-    <!-- MODAL: EDITAR / AÑADIR EJERCICIO & FOTO -->
+    <!-- MODAL: EDITAR / AÑADIR EJERCICIO, RECOMENDACIONES & FOTO -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="card-title">
@@ -390,10 +401,13 @@
                 <option value="Cardio">Cardio / Condicionamiento</option>
             </select>
 
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Ajustes de máquina (asiento, pivote, carga):</label>
-            <input type="text" id="edit-ex-settings" placeholder="Ej: Asiento Pos. 3, Pivote 2">
+            <label style="font-size: 0.8rem; color: var(--text-sec);">🎯 Posición Anatómica / Ajustes de Máquina:</label>
+            <input type="text" id="edit-ex-settings" placeholder="Ej: Asiento Posición 3, Rodillo a la altura de tobillos">
 
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Foto de la máquina / ejecución:</label>
+            <label style="font-size: 0.8rem; color: var(--text-sec);">💡 Recomendaciones de Ejecución Fisiológica:</label>
+            <textarea id="edit-ex-recommendations" style="height:70px;" placeholder="Ej: Controlar la bajada en 2 segundos. Espalda apoyada firme y exhalar al empujar."></textarea>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Foto de la máquina / postura:</label>
             <input type="file" id="edit-ex-file" accept="image/*" capture="environment" onchange="handleImageUpload(event)">
             <img id="edit-ex-preview" class="preview-img hidden" src="" alt="Previsualización">
 
@@ -434,27 +448,27 @@
                     id: "dia1",
                     name: "Día 1: Pecho y Tríceps",
                     exercises: [
-                        { name: "Press de Pecho Guiado", target: "3x12", category: "Compuesto Heavy", settings: "Asiento Altura 4" },
-                        { name: "Aperturas en Polea", target: "3x15", category: "Pecho", settings: "Polea media" },
-                        { name: "Extensión de Tríceps", target: "3x12", category: "Brazos", settings: "Cuerda alta" }
+                        { name: "Press de Pecho Guiado", target: "3x12", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Mantener omóplatos retraídos. Bajar el peso de forma controlada en 2 segundos sin rebotar en el pecho." },
+                        { name: "Aperturas en Polea", target: "3x15", category: "Pecho", settings: "Polea a la altura del pecho", recommendations: "Codos ligeramente flexionados fijando la articulación. Enfocar la contracción en el centro del pectoral." },
+                        { name: "Extensión de Tríceps", target: "3x12", category: "Brazos", settings: "Cuerda en polea alta", recommendations: "Codos pegados al costado sin adelantarlos. Abrir la cuerda suavemente al final del recorrido." }
                     ]
                 },
                 {
                     id: "dia2",
                     name: "Día 2: Espalda y Bíceps",
                     exercises: [
-                        { name: "Remo Sentado en Máquina", target: "4x10", category: "Compuesto Heavy", settings: "Apoyo pectoral pos 2" },
-                        { name: "Jalón al Pecho Guiado", target: "3x12", category: "Espalda", settings: "Agarre neutro" },
-                        { name: "Curl de Bíceps con Barra", target: "3x12", category: "Brazos", settings: "Barra Z" }
+                        { name: "Remo Sentado en Máquina", target: "4x10", category: "Compuesto Heavy", settings: "Apoyo pectoral posición 2", recommendations: "Tirar con los codos hacia atrás bordeando el cuerpo. Mantener el pecho apoyado firmemente." },
+                        { name: "Jalón al Pecho Guiado", target: "3x12", category: "Espalda", settings: "Agarre neutro a anchura de hombros", recommendations: "Inclinación leve de torso de 15°. Llevar la barra hacia la parte superior del pecho." },
+                        { name: "Curl de Bíceps con Barra", target: "3x12", category: "Brazos", settings: "Barra Z con agarre medio", recommendations: "Evitar el balanceo lumbar. Mantener los hombros abajo y contraer el bíceps en el punto máximo." }
                     ]
                 },
                 {
                     id: "dia3",
                     name: "Día 3: Piernas y Core",
                     exercises: [
-                        { name: "Prensa de Piernas Guiada", target: "4x10", category: "Compuesto Heavy", settings: "Respaldo pos 2" },
-                        { name: "Curl de Piernas Sentado", target: "3x12", category: "Piernas", settings: "Rodillo en tobillos" },
-                        { name: "Prensa de Abdominales", target: "3x15", category: "Core", settings: "Carga moderada" }
+                        { name: "Prensa de Piernas Guiada", target: "4x10", category: "Compuesto Heavy", settings: "Respaldo inclinación posición 2", recommendations: "Pies a anchura de caderas. Bajar hasta un ángulo de 90° en rodillas sin descolgar la pelvis." },
+                        { name: "Curl de Piernas Sentado", target: "3x12", category: "Piernas", settings: "Rodillo apoyado justo sobre tobillos", recommendations: "Mantener el muslo firme contra la almohadilla superior. Flexionar de forma fluida." },
+                        { name: "Prensa de Abdominales", target: "3x15", category: "Core", settings: "Carga moderada e inclinación neutra", recommendations: "Exhalar completamente al flexionar el tronco. Evitar tirar con el cuello." }
                     ]
                 }
             ]
@@ -547,7 +561,9 @@
                     importedExercises.push({
                         name: line.substring(0, 30).trim(),
                         target: "3x12",
-                        category: "Compuesto Heavy"
+                        category: "Compuesto Heavy",
+                        settings: "Ajuste estándar",
+                        recommendations: "Ejecución controlada de cadencia 2:1."
                     });
                 }
             });
@@ -574,7 +590,6 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Calcular volumen por fecha
             const grouped = {};
             appData.logs.forEach(log => {
                 const vol = (parseFloat(log.weight) || 0) * (parseFloat(log.reps) || 0);
@@ -596,7 +611,6 @@
             const chartWidth = canvas.width - padding * 2;
             const chartHeight = canvas.height - padding * 2;
 
-            // Dibujar ejes
             ctx.strokeStyle = "#475569";
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -605,7 +619,6 @@
             ctx.lineTo(canvas.width - padding, canvas.height - padding);
             ctx.stroke();
 
-            // Dibujar línea de tendencia
             ctx.strokeStyle = "#f59e0b";
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -617,7 +630,6 @@
                 if (idx === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
 
-                // Puntos
                 ctx.fillStyle = "#10b981";
                 ctx.fillRect(x - 3, y - 3, 6, 6);
             });
@@ -797,7 +809,8 @@
                         </div>
                         <button class="btn btn-outline btn-sm" onclick="openEditModal('${ex.name}')">📷 Foto / Ajustes</button>
                     </div>
-                    ${ex.settings ? `<div style="font-size:0.75rem; color:var(--primary); margin-top:4px;">⚙️ ${ex.settings}</div>` : ''}
+                    ${ex.settings ? `<div style="font-size:0.75rem; color:var(--primary); margin-top:6px;">🎯 <strong>Posición / Ajustes:</strong> ${ex.settings}</div>` : ''}
+                    ${ex.recommendations ? `<div style="font-size:0.75rem; color:var(--text-sec); margin-top:4px; line-height:1.3;">💡 <strong>Recomendación:</strong> ${ex.recommendations}</div>` : ''}
                     ${setsHTML ? `<div style="margin-top:8px;">${setsHTML}</div>` : ''}
                 `;
                 listContainer.appendChild(card);
@@ -820,7 +833,7 @@
             const ex = currentDay.exercises.find(e => e.name === exName);
             if (ex) {
                 infoBox.classList.remove('hidden');
-                infoBox.innerText = `Objetivo: ${ex.target} | ${ex.settings || 'Sin ajustes específicos'}`;
+                infoBox.innerText = `Objetivo: ${ex.target} | ${ex.settings || 'Sin posición registrada'}`;
             }
         }
 
@@ -962,6 +975,13 @@
 
             const active = appData.users[appData.activeUserIdx];
             if (active) {
+                document.getElementById('ud-name').innerText = active.name || 'Atleta Sin Nombre';
+                document.getElementById('ud-info').innerHTML = `
+                    🎯 <strong>Objetivo:</strong> ${active.quiz.goal || 'General'}<br>
+                    📊 <strong>Nivel:</strong> ${active.quiz.level || 'Intermedio'} | 📅 <strong>Días:</strong> ${active.quiz.days || '4'}<br>
+                    🩹 <strong>Notas/Lesiones:</strong> ${active.quiz.injury || 'Ninguna'}
+                `;
+
                 document.getElementById('q-name').value = active.name || '';
                 document.getElementById('q-level').value = active.quiz.level || 'Intermedio';
                 document.getElementById('q-goal').value = active.quiz.goal || 'Hipertrofia';
@@ -980,6 +1000,27 @@
         function showNewUserForm() {
             document.getElementById('q-name').value = '';
             document.getElementById('q-name').focus();
+        }
+
+        function editCurrentActiveUser() {
+            document.getElementById('q-name').focus();
+        }
+
+        function deleteCurrentActiveUser() {
+            if (appData.users.length <= 1) {
+                alert("No se puede eliminar el único usuario del sistema.");
+                return;
+            }
+
+            const name = appData.users[appData.activeUserIdx].name;
+            if (confirm(`¿Estás seguro de eliminar el usuario "${name}"?`)) {
+                appData.users.splice(appData.activeUserIdx, 1);
+                appData.activeUserIdx = 0;
+                localStorage.setItem('gymPro_users', JSON.stringify(appData.users));
+                localStorage.setItem('gymPro_activeUserIdx', appData.activeUserIdx);
+                renderUsersTab();
+                renderWorkoutTab();
+            }
         }
 
         function toggleCustomInput(selectId, inputId) {
@@ -1005,13 +1046,13 @@
             };
 
             const newUser = { name: name, quiz: quizData };
-            appData.users.push(newUser);
-            appData.activeUserIdx = appData.users.length - 1;
+            appData.users[appData.activeUserIdx] = newUser;
 
             localStorage.setItem('gymPro_users', JSON.stringify(appData.users));
             localStorage.setItem('gymPro_activeUserIdx', appData.activeUserIdx);
 
             alert(`Usuario ${name} guardado correctamente.`);
+            renderUsersTab();
             switchTab('workout');
         }
 
@@ -1075,7 +1116,7 @@
         }
 
         function addExerciseToDay(dIdx) {
-            appData.routine.days[dIdx].exercises.push({ name: "Nuevo Ejercicio", target: "3x12", category: "Pecho" });
+            appData.routine.days[dIdx].exercises.push({ name: "Nuevo Ejercicio", target: "3x12", category: "Pecho", settings: "Ajuste estándar", recommendations: "Cadencia controlada 2:1." });
             localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
             renderRoutineEditor();
         }
@@ -1175,7 +1216,8 @@
                         <span>${ex.name}</span>
                         <button class="btn btn-outline btn-sm" onclick="openEditModal('${ex.name}')">✏️ Editar / Foto</button>
                     </div>
-                    <div style="font-size:0.8rem; color:var(--text-sec);">${ex.category} | ${ex.settings || 'Sin ajustes'}</div>
+                    <div style="font-size:0.8rem; color:var(--text-sec);">${ex.category} | ${ex.settings || 'Sin posición'}</div>
+                    ${ex.recommendations ? `<div style="font-size:0.75rem; color:var(--primary); margin-top:4px;">💡 ${ex.recommendations}</div>` : ''}
                     ${ex.image ? `<img src="${ex.image}" class="preview-img">` : ''}
                 `;
                 container.appendChild(card);
@@ -1183,8 +1225,12 @@
         }
 
         function openEditModal(exName = '') {
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            const ex = currentDay ? currentDay.exercises.find(e => e.name === exName) : null;
+
             document.getElementById('edit-ex-name').value = exName;
-            document.getElementById('edit-ex-settings').value = '';
+            document.getElementById('edit-ex-settings').value = ex ? (ex.settings || '') : '';
+            document.getElementById('edit-ex-recommendations').value = ex ? (ex.recommendations || '') : '';
             document.getElementById('edit-ex-preview').classList.add('hidden');
             currentEditImage = "";
             document.getElementById('edit-modal').classList.remove('hidden');
@@ -1225,12 +1271,25 @@
             const name = document.getElementById('edit-ex-name').value;
             const category = document.getElementById('edit-ex-category').value;
             const settings = document.getElementById('edit-ex-settings').value;
+            const recommendations = document.getElementById('edit-ex-recommendations').value;
 
             if (!name) return alert('Por favor introduce un nombre');
 
-            const newEx = { name, category, settings, image: currentEditImage };
+            // Actualizar en el día activo si existe
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            if (currentDay) {
+                const exInDay = currentDay.exercises.find(e => e.name === name);
+                if (exInDay) {
+                    exInDay.settings = settings;
+                    exInDay.recommendations = recommendations;
+                    exInDay.category = category;
+                }
+            }
+
+            const newEx = { name, category, settings, recommendations, image: currentEditImage };
             appData.library.push(newEx);
             localStorage.setItem('gymPro_library', JSON.stringify(appData.library));
+            localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
 
             closeEditModal();
             renderLibrary();
