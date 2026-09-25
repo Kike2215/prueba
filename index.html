@@ -192,6 +192,31 @@
         <div id="daily-exercises-list"></div>
     </div>
 
+    <!-- PESTAÑA: MI PERFIL Y MI RUTINA -->
+    <div id="tab-profile" class="container hidden">
+        <div class="card">
+            <div class="card-title">👤 Perfil del Usuario</div>
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre de Atleta:</label>
+            <input type="text" id="user-name" placeholder="Tu Nombre">
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Nivel de Experiencia:</label>
+            <select id="user-level">
+                <option value="Principiante">Principiante (1-3 días)</option>
+                <option value="Intermedio" selected>Intermedio (3-4 días)</option>
+                <option value="Avanzado">Avanzado (5+ días)</option>
+            </select>
+
+            <button class="btn" onclick="saveUserProfile()">💾 Guardar Perfil</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">⚡ Opciones de Rutina</div>
+            <p style="font-size: 0.85rem; color: var(--text-sec); margin-bottom: 12px;">Configura o crea un nuevo plan de entrenamiento adaptado por la IA.</p>
+            <button class="btn btn-outline" onclick="generateNewRoutineFromScratch()">➕ Crear / Cambiar Nueva Rutina con IA</button>
+            <button class="btn btn-danger btn-sm" style="margin-top: 15px; width: 100%;" onclick="resetRoutineData()">⚠️ Restablecer Rutina de Fábrica</button>
+        </div>
+    </div>
+
     <!-- PESTAÑA: HISTORIAL -->
     <div id="tab-history" class="container hidden">
         <div class="card">
@@ -286,6 +311,10 @@
             <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 6.29 3.43 4.86 2 3.43 3.43 2 4.86 3.43 6.29 2 7.71 3.43 9.14 2 10.57 3.43 12 7 20.57 10.57 22 12 20.57 13.43 22 14.86 20.57 16.29 22 17.71 20.57 19.14 22 20.57z"/></svg>
             <span>Plan</span>
         </div>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span>Perfil</span>
+        </div>
         <div class="nav-item" onclick="switchTab('history', this)">
             <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
             <span>Historial</span>
@@ -335,8 +364,10 @@
             routine: JSON.parse(localStorage.getItem('gymPro_routine')) || DEFAULT_ROUTINE,
             logs: JSON.parse(localStorage.getItem('gymPro_logs')) || [],
             library: JSON.parse(localStorage.getItem('gymPro_library')) || [],
+            user: JSON.parse(localStorage.getItem('gymPro_user')) || { name: 'Atleta', level: 'Intermedio' },
             completedMap: JSON.parse(localStorage.getItem('gymPro_completed')) || {}, // Key: dayId_exName -> count
-            activeDayId: "dia1"
+            activeDayId: "dia1",
+            selectedExerciseName: "" // Guarda el ejercicio actual fijado
         };
 
         // --- SISTEMA DE CRONÓMETROS ---
@@ -445,6 +476,7 @@
 
             if (tabName === 'history') renderHistory();
             if (tabName === 'library') renderLibrary();
+            if (tabName === 'profile') loadProfileData();
         }
 
         function renderDaysNav() {
@@ -456,6 +488,7 @@
                 chip.innerText = day.name;
                 chip.onclick = () => {
                     appData.activeDayId = day.id;
+                    appData.selectedExerciseName = ""; // Reset de ejercicio al cambiar de día
                     renderDaysNav();
                     renderWorkoutTab();
                 };
@@ -474,6 +507,8 @@
             select.innerHTML = '<option value="">Seleccionar Ejercicio...</option>';
 
             let pendingCount = 0;
+            let firstPendingEx = "";
+
             currentDay.exercises.forEach(ex => {
                 const key = `${currentDay.id}_${ex.name}`;
                 const completedSets = appData.completedMap[key] || 0;
@@ -486,8 +521,19 @@
                     opt.innerText = `${ex.name} (${completedSets}/${targetSets} series)`;
                     select.appendChild(opt);
                     pendingCount++;
+                    if (!firstPendingEx) firstPendingEx = ex.name;
                 }
             });
+
+            // MANTENER EL EJERCICIO SELECCIONADO PARA NO TENER QUE VOLVER A BUSCARLO
+            if (appData.selectedExerciseName && select.querySelector(`option[value="${appData.selectedExerciseName}"]`)) {
+                select.value = appData.selectedExerciseName;
+            } else if (firstPendingEx) {
+                select.value = firstPendingEx;
+                appData.selectedExerciseName = firstPendingEx;
+            }
+
+            onExerciseSelectChange();
 
             // Si se han completado todos los ejercicios del día
             if (pendingCount === 0 && currentDay.exercises.length > 0) {
@@ -537,6 +583,7 @@
 
         function onExerciseSelectChange() {
             const exName = document.getElementById('exercise-select').value;
+            appData.selectedExerciseName = exName; // Guardar preferencia seleccionada
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             const infoBox = document.getElementById('exercise-info-box');
 
@@ -586,9 +633,8 @@
             appData.logs.push(logEntry);
             localStorage.setItem('gymPro_logs', JSON.stringify(appData.logs));
 
-            // Limpiar inputs
-            document.getElementById('weight-input').value = '';
-            document.getElementById('reps-input').value = '';
+            // Mantener peso y reps para agilizar la siguiente serie del mismo ejercicio
+            // document.getElementById('weight-input').value = '';
 
             // Comprobar si el ejercicio se acaba de completar
             const exObj = currentDay.exercises.find(e => e.name === exName);
@@ -599,6 +645,7 @@
             if (appData.completedMap[key] >= targetSets) {
                 // Modal de evaluación post-ejercicio
                 currentFeedbackExercise = exObj;
+                appData.selectedExerciseName = ""; // Reset de selección al finalizar ejercicio
                 openFeedbackModal(exName);
             } else {
                 startRestTimer(90);
@@ -669,6 +716,56 @@
             renderWorkoutTab();
         }
 
+        // --- GESTIÓN DE PERFIL Y CAMBIO DE RUTINA ---
+        function loadProfileData() {
+            document.getElementById('user-name').value = appData.user.name || 'Atleta';
+            document.getElementById('user-level').value = appData.user.level || 'Intermedio';
+        }
+
+        function saveUserProfile() {
+            appData.user.name = document.getElementById('user-name').value;
+            appData.user.level = document.getElementById('user-level').value;
+            localStorage.setItem('gymPro_user', JSON.stringify(appData.user));
+            alert('Perfil guardado correctamente.');
+        }
+
+        function generateNewRoutineFromScratch() {
+            const daysCount = prompt("¿Cuántos días por semana quieres entrenar? (3, 4 o 5):", "3");
+            if (!daysCount) return;
+
+            let newDays = [];
+            if (daysCount === "4") {
+                newDays = [
+                    { id: "dia1", name: "Día 1: Pecho y Hombros", exercises: [{ name: "Press de Pecho Guiado", target: "4x10", category: "Pecho" }, { name: "Elevaciones Laterales", target: "4x12", category: "Hombros" }] },
+                    { id: "dia2", name: "Día 2: Espalda y Core", exercises: [{ name: "Jalón al Pecho Guiado", target: "4x10", category: "Espalda" }, { name: "Plancha Abdominal", target: "3x60s", category: "Core" }] },
+                    { id: "dia3", name: "Día 3: Piernas Completo", exercises: [{ name: "Prensa de Piernas Guiada", target: "4x10", category: "Piernas" }, { name: "Curl Femoral", target: "3x12", category: "Piernas" }] },
+                    { id: "dia4", name: "Día 4: Brazos y Hombro", exercises: [{ name: "Curl de Bíceps Guiado", target: "3x12", category: "Brazos" }, { name: "Extensión Tríceps Polea", target: "3x12", category: "Brazos" }] }
+                ];
+            } else {
+                newDays = DEFAULT_ROUTINE.days;
+            }
+
+            appData.routine = { startDate: new Date().toISOString(), days: newDays };
+            appData.completedMap = {};
+            localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
+            localStorage.setItem('gymPro_completed', JSON.stringify(appData.completedMap));
+
+            renderDaysNav();
+            switchTab('workout');
+            alert(`¡Nueva rutina de ${daysCount} días creada con éxito!`);
+        }
+
+        function resetRoutineData() {
+            if (confirm("¿Seguro que deseas restablecer la rutina a los valores iniciales?")) {
+                appData.routine = DEFAULT_ROUTINE;
+                appData.completedMap = {};
+                localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
+                localStorage.setItem('gymPro_completed', JSON.stringify(appData.completedMap));
+                renderDaysNav();
+                switchTab('workout');
+            }
+        }
+
         // --- PERIODIZACIÓN Y RENOVACIÓN TRIMESTRAL ---
         function checkPeriodizationAlert() {
             const start = new Date(appData.routine.startDate || new Date());
@@ -685,7 +782,6 @@
         }
 
         function renewRoutineAI() {
-            // Rotación inteligente de variantes manteniendo estructura biomecánica
             appData.routine.startDate = new Date().toISOString();
             appData.routine.days.forEach(day => {
                 day.exercises.forEach(ex => {
@@ -711,7 +807,6 @@
                 return;
             }
 
-            // Agrupar logs por fecha
             const grouped = {};
             appData.logs.forEach(log => {
                 if (!grouped[log.date]) grouped[log.date] = [];
@@ -778,7 +873,6 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            // Canvas Image Compression (~70 KB)
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
