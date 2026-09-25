@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gym Pro - Sistema Completo</title>
+    <title>Gym Pro - PWA Movil</title>
     <!-- Tone.js para sintetizador de sonido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- PDF.js para lectura e importación de PDFs -->
@@ -100,7 +100,7 @@
         .ex-item.completed { border-left-color: var(--success); opacity: 0.75; }
         .ex-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .ex-title { font-weight: 700; font-size: 1rem; }
-        .ex-badge { font-size: 0.75rem; background: var(--bg-dark); padding: 3px 8px; border-radius: 12px; border: 1px solid var(--border); }
+        .ex-badge { font-size: 0.75rem; background: var(--bg-dark); padding: 3px 8px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; }
 
         .set-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; }
 
@@ -146,19 +146,18 @@
     <div class="header">
         <h1>GYM PRO</h1>
         <div style="display:flex; align-items:center; gap:8px;">
-            <button class="btn btn-outline btn-sm" onclick="requestLockAndNotifications()" id="lock-btn">📱 Pantalla Activa</button>
             <span id="periodization-tag" class="ex-badge" style="color: var(--primary); border-color: var(--primary);">Ciclo: Día 1</span>
         </div>
     </div>
 
     <div id="toast" class="hidden"></div>
 
-    <!-- PESTAÑA 1: USUARIOS (PANTALLA DE INICIO OBLIGATORIA) -->
+    <!-- PESTAÑA 1: USUARIOS (INICIO OBLIGATORIO) -->
     <div id="tab-users" class="container">
         <div class="card" style="border-left: 4px solid var(--primary);">
             <div class="card-title">👤 Selección de Atleta / Usuario</div>
             <p style="font-size:0.85rem; color:var(--text-sec); margin-bottom:10px;">
-                Para comenzar, elige un usuario registrado para ir directamente a su plan o crea un nuevo perfil.
+                Selecciona un usuario registrado para ir directamente a su plan o crea un nuevo perfil con la IA.
             </p>
             
             <label style="font-size: 0.8rem; color: var(--text-sec);">Usuario Activo:</label>
@@ -177,31 +176,43 @@
         </div>
 
         <div class="card" id="quiz-card">
-            <div class="card-title">📝 Cuestionario / Perfil del Atleta</div>
+            <div class="card-title">📝 Cuestionario / Perfil del Atleta (IA)</div>
             
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre Completo / Alias:</label>
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre Completo / Alias (*Obligatorio):</label>
             <input type="text" id="q-name" placeholder="Ej: Juan Pérez">
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Experiencia / Nivel:</label>
             <select id="q-level">
-                <option value="Principiante">Principiante (< 1 año)</option>
+                <option value="Principiante">Principiante (&lt; 1 año)</option>
                 <option value="Intermedio" selected>Intermedio (1 - 3 años)</option>
-                <option value="Avanzado">Avanzado (> 3 años)</option>
+                <option value="Avanzado">Avanzado (&gt; 3 años)</option>
             </select>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Objetivo Principal:</label>
             <select id="q-goal">
-                <option value="Hipertrofia">Hipertrofia y Ganancia Muscular</option>
-                <option value="Fuerza">Fuerza Máxima</option>
-                <option value="Recomposición">Recomposición Corporal / Pérdida de Grasa</option>
+                <option value="Fuerza Máxima">Fuerza Máxima y Potencia</option>
+                <option value="Hipertrofia" selected>Hipertrofia Muscular (Volumen)</option>
+                <option value="Quemar Grasa">Quemar Grasa y Definición Extrema</option>
+                <option value="Tonificación">Tonificación y Cuidado Articular</option>
+                <option value="Resistencia">Resistencia Muscular y Condicionamiento</option>
+                <option value="Recomposición">Recomposición Corporal</option>
             </select>
 
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Días disponibles por semana:</label>
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Días de entrenamiento a la semana:</label>
             <select id="q-days">
-                <option value="3">3 Días (Full Body / Push-Pull-Legs)</option>
-                <option value="4" selected>4 Días (Torso / Pierna)</option>
-                <option value="5">5 Días (Frecuencia 2)</option>
+                <option value="1">1 Día por semana</option>
+                <option value="2">2 Días por semana</option>
+                <option value="3">3 Días por semana</option>
+                <option value="4" selected>4 Días por semana</option>
+                <option value="5">5 Días por semana</option>
+                <option value="6">6 Días por semana</option>
+                <option value="7">7 Días (Sin descanso)</option>
             </select>
+
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <input type="checkbox" id="q-include-rest" checked style="width:auto; margin:0;">
+                <label for="q-include-rest" style="font-size:0.8rem; color:var(--text-sec); margin:0;">Incluir Días de Descanso y Recuperación Activa</label>
+            </div>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Lesiones o Molestias Previas:</label>
             <select id="q-injury">
@@ -211,52 +222,44 @@
                 <option value="Hombro">Molestias en Hombro / Manguito</option>
             </select>
 
-            <button class="btn btn-success" onclick="saveUserFromQuiz()">💾 Guardar Usuario e ir al Plan</button>
-        </div>
-
-        <div class="card">
-            <div class="card-title">📄 Importar Rutina desde PDF / Documento</div>
-            <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 8px;">
-                Sube un archivo PDF o documento de texto con tu rutina para convertirlo automáticamente en un plan activo.
-            </p>
-            <input type="file" id="pdf-import-input" accept=".pdf, .txt, .json" onchange="processPDFOrDocImport(event)">
-            <div id="import-status" style="font-size: 0.8rem; color: var(--primary); margin-top: 4px;"></div>
+            <button class="btn btn-success" onclick="saveUserFromQuiz()">🤖 Generar Rutina Inteligente con IA</button>
         </div>
     </div>
 
-    <!-- PESTAÑA 2: MI PLAN DE ENTRENAMIENTO -->
+    <!-- PESTAÑA 2: PLAN DE ENTRENAMIENTO -->
     <div id="tab-workout" class="container hidden">
-        
-        <div id="periodization-alert" class="card hidden" style="border-color: var(--primary); background: linear-gradient(135deg, #1e293b, #334155);">
-            <div class="card-title">
-                <span>🔔 Periodización Trimestral</span>
-                <span class="ex-badge" style="background: var(--primary); color: #000;">Día 75+</span>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-sec); margin-bottom: 10px;">
-                ¡Atención! Tu rutina alcanza los 75 días. Se recomienda rotar variantes para evitar la adaptación neuromuscular.
-            </p>
-            <button class="btn" onclick="renewRoutineAI()">🔄 Renovación Trimestral de Rutina con IA</button>
-        </div>
-
         <div class="card" id="clinical-guidelines-card" style="border-left: 4px solid var(--primary);">
             <div class="card-title">
                 <span>💡 Pautas Fisiológicas Personalizadas</span>
                 <span class="ex-badge" id="guidelines-badge">Intermedio</span>
             </div>
             <div id="clinical-guidelines-content" style="font-size: 0.85rem; color: var(--text-sec); line-height: 1.4;">
-                Cargando recomendaciones dinámicas del cuestionario...
+                Cargando recomendaciones dinámicas...
             </div>
         </div>
 
         <div class="days-nav" id="days-container"></div>
 
         <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-            <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="optimizeBiomechanicsCurrentDay()">
-                ⚡ Orden Biomecánico
+            <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="switchTab('editor')">
+                🛠️ Editar Días de Rutina
             </button>
             <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="window.print()">
                 📄 Exportar PDF
             </button>
+        </div>
+
+        <!-- TARJETA DE DÍA DE DESCANSO -->
+        <div id="rest-day-view-card" class="card hidden" style="border-color: var(--success); text-align: center; background: linear-gradient(135deg, #1e293b, #0f172a);">
+            <div class="card-title" style="justify-content: center; color: var(--success);">💤 DÍA DE DESCANSO Y RECUPERACIÓN ACTIVA</div>
+            <p style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 10px;">
+                Hoy es un día para regenerar fibras musculares y recuperar el Sistema Nervioso Central.
+            </p>
+            <div style="font-size: 0.8rem; color: var(--text-sec); text-align: left; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                • 🧘 <strong>Movilidad:</strong> Realiza 10-15 minutos de estiramientos suaves.<br>
+                • 🚶 <strong>Paseo Activo:</strong> Mantén un objetivo de 8,000 - 10,000 pasos.<br>
+                • 💧 <strong>Hidratación:</strong> Consume al menos 2.5L de agua.
+            </div>
         </div>
 
         <!-- REGISTRO DE SERIE ACTIVA -->
@@ -307,9 +310,14 @@
         </div>
 
         <div id="daily-exercises-list"></div>
+
+        <!-- BOTÓN DEDICADO PARA CERRAR EL DÍA -->
+        <button class="btn btn-success" style="margin-top: 16px; margin-bottom: 24px; padding: 14px;" onclick="finishAndCloseWorkoutDay()">
+            🏁 Terminar Entrenamiento y Cerrar Día
+        </button>
     </div>
 
-    <!-- PESTAÑA 3: HISTORIAL Y GRÁFICO DE PROGRESIÓN -->
+    <!-- PESTAÑA 3: HISTÓRICO -->
     <div id="tab-history" class="container hidden">
         <div class="card">
             <div class="card-title">📊 Gráfico de Progresión</div>
@@ -340,57 +348,35 @@
         </div>
     </div>
 
-    <!-- EDITOR MANUAL DE RUTINA (DESDE MODAL/PANEL ACCESIBLE) -->
+    <!-- EDITOR MANUAL DE RUTINA -->
     <div id="tab-editor" class="container hidden">
         <div class="card">
             <div class="card-title">
                 <span>🛠️ Editor Manual de Rutina</span>
-                <button class="btn btn-sm" onclick="addNewDayToRoutine()">+ Día</button>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn btn-sm" onclick="addNewDayToRoutine(false)">+ Día Entreno</button>
+                    <button class="btn btn-outline btn-sm" onclick="addNewDayToRoutine(true)">+ Descanso</button>
+                </div>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Selecciona cualquier ejercicio de la biblioteca para copiar automáticamente todos sus parámetros (posiciones, recomendaciones, errores).
+                Selecciona cualquier ejercicio de la biblioteca para copiar automáticamente todos sus parámetros.
             </p>
             <div id="routine-editor-container"></div>
         </div>
     </div>
 
-    <!-- MODAL: EVALUACIÓN POST-EJERCICIO -->
-    <div id="feedback-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="card-title" style="margin-bottom: 8px;">
-                <span>🎯 Ejercicio Completado</span>
-            </div>
-            <p style="font-size: 0.9rem; color: var(--text-sec); margin-bottom: 16px;" id="feedback-subtitle">
-                Has finalizado las series de este ejercicio. ¿Qué tal ha sido tu sensación?
-            </p>
-
-            <div id="feedback-step-1">
-                <button class="btn btn-success" style="margin-bottom: 10px;" onclick="closeFeedbackModal()">
-                    👍 Fue de mi agrado (Mantener)
-                </button>
-                <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger);" onclick="showFeedbackDiscomfortStep()">
-                    ⚠️ Sentí molestia articular/muscular
-                </button>
-            </div>
-
-            <div id="feedback-step-2" class="hidden">
-                <label style="font-size: 0.85rem; color: var(--text-sec);">Indica dónde sentiste la molestia:</label>
-                <select id="discomfort-zone">
-                    <option value="knee">Rodilla / Cuádriceps</option>
-                    <option value="lumbar">Zona Lumbar / Espalda baja</option>
-                    <option value="shoulder">Hombro / Manguito rotador</option>
-                    <option value="elbow">Codo / Muñeca</option>
-                    <option value="cervical">Cuello / Cervicales</option>
-                </select>
-
-                <button class="btn" onclick="generateSmartReplacements()">🔎 Buscar Alternativa Segura</button>
-                <div id="replacements-list" style="margin-top: 12px;"></div>
-                <button class="btn btn-outline btn-sm" style="margin-top: 10px; width: 100%;" onclick="closeFeedbackModal()">Cerrar sin cambiar</button>
+    <!-- MODAL GENERADOR IA -->
+    <div id="ai-loading-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="text-align: center;">
+            <div class="card-title" style="justify-content: center;">🤖 IA Generando Rutina Perfecta</div>
+            <p style="font-size: 0.85rem; color: var(--text-sec); margin-top: 10px;" id="ai-status-text">Analizando perfil del atleta...</p>
+            <div style="width: 100%; background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 15px;">
+                <div id="ai-progress-bar" style="width: 0%; background: var(--primary); height: 100%; transition: width 0.3s;"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: EDITAR / AÑADIR EJERCICIO CON DESPLEGABLE DE SELECCIÓN COMPLETA -->
+    <!-- MODAL: EDITAR / AÑADIR EJERCICIO CON CAMBIO DE SERIES Y REPETICIONES -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="card-title">
@@ -403,6 +389,17 @@
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre del ejercicio:</label>
             <input type="text" id="edit-ex-name">
+
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;">
+                    <label style="font-size: 0.8rem; color: var(--text-sec);">Series Objetivo:</label>
+                    <input type="number" id="edit-ex-sets" placeholder="3" min="1" max="10">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size: 0.8rem; color: var(--text-sec);">Reps Objetivo:</label>
+                    <input type="text" id="edit-ex-reps" placeholder="12 o 8-12">
+                </div>
+            </div>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Grupo Muscular / Categoría:</label>
             <select id="edit-ex-category">
@@ -429,7 +426,7 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR REORDENADA: USUARIO -> PLAN -> HISTÓRICO -> BIBLIOTECA -->
+    <!-- NAVEGACIÓN INFERIOR OBLIGATORIA: USUARIO -> PLAN -> HISTÓRICO -> BIBLIOTECA -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('users', this)" id="nav-users">
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -452,7 +449,6 @@
     <script>
         // --- BASE DE DATOS MASTER COMPLETA (60 EJERCICIOS) ---
         const MASTER_60_LIBRARY = [
-            // COMPUESTOS HEAVY (7)
             { name: "Press de Pecho Guiado", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Retraer omóplatos. Bajar el peso de forma controlada en 2s.", errors: "Despegar la zona lumbar del respaldo o bloquear codos bruscamente." },
             { name: "Sentadilla con Barra", category: "Compuesto Heavy", settings: "Soporte a la altura del esternón", recommendations: "Mantener pies a anchura de hombros y empujar con los talones.", errors: "Guiar con las rodillas hacia adentro o curvar la espalda baja." },
             { name: "Peso Muerto Convencional", category: "Compuesto Heavy", settings: "Barra sobre mitad del pie", recommendations: "Mantener la barra pegada a las espinillas y activar dorsales.", errors: "Chepar la espalda o iniciar tirando con los brazos." },
@@ -460,8 +456,6 @@
             { name: "Remo Sentado en Máquina", category: "Compuesto Heavy", settings: "Apoyo pectoral pos. 2", recommendations: "Tirar con los codos bordeando el cuerpo.", errors: "Tironear con el tronco despegando el pecho." },
             { name: "Press Inclinado con Mancuernas", category: "Compuesto Heavy", settings: "Banco a 30°", recommendations: "Bajar con codos a 45° respecto al torso.", errors: "Abrir excesivamente los codos lesionando el hombro." },
             { name: "Prensa de Piernas Inclinada", category: "Compuesto Heavy", settings: "Respaldo pos. 2", recommendations: "Bajar a 90° en rodillas de forma fluida.", errors: "Bloquear rodillas o despegar el glúteo del asiento." },
-
-            // PECHO (7)
             { name: "Press Banca Plano con Mancuernas", category: "Pecho", settings: "Banco plano horizontal", recommendations: "Codos a 45°. Juntar las mancuernas en la vertical sin chocar.", errors: "Rebotar en el pecho o despegar la espalda." },
             { name: "Aperturas con Mancuernas en Banco Plano", category: "Pecho", settings: "Banco horizontal", recommendations: "Codos en flexión fija. Abrir sintiendo el estiramiento del pectoral.", errors: "Convertirlo en un press flexionando los brazos al bajar." },
             { name: "Aperturas en Polea", category: "Pecho", settings: "Polea a la altura del pecho", recommendations: "Mantener codos semifinales fijando articulación.", errors: "Transformar el movimiento en un press." },
@@ -469,8 +463,6 @@
             { name: "Press Declinado en Máquina", category: "Pecho", settings: "Asiento elevado pos. 5", recommendations: "Enfocar el empuje en la porción inferior del pectoral.", errors: "Forzar el agarre abriendo codos." },
             { name: "Cruces de Polea Alta", category: "Pecho", settings: "Polea en máxima altura", recommendations: "Cruzar las manos levemente en la fase final.", errors: "Usar inercia del torso al bajar." },
             { name: "Fondos en Paralelas (Pectoral)", category: "Pecho", settings: "Agarre ancho", recommendations: "Inclinar el torso 30° hacia adelante.", errors: "Bajar demasiado forzando la articulación del hombro." },
-
-            // ESPALDA (7)
             { name: "Remo Unilateral con Mancuerna", category: "Espalda", settings: "Apoyo en banco plano", recommendations: "Llevar la mancuerna hacia la cadera marcando el arco.", errors: "Rotar el torso excesivamente." },
             { name: "Jalón al Pecho Guiado", category: "Espalda", settings: "Agarre neutro ancho", recommendations: "Inclinación leve de torso de 15°. Llevar la barra al esternón.", errors: "Llevar la barra detrás de la nuca." },
             { name: "Dominadas Asistidas", category: "Espalda", settings: "Plataforma de asistencia ajustada", recommendations: "Subir hasta superar la barbilla completando el rango.", errors: "Kipping o impulso con piernas." },
@@ -478,8 +470,6 @@
             { name: "Remo con Banda Elástica", category: "Espalda", settings: "Goma anclada a pie o estructura fija", recommendations: "Tirar con codos hacia atrás apretando la escápula.", errors: "Encoger hombros hacia las orejas." },
             { name: "Remo en Barra T", category: "Espalda", settings: "Agarre estrecho", recommendations: "Mantener la columna neutra durante toda la tirada.", errors: "Usar rebotes lumbares." },
             { name: "Hiperextensiones a 45°", category: "Espalda", settings: "Almohadilla bajo la cresta ilíaca", recommendations: "Subir alineando la columna con las piernas sin sobrepasar.", errors: "Hiperextender la zona lumbar en la parte alta." },
-
-            // PIERNAS Y GLÚTEOS (11)
             { name: "Peso Muerto Rumano con Mancuernas", category: "Piernas", settings: "Mancuernas pegadas a los muslos", recommendations: "Llevar cadera hacia atrás flexionando levemente rodillas.", errors: "Curvar la columna lumbar al bajar." },
             { name: "Pasos Laterales con Banda Elástica (Monster Walk)", category: "Piernas", settings: "Banda sobre las rodillas o tobillos", recommendations: "Mantener tensión constante en la goma sin juntar pies.", errors: "Juntar las rodillas hacia adentro (valgo)." },
             { name: "Sentadilla Goblet con Mancuerna / Banda", category: "Piernas", settings: "Mancuerna vertical en el pecho", recommendations: "Bajar con espalda erguida abriendo rodillas.", errors: "Levantar los talones del suelo." },
@@ -491,16 +481,12 @@
             { name: "Sentadilla Búlgara", category: "Piernas", settings: "Pie trasero sobre banco a 40cm", recommendations: "Bajar verticalmente repartiendo el peso.", errors: "Inclinarse hacia adelante perdiendo equilibrio." },
             { name: "Hip Thrust con Barra / Máquina", category: "Piernas", settings: "Borde del banco en las escápulas", recommendations: "Empujar con talones marcando retroversión pélvica 1s arriba.", errors: "Arquear la zona lumbar o levantar talones." },
             { name: "Máquina Abductora / Adductora", category: "Piernas", settings: "Almohadillas ajustadas", recommendations: "Movimientos constantes con control excéntrico.", errors: "Tironear con inercia del torso." },
-
-            // HOMBROS (6)
             { name: "Elevaciones Laterales con Mancuernas", category: "Hombros", settings: "Ligera inclinación hacia adelante", recommendations: "Guiar con los codos ligeramente por delante del cuerpo.", errors: "Subir las pesas por encima de la altura de hombros." },
             { name: "Rotación Externa de Hombro con Banda", category: "Hombros", settings: "Codo pegado a 90° con toalla/almohadilla", recommendations: "Rotar hacia afuera aislando manguito rotador.", errors: "Despegar el codo del costado." },
             { name: "Band Pull-Apart (Aperturas con Banda)", category: "Hombros", settings: "Banda sujeta con ambas manos a altura de hombros", recommendations: "Separar la goma hasta tocar el pecho retrayendo escápulas.", errors: "Encoger trapecios." },
             { name: "Pájaro en Polea (Deltoides Posterior)", category: "Hombros", settings: "Polea a la altura del rostro", recommendations: "Separar las manos enfocando la parte trasera del hombro.", errors: "Usar fuerza de los trapecios." },
             { name: "Press Arnold", category: "Hombros", settings: "Respaldo vertical", recommendations: "Rotar las muñecas de forma fluida durante el empuje.", errors: "Forzar la rotación del manguito rotador." },
             { name: "Remo al Mentón con Barra Z", category: "Hombros", settings: "Agarre a anchura de hombros", recommendations: "Subir los codos por encima de la barra.", errors: "Usar agarre demasiado estrecho que pille el hombro." },
-
-            // BRAZOS (9)
             { name: "Curl de Bíceps Alterno con Mancuernas", category: "Brazos", settings: "De pie o sentado", recommendations: "Supinar la muñeca al subir apretando el bíceps.", errors: "Balancear los hombros o los codos hacia atrás." },
             { name: "Extensiones de Tríceps sobre Cabeza con Mancuerna", category: "Brazos", settings: "Sentado con espalda recta", recommendations: "Extender verticalmente manteniendo codos mirando al frente.", errors: "Abrir codos hacia los lados." },
             { name: "Extensión de Tríceps en Polea / Cuerda", category: "Brazos", settings: "Cuerda alta", recommendations: "Codos pegados al costado. Abrir la cuerda abajo.", errors: "Mover los codos hacia adelante." },
@@ -510,13 +496,9 @@
             { name: "Tríceps Copa a dos Manos", category: "Brazos", settings: "Sentado en banco corto", recommendations: "Bajar la mancuerna por detrás de la cabeza de forma segura.", errors: "Abrir los codos excesivamente." },
             { name: "Curl en Banco Scott (Predicador)", category: "Brazos", settings: "Axilas apoyadas en la almohadilla", recommendations: "Estirar hasta el 90% sin hiperprolongar el codo.", errors: "Soltar el peso bruscamente al final." },
             { name: "Curl Concentrado con Mancuerna", category: "Brazos", settings: "Codo apoyado en muslo interno", recommendations: "Flexionar aislando por completo sin mover el hombro.", errors: "Usar balanceo del torso o despegar el codo." },
-
-            // CORE (3)
             { name: "Prensa de Abdominales", category: "Core", settings: "Carga moderada", recommendations: "Exhalar todo el aire al encoger el abdomen.", errors: "Tirar con la fuerza del cuello." },
             { name: "Plancha Abdominal ISO", category: "Core", settings: "Antebrazos apoyados", recommendations: "Mantener cuerpo en línea recta activando glúteos.", errors: "Dejar caer la cadera." },
             { name: "Elevación de Piernas en Suspensión", category: "Core", settings: "Sujeción en torre de fondos", recommendations: "Elevar la pelvis rodando el abdomen.", errors: "Balancear las piernas usando inercia." },
-
-            // CARDIO Y CONDICIONAMIENTO (10)
             { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones y mantener postura vertical.", errors: "Encorvar hombros o pedalear solo en puntas." },
             { name: "Máquina de Bandas Elásticas", category: "Cardio", settings: "Anclaje a altura media o alta según objetivo", recommendations: "Mantener tensión continua en la banda sin perder el control en el retorno.", errors: "Dejar que la goma tire bruscamente de las articulaciones." },
             { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
@@ -535,24 +517,8 @@
             routine: {
                 startDate: new Date().toISOString(),
                 days: [
-                    {
-                        id: "dia1",
-                        name: "Día 1: Torso Pesado",
-                        exercises: [
-                            MASTER_60_LIBRARY[0], // Press Pecho Guiado
-                            MASTER_60_LIBRARY[4], // Remo Sentado
-                            MASTER_60_LIBRARY[9]  // Aperturas Polea
-                        ]
-                    },
-                    {
-                        id: "dia2",
-                        name: "Día 2: Pierna y Glúteo",
-                        exercises: [
-                            MASTER_60_LIBRARY[1], // Sentadilla
-                            MASTER_60_LIBRARY[28], // Hip Thrust
-                            MASTER_60_LIBRARY[6]  // Prensa Piernas
-                        ]
-                    }
+                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_60_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_60_LIBRARY[4], {target:"3x12"}) ] },
+                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_60_LIBRARY[1], {target:"3x10"}), Object.assign({}, MASTER_60_LIBRARY[30], {target:"3x12"}) ] }
                 ]
             },
             logs: [],
@@ -561,28 +527,6 @@
             activeDayId: "dia1",
             selectedExerciseName: ""
         };
-
-        let wakeLock = null;
-        async function requestLockAndNotifications() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    showToast("📱 Pantalla encendida para entreno.");
-                    document.getElementById('lock-btn').innerText = "📱 Pantalla Activa ✅";
-                }
-                if ("Notification" in window && Notification.permission !== "granted") {
-                    await Notification.requestPermission();
-                }
-            } catch (err) {
-                showToast("Modo activo no disponible.");
-            }
-        }
-
-        function notifyRestEnd(msg) {
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("GYM PRO", { body: msg, icon: "https://cdn-icons-png.flaticon.com/512/2964/2964514.png" });
-            }
-        }
 
         function saveToStorage() {
             try {
@@ -595,7 +539,7 @@
                 const stored = localStorage.getItem('gymPro_v60_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (parsed && parsed.library && parsed.library.length >= 50) {
+                    if (parsed && parsed.library && parsed.library.length >= 45) {
                         appData = parsed;
                     }
                 }
@@ -628,7 +572,6 @@
             if (tabName === 'workout') renderWorkoutTab();
         }
 
-        // --- FLUJO DE INICIO Y GESTIÓN DE USUARIOS ---
         function renderUsersTab() {
             const selector = document.getElementById('user-selector');
             selector.innerHTML = '';
@@ -672,7 +615,7 @@
         function showNewUserForm() {
             document.getElementById('q-name').value = '';
             document.getElementById('q-name').focus();
-            showToast("Rellena los datos para el nuevo atleta.");
+            showToast("Introduce el nombre del nuevo atleta.");
         }
 
         function deleteCurrentActiveUser() {
@@ -684,35 +627,115 @@
         }
 
         function saveUserFromQuiz() {
-            const name = document.getElementById('q-name').value || `Atleta ${appData.users.length + 1}`;
+            const nameInput = document.getElementById('q-name').value.trim();
+            if (!nameInput) {
+                showToast("⚠️ Introduce tu nombre o alias para continuar.");
+                document.getElementById('q-name').focus();
+                return;
+            }
+
             const quizData = {
                 level: document.getElementById('q-level').value,
                 goal: document.getElementById('q-goal').value,
                 days: document.getElementById('q-days').value,
+                includeRest: document.getElementById('q-include-rest').checked,
                 injury: document.getElementById('q-injury').value
             };
 
-            // Si el nombre ingresado no coincide con el activo, creamos uno nuevo
-            if (appData.users[appData.activeUserIdx] && appData.users[appData.activeUserIdx].name === name) {
+            if (appData.users[appData.activeUserIdx] && appData.users[appData.activeUserIdx].name === nameInput) {
                 appData.users[appData.activeUserIdx].quiz = quizData;
             } else {
-                appData.users.push({ name, quiz: quizData });
+                appData.users.push({ name: nameInput, quiz: quizData });
                 appData.activeUserIdx = appData.users.length - 1;
             }
 
             saveToStorage();
-            showToast('Perfil guardado y rutina adaptada.');
-            switchTab('workout');
+            generateAIRoutine(quizData);
         }
 
-        // --- PLAN DE ENTRENAMIENTO ---
+        function generateAIRoutine(quiz) {
+            const modal = document.getElementById('ai-loading-modal');
+            const status = document.getElementById('ai-status-text');
+            const progress = document.getElementById('ai-progress-bar');
+            modal.classList.remove('hidden');
+
+            let steps = [
+                { p: "25%", t: `Analizando nivel ${quiz.level} y objetivo ${quiz.goal}...` },
+                { p: "50%", t: `Filtrando ejercicios seguros para prevención (${quiz.injury})...` },
+                { p: "75%", t: `Estructurando volumen para ${quiz.days} días de entrenamiento...` },
+                { p: "100%", t: "¡Rutina optimizada con éxito!" }
+            ];
+
+            let stepIdx = 0;
+            let interval = setInterval(() => {
+                if (stepIdx < steps.length) {
+                    progress.style.width = steps[stepIdx].p;
+                    status.innerText = steps[stepIdx].t;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    buildAIRoutineStructure(quiz);
+                    modal.classList.add('hidden');
+                    switchTab('workout');
+                }
+            }, 600);
+        }
+
+        function buildAIRoutineStructure(quiz) {
+            let numDays = parseInt(quiz.days) || 4;
+            let injury = quiz.injury || 'Ninguna';
+            let goal = quiz.goal || 'Hipertrofia';
+
+            let safeLibrary = appData.library.filter(ex => {
+                if (injury === 'Rodilla' && ex.name.includes('Sentadilla')) return false;
+                if (injury === 'Lumbar' && ex.name.includes('Peso Muerto')) return false;
+                if (injury === 'Hombro' && ex.name.includes('Militar')) return false;
+                return true;
+            });
+
+            if (safeLibrary.length < 10) safeLibrary = appData.library;
+
+            let targetReps = "3x12";
+            if (goal.includes("Fuerza")) targetReps = "4x6";
+            if (goal.includes("Quemar") || goal.includes("Resistencia")) targetReps = "3x15";
+
+            let newDays = [];
+            for (let i = 1; i <= numDays; i++) {
+                let dayExs = [
+                    Object.assign({}, safeLibrary[i % safeLibrary.length], { target: targetReps }),
+                    Object.assign({}, safeLibrary[(i + 3) % safeLibrary.length], { target: targetReps }),
+                    Object.assign({}, safeLibrary[(i + 7) % safeLibrary.length], { target: targetReps })
+                ];
+
+                newDays.push({
+                    id: `dia${i}`,
+                    isRest: false,
+                    name: `Día ${i}: Sesión ${i}`,
+                    exercises: dayExs
+                });
+
+                if (quiz.includeRest && i < numDays && i % 2 === 0) {
+                    newDays.push({
+                        id: `descanso_${i}`,
+                        isRest: true,
+                        name: `Día ${i}.5: Descanso Activo`,
+                        exercises: []
+                    });
+                }
+            }
+
+            appData.routine.days = newDays;
+            appData.activeDayId = newDays[0].id;
+            saveToStorage();
+        }
+
         function renderDaysNav() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
             appData.routine.days.forEach(day => {
                 const chip = document.createElement('div');
                 chip.className = `day-chip ${day.id === appData.activeDayId ? 'active' : ''}`;
-                chip.innerText = day.name;
+                chip.innerText = day.isRest ? `💤 ${day.name}` : day.name;
                 chip.onclick = () => {
                     appData.activeDayId = day.id;
                     appData.selectedExerciseName = "";
@@ -730,6 +753,19 @@
             if (!currentDay) return;
 
             document.getElementById('active-day-label').innerText = currentDay.name;
+
+            const loggingCard = document.getElementById('logging-card');
+            const restDayViewCard = document.getElementById('rest-day-view-card');
+
+            if (currentDay.isRest) {
+                loggingCard.classList.add('hidden');
+                restDayViewCard.classList.remove('hidden');
+                document.getElementById('daily-exercises-list').innerHTML = '';
+                return;
+            } else {
+                loggingCard.classList.remove('hidden');
+                restDayViewCard.classList.add('hidden');
+            }
 
             const select = document.getElementById('exercise-select');
             select.innerHTML = '<option value="">Seleccionar Ejercicio...</option>';
@@ -791,7 +827,10 @@
                     <div class="ex-header">
                         <div>
                             <div class="ex-title">${isDone ? '✅ ' : ''}${ex.name}</div>
-                            <div style="font-size:0.75rem; color:var(--text-sec);">${ex.category} · Obj: ${ex.target || '3x12'}</div>
+                            <div style="font-size:0.75rem; color:var(--text-sec); display:flex; align-items:center; gap:6px; margin-top:2px;">
+                                <span>${ex.category}</span>
+                                <span class="ex-badge" onclick="openEditModal('${ex.name}')">🎯 Obj: ${ex.target || '3x12'} ✏️</span>
+                            </div>
                         </div>
                         <button class="btn btn-outline btn-sm" onclick="openEditModal('${ex.name}')">✏️ Editar</button>
                     </div>
@@ -802,6 +841,29 @@
                 `;
                 listContainer.appendChild(card);
             });
+        }
+
+        function finishAndCloseWorkoutDay() {
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            if (!currentDay) return;
+
+            const todayStr = new Date().toLocaleDateString();
+            const logsToday = appData.logs.filter(l => l.date === todayStr && l.dayId === currentDay.id);
+
+            let totalVol = logsToday.reduce((acc, curr) => acc + (parseFloat(curr.weight)||0) * (parseFloat(curr.reps)||0), 0);
+
+            currentDay.exercises.forEach(ex => {
+                const key = `${currentDay.id}_${ex.name}`;
+                delete appData.completedMap[key];
+            });
+
+            let currentIdx = appData.routine.days.findIndex(d => d.id === appData.activeDayId);
+            let nextIdx = (currentIdx + 1) % appData.routine.days.length;
+            appData.activeDayId = appData.routine.days[nextIdx].id;
+
+            saveToStorage();
+            showToast(`🏁 Día cerrado. Volumen: ${totalVol} kg. ¡Siguiente día activado!`);
+            switchTab('history');
         }
 
         function onExerciseSelectChange() {
@@ -842,7 +904,6 @@
             document.getElementById('clinical-guidelines-content').innerHTML = content;
         }
 
-        // --- CRONÓMETROS RESISTENTES A BLOQUEO DE PANTALLA ---
         let execStartTime = null, execTimerInterval = null, isExecRunning = false, accumulatedExecSeconds = 0;
         let restTargetTime = null, restTimerInterval = null;
 
@@ -918,7 +979,7 @@
 
             if (appData.completedMap[key] >= targetSets) {
                 appData.selectedExerciseName = "";
-                openFeedbackModal(exName);
+                showToast(`🎉 ¡${exName} completado!`);
             } else {
                 startRestTimer(90);
             }
@@ -938,7 +999,6 @@
                     clearInterval(restTimerInterval);
                     document.getElementById('rest-card').classList.add('hidden');
                     showToast('¡Tiempo de descanso finalizado!');
-                    notifyRestEnd('¡Fin del descanso! Listo para la siguiente serie.');
                 }
             }, 500);
         }
@@ -973,37 +1033,38 @@
                         <input type="text" value="${day.name}" style="font-weight:bold; margin:0; width:70%;" onchange="updateDayName(${dIdx}, this.value)">
                         <button class="btn btn-danger btn-sm" onclick="removeDayFromRoutine(${dIdx})">Eliminar Día</button>
                     </div>
-                    <div id="editor-ex-list-${dIdx}"></div>
-                    <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="addExerciseToDay(${dIdx})">+ Añadir Ejercicio de Biblioteca</button>
+                    ${day.isRest ? '<p style="font-size:0.8rem; color:var(--success);">Día asignado para recuperación activa sin ejercicios prescriptos.</p>' : `<div id="editor-ex-list-${dIdx}"></div><button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="addExerciseToDay(${dIdx})">+ Añadir Ejercicio de Biblioteca</button>`}
                 `;
                 container.appendChild(dayCard);
 
-                const exList = dayCard.querySelector(`#editor-ex-list-${dIdx}`);
-                day.exercises.forEach((ex, eIdx) => {
-                    const exRow = document.createElement('div');
-                    exRow.style.display = 'flex';
-                    exRow.style.flexDirection = 'column';
-                    exRow.style.gap = '4px';
-                    exRow.style.marginTop = '8px';
-                    exRow.style.background = 'rgba(0,0,0,0.2)';
-                    exRow.style.padding = '8px';
-                    exRow.style.borderRadius = '6px';
+                if (!day.isRest) {
+                    const exList = dayCard.querySelector(`#editor-ex-list-${dIdx}`);
+                    day.exercises.forEach((ex, eIdx) => {
+                        const exRow = document.createElement('div');
+                        exRow.style.display = 'flex';
+                        exRow.style.flexDirection = 'column';
+                        exRow.style.gap = '4px';
+                        exRow.style.marginTop = '8px';
+                        exRow.style.background = 'rgba(0,0,0,0.2)';
+                        exRow.style.padding = '8px';
+                        exRow.style.borderRadius = '6px';
 
-                    let selectOptions = appData.library.map(libEx => 
-                        `<option value="${libEx.name}" ${libEx.name === ex.name ? 'selected' : ''}>${libEx.name} (${libEx.category})</option>`
-                    ).join('');
+                        let selectOptions = appData.library.map(libEx => 
+                            `<option value="${libEx.name}" ${libEx.name === ex.name ? 'selected' : ''}>${libEx.name} (${libEx.category})</option>`
+                        ).join('');
 
-                    exRow.innerHTML = `
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <select style="flex:2; margin:0;" onchange="selectLibraryExForDay(${dIdx}, ${eIdx}, this.value)">
-                                ${selectOptions}
-                            </select>
-                            <input type="text" value="${ex.target || '3x12'}" style="flex:1; margin:0;" onchange="updateExField(${dIdx}, ${eIdx}, 'target', this.value)">
-                            <button class="btn btn-danger btn-sm" style="margin:0; padding:6px 10px;" onclick="removeExFromDay(${dIdx}, ${eIdx})">✖</button>
-                        </div>
-                    `;
-                    exList.appendChild(exRow);
-                });
+                        exRow.innerHTML = `
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <select style="flex:2; margin:0;" onchange="selectLibraryExForDay(${dIdx}, ${eIdx}, this.value)">
+                                    ${selectOptions}
+                                </select>
+                                <input type="text" value="${ex.target || '3x12'}" style="flex:1; margin:0;" onchange="updateExField(${dIdx}, ${eIdx}, 'target', this.value)">
+                                <button class="btn btn-danger btn-sm" style="margin:0; padding:6px 10px;" onclick="removeExFromDay(${dIdx}, ${eIdx})">✖</button>
+                            </div>
+                        `;
+                        exList.appendChild(exRow);
+                    });
+                }
             });
         }
 
@@ -1029,9 +1090,14 @@
             renderDaysNav();
         }
 
-        function addNewDayToRoutine() {
+        function addNewDayToRoutine(isRest = false) {
             const newId = `dia${appData.routine.days.length + 1}`;
-            appData.routine.days.push({ id: newId, name: `Día ${appData.routine.days.length + 1}`, exercises: [appData.library[0]] });
+            appData.routine.days.push({ 
+                id: newId, 
+                isRest: isRest,
+                name: isRest ? `Día ${appData.routine.days.length + 1}: Descanso` : `Día ${appData.routine.days.length + 1}`, 
+                exercises: isRest ? [] : [appData.library[0]] 
+            });
             saveToStorage();
             renderRoutineEditor();
             renderDaysNav();
@@ -1087,21 +1153,21 @@
             const filterEx = document.getElementById('chart-exercise-select').value;
             const filteredLogs = filterEx === "ALL" ? appData.logs : appData.logs.filter(l => l.exercise === filterEx);
 
+            if (filteredLogs.length === 0) {
+                ctx.fillStyle = "#94a3b8";
+                ctx.font = "12px sans-serif";
+                ctx.fillText("Anota varias series para generar la curva de progreso", 20, 100);
+                return;
+            }
+
             const grouped = {};
             filteredLogs.forEach(log => {
                 const vol = (parseFloat(log.weight) || 0) * (parseFloat(log.reps) || 0);
                 grouped[log.date] = (grouped[log.date] || 0) + vol;
             });
 
-            const dates = Object.keys(grouped).slice(-7);
-            const values = dates.map(d => grouped[d]);
-
-            if (values.length < 2) {
-                ctx.fillStyle = "#94a3b8";
-                ctx.font = "12px sans-serif";
-                ctx.fillText("Anota varias series para generar la curva de progreso", 20, 100);
-                return;
-            }
+            const labels = Object.keys(grouped).slice(-7);
+            const values = labels.map(d => grouped[d]);
 
             const maxVal = Math.max(...values, 100);
             const padding = 30;
@@ -1121,14 +1187,18 @@
             ctx.beginPath();
 
             values.forEach((val, idx) => {
-                const x = padding + (idx / (values.length - 1)) * chartWidth;
+                const x = values.length === 1 ? canvas.width / 2 : padding + (idx / (values.length - 1)) * chartWidth;
                 const y = (canvas.height - padding) - (val / maxVal) * chartHeight;
 
                 if (idx === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
 
                 ctx.fillStyle = "#10b981";
-                ctx.fillRect(x - 3, y - 3, 6, 6);
+                ctx.fillRect(x - 4, y - 4, 8, 8);
+                
+                ctx.fillStyle = "#f8fafc";
+                ctx.font = "10px sans-serif";
+                ctx.fillText(`${val}kg`, x - 10, y - 8);
             });
 
             ctx.stroke();
@@ -1159,10 +1229,22 @@
             selector.innerHTML = '<option value="">-- Seleccionar Ejercicio de la Base de Datos --</option>' + 
                 appData.library.map(e => `<option value="${e.name}" ${e.name === exName ? 'selected' : ''}>${e.name} (${e.category})</option>`).join('');
 
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            let activeExInDay = currentDay ? currentDay.exercises.find(e => e.name === exName) : null;
+
             if (exName) {
                 onModalExerciseSelectChange(exName);
+                if (activeExInDay && activeExInDay.target) {
+                    let parts = activeExInDay.target.split('x');
+                    if (parts.length === 2) {
+                        document.getElementById('edit-ex-sets').value = parts[0];
+                        document.getElementById('edit-ex-reps').value = parts[1];
+                    }
+                }
             } else {
                 document.getElementById('edit-ex-name').value = '';
+                document.getElementById('edit-ex-sets').value = '3';
+                document.getElementById('edit-ex-reps').value = '12';
                 document.getElementById('edit-ex-category').value = 'Compuesto Heavy';
                 document.getElementById('edit-ex-settings').value = '';
                 document.getElementById('edit-ex-recommendations').value = '';
@@ -1183,10 +1265,16 @@
             }
         }
 
-        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+        function closeEditModal() { 
+            document.getElementById('edit-modal').classList.add('hidden'); 
+        }
 
         function saveExerciseEdit() {
-            const name = document.getElementById('edit-ex-name').value;
+            const name = document.getElementById('edit-ex-name').value.trim();
+            const sets = document.getElementById('edit-ex-sets').value.trim() || '3';
+            const reps = document.getElementById('edit-ex-reps').value.trim() || '12';
+            const target = `${sets}x${reps}`;
+
             const category = document.getElementById('edit-ex-category').value;
             const settings = document.getElementById('edit-ex-settings').value;
             const recommendations = document.getElementById('edit-ex-recommendations').value;
@@ -1208,6 +1296,7 @@
             if (currentDay) {
                 const exInDay = currentDay.exercises.find(e => e.name === name);
                 if (exInDay) {
+                    exInDay.target = target;
                     exInDay.category = category;
                     exInDay.settings = settings;
                     exInDay.recommendations = recommendations;
@@ -1256,7 +1345,7 @@
             });
         }
 
-        // --- INICIALIZACIÓN: ARRANCAR SIEMPRE EN LA PESTAÑA DE USUARIOS ---
+        // --- INICIALIZACIÓN COMPROBADA EN PESTAÑA USUARIOS ---
         window.onload = function() {
             loadFromStorage();
             switchTab('users');
