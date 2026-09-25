@@ -633,9 +633,6 @@
             appData.logs.push(logEntry);
             localStorage.setItem('gymPro_logs', JSON.stringify(appData.logs));
 
-            // Mantener peso y reps para agilizar la siguiente serie del mismo ejercicio
-            // document.getElementById('weight-input').value = '';
-
             // Comprobar si el ejercicio se acaba de completar
             const exObj = currentDay.exercises.find(e => e.name === exName);
             const targetSets = parseInt(exObj.target.split('x')[0]) || 3;
