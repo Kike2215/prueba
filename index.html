@@ -378,7 +378,7 @@
         </div>
     </div>
 
-    <!-- MODAL: EDITAR / AÑADIR EJERCICIO, RECOMENDACIONES & FOTO -->
+    <!-- MODAL: EDITAR / AÑADIR EJERCICIO, POSICIÓN, RECOMENDACIONES, ERRORES & FOTO -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="card-title">
@@ -405,7 +405,10 @@
             <input type="text" id="edit-ex-settings" placeholder="Ej: Asiento Posición 3, Rodillo a la altura de tobillos">
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">💡 Recomendaciones de Ejecución Fisiológica:</label>
-            <textarea id="edit-ex-recommendations" style="height:70px;" placeholder="Ej: Controlar la bajada en 2 segundos. Espalda apoyada firme y exhalar al empujar."></textarea>
+            <textarea id="edit-ex-recommendations" style="height:60px;" placeholder="Ej: Controlar la bajada en 2 segundos. Espalda apoyada firme y exhalar al empujar."></textarea>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">⚠️ Posibles Errores Frecuentes al Realizarlo:</label>
+            <textarea id="edit-ex-errors" style="height:60px; border-color: var(--danger);" placeholder="Ej: Hiperextender la zona lumbar, descolgar los hombros o utilizar inercia excesiva."></textarea>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Foto de la máquina / postura:</label>
             <input type="file" id="edit-ex-file" accept="image/*" capture="environment" onchange="handleImageUpload(event)">
@@ -448,27 +451,90 @@
                     id: "dia1",
                     name: "Día 1: Pecho y Tríceps",
                     exercises: [
-                        { name: "Press de Pecho Guiado", target: "3x12", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Mantener omóplatos retraídos. Bajar el peso de forma controlada en 2 segundos sin rebotar en el pecho." },
-                        { name: "Aperturas en Polea", target: "3x15", category: "Pecho", settings: "Polea a la altura del pecho", recommendations: "Codos ligeramente flexionados fijando la articulación. Enfocar la contracción en el centro del pectoral." },
-                        { name: "Extensión de Tríceps", target: "3x12", category: "Brazos", settings: "Cuerda en polea alta", recommendations: "Codos pegados al costado sin adelantarlos. Abrir la cuerda suavemente al final del recorrido." }
+                        { 
+                            name: "Press de Pecho Guiado", 
+                            target: "3x12", 
+                            category: "Compuesto Heavy", 
+                            settings: "Asiento Altura 4", 
+                            recommendations: "Mantener omóplatos retraídos. Bajar el peso de forma controlada en 2 segundos sin rebotar en el pecho.",
+                            errors: "Despegar la zona lumbar del respaldo, bloquear agresivamente codos al final o despegar los hombros del banco."
+                        },
+                        { 
+                            name: "Aperturas en Polea", 
+                            target: "3x15", 
+                            category: "Pecho", 
+                            settings: "Polea a la altura del pecho", 
+                            recommendations: "Codos ligeramente flexionados fijando la articulación. Enfocar la contracción en el centro del pectoral.",
+                            errors: "Encoger los hombros hacia las orejas, transformar el movimiento en un press o estirar los codos por completo."
+                        },
+                        { 
+                            name: "Extensión de Tríceps", 
+                            target: "3x12", 
+                            category: "Brazos", 
+                            settings: "Cuerda en polea alta", 
+                            recommendations: "Codos pegados al costado sin adelantarlos. Abrir la cuerda suavemente al final del recorrido.",
+                            errors: "Balancear el torso para aprovechar inercia, mover los codos hacia adelante o separar los brazos del cuerpo."
+                        }
                     ]
                 },
                 {
                     id: "dia2",
                     name: "Día 2: Espalda y Bíceps",
                     exercises: [
-                        { name: "Remo Sentado en Máquina", target: "4x10", category: "Compuesto Heavy", settings: "Apoyo pectoral posición 2", recommendations: "Tirar con los codos hacia atrás bordeando el cuerpo. Mantener el pecho apoyado firmemente." },
-                        { name: "Jalón al Pecho Guiado", target: "3x12", category: "Espalda", settings: "Agarre neutro a anchura de hombros", recommendations: "Inclinación leve de torso de 15°. Llevar la barra hacia la parte superior del pecho." },
-                        { name: "Curl de Bíceps con Barra", target: "3x12", category: "Brazos", settings: "Barra Z con agarre medio", recommendations: "Evitar el balanceo lumbar. Mantener los hombros abajo y contraer el bíceps en el punto máximo." }
+                        { 
+                            name: "Remo Sentado en Máquina", 
+                            target: "4x10", 
+                            category: "Compuesto Heavy", 
+                            settings: "Apoyo pectoral posición 2", 
+                            recommendations: "Tirar con los codos hacia atrás bordeando el cuerpo. Mantener el pecho apoyado firmemente.",
+                            errors: "Tironear con la zona lumbar despegando el pecho, encoger hombros o no completar la extensión controlada."
+                        },
+                        { 
+                            name: "Jalón al Pecho Guiado", 
+                            target: "3x12", 
+                            category: "Espalda", 
+                            settings: "Agarre neutro a anchura de hombros", 
+                            recommendations: "Inclinación leve de torso de 15°. Llevar la barra hacia la parte superior del pecho.",
+                            errors: "Llevar la barra detrás de la nuca, inclinarse excesivamente hacia atrás o usar las muñecas para traccionar."
+                        },
+                        { 
+                            name: "Curl de Bíceps con Barra", 
+                            target: "3x12", 
+                            category: "Brazos", 
+                            settings: "Barra Z con agarre medio", 
+                            recommendations: "Evitar el balanceo lumbar. Mantener los hombros abajo y contraer el bíceps en el punto máximo.",
+                            errors: "Balancear la cadera para subir el peso, adelantar los codos o dejar caer el peso bruscamente sin control."
+                        }
                     ]
                 },
                 {
                     id: "dia3",
                     name: "Día 3: Piernas y Core",
                     exercises: [
-                        { name: "Prensa de Piernas Guiada", target: "4x10", category: "Compuesto Heavy", settings: "Respaldo inclinación posición 2", recommendations: "Pies a anchura de caderas. Bajar hasta un ángulo de 90° en rodillas sin descolgar la pelvis." },
-                        { name: "Curl de Piernas Sentado", target: "3x12", category: "Piernas", settings: "Rodillo apoyado justo sobre tobillos", recommendations: "Mantener el muslo firme contra la almohadilla superior. Flexionar de forma fluida." },
-                        { name: "Prensa de Abdominales", target: "3x15", category: "Core", settings: "Carga moderada e inclinación neutra", recommendations: "Exhalar completamente al flexionar el tronco. Evitar tirar con el cuello." }
+                        { 
+                            name: "Prensa de Piernas Guiada", 
+                            target: "4x10", 
+                            category: "Compuesto Heavy", 
+                            settings: "Respaldo inclinación posición 2", 
+                            recommendations: "Pies a anchura de caderas. Bajar hasta un ángulo de 90° en rodillas sin descolgar la pelvis.",
+                            errors: "Bloquear las rodillas bruscamente al extender, despegar la pelvis/sacro del asiento al bajar o juntar las rodillas hacia adentro."
+                        },
+                        { 
+                            name: "Curl de Piernas Sentado", 
+                            target: "3x12", 
+                            category: "Piernas", 
+                            settings: "Rodillo apoyado justo sobre tobillos", 
+                            recommendations: "Mantener el muslo firme contra la almohadilla superior. Flexionar de forma fluida.",
+                            errors: "Levantar la cadera del asiento durante la flexión o soltar la bajada sin oponer resistencia (excéntrica rápida)."
+                        },
+                        { 
+                            name: "Prensa de Abdominales", 
+                            target: "3x15", 
+                            category: "Core", 
+                            settings: "Carga moderada e inclinación neutra", 
+                            recommendations: "Exhalar completamente al flexionar el tronco. Evitar tirar con el cuello.",
+                            errors: "Tirar con la fuerza de los brazos o del cuello en lugar de encoger los rectos abdominales."
+                        }
                     ]
                 }
             ]
@@ -563,7 +629,8 @@
                         target: "3x12",
                         category: "Compuesto Heavy",
                         settings: "Ajuste estándar",
-                        recommendations: "Ejecución controlada de cadencia 2:1."
+                        recommendations: "Ejecución controlada de cadencia 2:1.",
+                        errors: "Evitar pérdidas de tensión y sobrecargas articulares."
                     });
                 }
             });
@@ -811,6 +878,7 @@
                     </div>
                     ${ex.settings ? `<div style="font-size:0.75rem; color:var(--primary); margin-top:6px;">🎯 <strong>Posición / Ajustes:</strong> ${ex.settings}</div>` : ''}
                     ${ex.recommendations ? `<div style="font-size:0.75rem; color:var(--text-sec); margin-top:4px; line-height:1.3;">💡 <strong>Recomendación:</strong> ${ex.recommendations}</div>` : ''}
+                    ${ex.errors ? `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px; line-height:1.3;">⚠️ <strong>Errores a evitar:</strong> ${ex.errors}</div>` : ''}
                     ${setsHTML ? `<div style="margin-top:8px;">${setsHTML}</div>` : ''}
                 `;
                 listContainer.appendChild(card);
@@ -1116,7 +1184,14 @@
         }
 
         function addExerciseToDay(dIdx) {
-            appData.routine.days[dIdx].exercises.push({ name: "Nuevo Ejercicio", target: "3x12", category: "Pecho", settings: "Ajuste estándar", recommendations: "Cadencia controlada 2:1." });
+            appData.routine.days[dIdx].exercises.push({ 
+                name: "Nuevo Ejercicio", 
+                target: "3x12", 
+                category: "Pecho", 
+                settings: "Ajuste estándar", 
+                recommendations: "Cadencia controlada 2:1.",
+                errors: "Evitar pérdida de tensión muscular."
+            });
             localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
             renderRoutineEditor();
         }
@@ -1218,6 +1293,7 @@
                     </div>
                     <div style="font-size:0.8rem; color:var(--text-sec);">${ex.category} | ${ex.settings || 'Sin posición'}</div>
                     ${ex.recommendations ? `<div style="font-size:0.75rem; color:var(--primary); margin-top:4px;">💡 ${ex.recommendations}</div>` : ''}
+                    ${ex.errors ? `<div style="font-size:0.75rem; color:var(--danger); margin-top:2px;">⚠️ ${ex.errors}</div>` : ''}
                     ${ex.image ? `<img src="${ex.image}" class="preview-img">` : ''}
                 `;
                 container.appendChild(card);
@@ -1231,6 +1307,7 @@
             document.getElementById('edit-ex-name').value = exName;
             document.getElementById('edit-ex-settings').value = ex ? (ex.settings || '') : '';
             document.getElementById('edit-ex-recommendations').value = ex ? (ex.recommendations || '') : '';
+            document.getElementById('edit-ex-errors').value = ex ? (ex.errors || '') : '';
             document.getElementById('edit-ex-preview').classList.add('hidden');
             currentEditImage = "";
             document.getElementById('edit-modal').classList.remove('hidden');
@@ -1272,21 +1349,22 @@
             const category = document.getElementById('edit-ex-category').value;
             const settings = document.getElementById('edit-ex-settings').value;
             const recommendations = document.getElementById('edit-ex-recommendations').value;
+            const errors = document.getElementById('edit-ex-errors').value;
 
             if (!name) return alert('Por favor introduce un nombre');
 
-            // Actualizar en el día activo si existe
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             if (currentDay) {
                 const exInDay = currentDay.exercises.find(e => e.name === name);
                 if (exInDay) {
                     exInDay.settings = settings;
                     exInDay.recommendations = recommendations;
+                    exInDay.errors = errors;
                     exInDay.category = category;
                 }
             }
 
-            const newEx = { name, category, settings, recommendations, image: currentEditImage };
+            const newEx = { name, category, settings, recommendations, errors, image: currentEditImage };
             appData.library.push(newEx);
             localStorage.setItem('gymPro_library', JSON.stringify(appData.library));
             localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
