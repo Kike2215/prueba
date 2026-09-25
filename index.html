@@ -183,7 +183,8 @@
                 <option value="">Cargando ejercicios...</option>
             </select>
 
-            <div id="exercise-info-box" class="hidden" style="font-size: 0.8rem; color: var(--primary); margin-bottom: 8px;"></div>
+            <!-- DETALLE COMPLETO DEL EJERCICIO SELECCIONADO (OBJETIVO, POSICIÓN, RECOMENDACIONES, ERRORES) -->
+            <div id="exercise-info-box" class="hidden" style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4;"></div>
 
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
@@ -928,7 +929,12 @@
             const ex = currentDay.exercises.find(e => e.name === exName);
             if (ex) {
                 infoBox.classList.remove('hidden');
-                infoBox.innerText = `Objetivo: ${ex.target} | ${ex.settings || 'Sin posición registrada'}`;
+                infoBox.innerHTML = `
+                    <div style="font-weight: bold; color: var(--primary); margin-bottom: 4px;">Objetivo: ${ex.target}</div>
+                    ${ex.settings ? `<div style="color: var(--text-main); margin-bottom: 2px;">🎯 <strong>Posición / Ajustes:</strong> ${ex.settings}</div>` : ''}
+                    ${ex.recommendations ? `<div style="color: var(--text-sec); margin-bottom: 2px;">💡 <strong>Recomendación:</strong> ${ex.recommendations}</div>` : ''}
+                    ${ex.errors ? `<div style="color: var(--danger);">⚠️ <strong>Errores a evitar:</strong> ${ex.errors}</div>` : ''}
+                `;
             }
         }
 
