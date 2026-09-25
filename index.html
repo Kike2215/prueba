@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gym Pro - Sistema Completo 50 Ejercicios</title>
+    <title>Gym Pro - Sistema Completo</title>
     <!-- Tone.js para sintetizador de sonido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- PDF.js para lectura e importación de PDFs -->
@@ -145,13 +145,87 @@
 
     <div class="header">
         <h1>GYM PRO</h1>
-        <span id="periodization-tag" class="ex-badge" style="color: var(--primary); border-color: var(--primary);">Ciclo: Día 1</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="requestLockAndNotifications()" id="lock-btn">📱 Pantalla Activa</button>
+            <span id="periodization-tag" class="ex-badge" style="color: var(--primary); border-color: var(--primary);">Ciclo: Día 1</span>
+        </div>
     </div>
 
     <div id="toast" class="hidden"></div>
 
-    <!-- PESTAÑA: MI PLAN DE ENTRENAMIENTO -->
-    <div id="tab-workout" class="container">
+    <!-- PESTAÑA 1: USUARIOS (PANTALLA DE INICIO OBLIGATORIA) -->
+    <div id="tab-users" class="container">
+        <div class="card" style="border-left: 4px solid var(--primary);">
+            <div class="card-title">👤 Selección de Atleta / Usuario</div>
+            <p style="font-size:0.85rem; color:var(--text-sec); margin-bottom:10px;">
+                Para comenzar, elige un usuario registrado para ir directamente a su plan o crea un nuevo perfil.
+            </p>
+            
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Usuario Activo:</label>
+            <select id="user-selector" onchange="onUserSelectChange()"></select>
+
+            <div id="active-user-details" style="background:#0f172a; padding:12px; border-radius:8px; border:1px solid var(--border); margin-top:10px;">
+                <div style="font-weight:bold; color:var(--primary);" id="ud-name">Cargando...</div>
+                <div style="font-size:0.8rem; color:var(--text-sec); margin-top:4px;" id="ud-info">...</div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:12px;">
+                <button class="btn btn-success" style="flex:2;" onclick="confirmUserAndGoToPlan()">🚀 Entrar con este Usuario</button>
+                <button class="btn btn-outline" style="flex:1;" onclick="showNewUserForm()">+ Nuevo</button>
+                <button class="btn btn-danger btn-sm" style="width:auto;" onclick="deleteCurrentActiveUser()">🗑️</button>
+            </div>
+        </div>
+
+        <div class="card" id="quiz-card">
+            <div class="card-title">📝 Cuestionario / Perfil del Atleta</div>
+            
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre Completo / Alias:</label>
+            <input type="text" id="q-name" placeholder="Ej: Juan Pérez">
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Experiencia / Nivel:</label>
+            <select id="q-level">
+                <option value="Principiante">Principiante (< 1 año)</option>
+                <option value="Intermedio" selected>Intermedio (1 - 3 años)</option>
+                <option value="Avanzado">Avanzado (> 3 años)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Objetivo Principal:</label>
+            <select id="q-goal">
+                <option value="Hipertrofia">Hipertrofia y Ganancia Muscular</option>
+                <option value="Fuerza">Fuerza Máxima</option>
+                <option value="Recomposición">Recomposición Corporal / Pérdida de Grasa</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Días disponibles por semana:</label>
+            <select id="q-days">
+                <option value="3">3 Días (Full Body / Push-Pull-Legs)</option>
+                <option value="4" selected>4 Días (Torso / Pierna)</option>
+                <option value="5">5 Días (Frecuencia 2)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Lesiones o Molestias Previas:</label>
+            <select id="q-injury">
+                <option value="Ninguna">Sin molestias / Salud articular óptima</option>
+                <option value="Rodilla">Molestias en Rodilla</option>
+                <option value="Lumbar">Molestias en Zona Lumbar</option>
+                <option value="Hombro">Molestias en Hombro / Manguito</option>
+            </select>
+
+            <button class="btn btn-success" onclick="saveUserFromQuiz()">💾 Guardar Usuario e ir al Plan</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📄 Importar Rutina desde PDF / Documento</div>
+            <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 8px;">
+                Sube un archivo PDF o documento de texto con tu rutina para convertirlo automáticamente en un plan activo.
+            </p>
+            <input type="file" id="pdf-import-input" accept=".pdf, .txt, .json" onchange="processPDFOrDocImport(event)">
+            <div id="import-status" style="font-size: 0.8rem; color: var(--primary); margin-top: 4px;"></div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 2: MI PLAN DE ENTRENAMIENTO -->
+    <div id="tab-workout" class="container hidden">
         
         <div id="periodization-alert" class="card hidden" style="border-color: var(--primary); background: linear-gradient(135deg, #1e293b, #334155);">
             <div class="card-title">
@@ -201,7 +275,7 @@
 
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
-                    <label style="font-size: 0.75rem; color: var(--text-sec);">Peso (kg):</label>
+                    <label style="font-size: 0.75rem; color: var(--text-sec);">Peso / Resistencia (kg):</label>
                     <input type="number" id="weight-input" placeholder="0" onfocus="startExecutionTimer()">
                 </div>
                 <div style="flex: 1;">
@@ -235,87 +309,7 @@
         <div id="daily-exercises-list"></div>
     </div>
 
-    <!-- PESTAÑA: USUARIOS & IMPORTADOR PDF -->
-    <div id="tab-users" class="container hidden">
-        <div class="card">
-            <div class="card-title">👤 Registro y Selección de Usuario</div>
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Usuario Activo:</label>
-            <select id="user-selector" onchange="switchUserAccount()"></select>
-
-            <div id="active-user-details" style="background:#0f172a; padding:12px; border-radius:8px; border:1px solid var(--border); margin-top:10px;">
-                <div style="font-weight:bold; color:var(--primary);" id="ud-name">Cargando...</div>
-                <div style="font-size:0.8rem; color:var(--text-sec); margin-top:4px;" id="ud-info">...</div>
-            </div>
-
-            <div style="display:flex; gap:8px; margin-top:10px;">
-                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="showNewUserForm()">+ Nuevo Usuario</button>
-                <button class="btn btn-danger btn-sm" style="flex:1;" onclick="deleteCurrentActiveUser()">🗑️ Eliminar</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">📄 Importar Rutina desde PDF / Documento</div>
-            <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 8px;">
-                Sube un archivo PDF o documento de texto con tu rutina para convertirlo automáticamente en un plan activo.
-            </p>
-            <input type="file" id="pdf-import-input" accept=".pdf, .txt, .json" onchange="processPDFOrDocImport(event)">
-            <div id="import-status" style="font-size: 0.8rem; color: var(--primary); margin-top: 4px;"></div>
-        </div>
-
-        <div class="card" id="quiz-card">
-            <div class="card-title">📝 Cuestionario de Evaluación Corporal</div>
-            
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre Completo / Alias:</label>
-            <input type="text" id="q-name" placeholder="Ej: Juan Pérez">
-
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Experiencia / Nivel:</label>
-            <select id="q-level">
-                <option value="Principiante">Principiante (< 1 año)</option>
-                <option value="Intermedio" selected>Intermedio (1 - 3 años)</option>
-                <option value="Avanzado">Avanzado (> 3 años)</option>
-            </select>
-
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Objetivo Principal:</label>
-            <select id="q-goal">
-                <option value="Hipertrofia">Hipertrofia y Ganancia Muscular</option>
-                <option value="Fuerza">Fuerza Máxima</option>
-                <option value="Recomposición">Recomposición Corporal / Pérdida de Grasa</option>
-            </select>
-
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Días disponibles por semana:</label>
-            <select id="q-days">
-                <option value="3">3 Días (Full Body / Push-Pull-Legs)</option>
-                <option value="4" selected>4 Días (Torso / Pierna)</option>
-                <option value="5">5 Días (Frecuencia 2)</option>
-            </select>
-
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Lesiones o Molestias Previas:</label>
-            <select id="q-injury">
-                <option value="Ninguna">Sin molestias / Salud articular óptima</option>
-                <option value="Rodilla">Molestias en Rodilla</option>
-                <option value="Lumbar">Molestias en Zona Lumbar</option>
-                <option value="Hombro">Molestias en Hombro / Manguito</option>
-            </select>
-
-            <button class="btn" onclick="saveUserFromQuiz()">💾 Guardar Usuario y Adaptar Rutina</button>
-        </div>
-    </div>
-
-    <!-- PESTAÑA: EDITOR MANUAL DE RUTINA -->
-    <div id="tab-editor" class="container hidden">
-        <div class="card">
-            <div class="card-title">
-                <span>🛠️ Editor Manual de Rutina</span>
-                <button class="btn btn-sm" onclick="addNewDayToRoutine()">+ Día</button>
-            </div>
-            <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Selecciona cualquier ejercicio de la biblioteca completa para copiar automáticamente todos sus parámetros (posiciones, recomendaciones, errores).
-            </p>
-            <div id="routine-editor-container"></div>
-        </div>
-    </div>
-
-    <!-- PESTAÑA: HISTORIAL Y GRÁFICO DE PROGRESIÓN -->
+    <!-- PESTAÑA 3: HISTORIAL Y GRÁFICO DE PROGRESIÓN -->
     <div id="tab-history" class="container hidden">
         <div class="card">
             <div class="card-title">📊 Gráfico de Progresión</div>
@@ -335,14 +329,28 @@
         </div>
     </div>
 
-    <!-- PESTAÑA: BIBLIOTECA COMPLETA DE 50 EJERCICIOS -->
+    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 60 EJERCICIOS -->
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
-                <span>📚 Biblioteca del Sistema (50 Ejercicios)</span>
+                <span>📚 Biblioteca del Sistema (60 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
             <div id="library-container"></div>
+        </div>
+    </div>
+
+    <!-- EDITOR MANUAL DE RUTINA (DESDE MODAL/PANEL ACCESIBLE) -->
+    <div id="tab-editor" class="container hidden">
+        <div class="card">
+            <div class="card-title">
+                <span>🛠️ Editor Manual de Rutina</span>
+                <button class="btn btn-sm" onclick="addNewDayToRoutine()">+ Día</button>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
+                Selecciona cualquier ejercicio de la biblioteca para copiar automáticamente todos sus parámetros (posiciones, recomendaciones, errores).
+            </p>
+            <div id="routine-editor-container"></div>
         </div>
     </div>
 
@@ -421,33 +429,29 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR -->
+    <!-- NAVEGACIÓN INFERIOR REORDENADA: USUARIO -> PLAN -> HISTÓRICO -> BIBLIOTECA -->
     <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('workout', this)">
+        <div class="nav-item active" onclick="switchTab('users', this)" id="nav-users">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span>Usuario</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('workout', this)" id="nav-workout">
             <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 6.29 3.43 4.86 2 3.43 3.43 2 4.86 3.43 6.29 2 7.71 3.43 9.14 2 10.57 3.43 12 7 20.57 10.57 22 12 20.57 13.43 22 14.86 20.57 16.29 22 17.71 20.57 19.14 22 20.57z"/></svg>
             <span>Plan</span>
         </div>
-        <div class="nav-item" onclick="switchTab('users', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span>Usuarios</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('editor', this)">
-            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            <span>Editar Rutina</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('history', this)">
+        <div class="nav-item" onclick="switchTab('history', this)" id="nav-history">
             <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
-            <span>Historial</span>
+            <span>Histórico</span>
         </div>
-        <div class="nav-item" onclick="switchTab('library', this)">
+        <div class="nav-item" onclick="switchTab('library', this)" id="nav-library">
             <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
             <span>Biblioteca</span>
         </div>
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (50 EJERCICIOS) ---
-        const MASTER_50_LIBRARY = [
+        // --- BASE DE DATOS MASTER COMPLETA (60 EJERCICIOS) ---
+        const MASTER_60_LIBRARY = [
             // COMPUESTOS HEAVY (7)
             { name: "Press de Pecho Guiado", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Retraer omóplatos. Bajar el peso de forma controlada en 2s.", errors: "Despegar la zona lumbar del respaldo o bloquear codos bruscamente." },
             { name: "Sentadilla con Barra", category: "Compuesto Heavy", settings: "Soporte a la altura del esternón", recommendations: "Mantener pies a anchura de hombros y empujar con los talones.", errors: "Guiar con las rodillas hacia adentro o curvar la espalda baja." },
@@ -457,22 +461,28 @@
             { name: "Press Inclinado con Mancuernas", category: "Compuesto Heavy", settings: "Banco a 30°", recommendations: "Bajar con codos a 45° respecto al torso.", errors: "Abrir excesivamente los codos lesionando el hombro." },
             { name: "Prensa de Piernas Inclinada", category: "Compuesto Heavy", settings: "Respaldo pos. 2", recommendations: "Bajar a 90° en rodillas de forma fluida.", errors: "Bloquear rodillas o despegar el glúteo del asiento." },
 
-            // PECHO (5)
+            // PECHO (7)
+            { name: "Press Banca Plano con Mancuernas", category: "Pecho", settings: "Banco plano horizontal", recommendations: "Codos a 45°. Juntar las mancuernas en la vertical sin chocar.", errors: "Rebotar en el pecho o despegar la espalda." },
+            { name: "Aperturas con Mancuernas en Banco Plano", category: "Pecho", settings: "Banco horizontal", recommendations: "Codos en flexión fija. Abrir sintiendo el estiramiento del pectoral.", errors: "Convertirlo en un press flexionando los brazos al bajar." },
             { name: "Aperturas en Polea", category: "Pecho", settings: "Polea a la altura del pecho", recommendations: "Mantener codos semifinales fijando articulación.", errors: "Transformar el movimiento en un press." },
             { name: "Contractora Pecho (Pec Deck)", category: "Pecho", settings: "Asiento pos. 3", recommendations: "Pausar 1 segundo en máxima contracción central.", errors: "Encoger los hombros hacia arriba." },
             { name: "Press Declinado en Máquina", category: "Pecho", settings: "Asiento elevado pos. 5", recommendations: "Enfocar el empuje en la porción inferior del pectoral.", errors: "Forzar el agarre abriendo codos." },
             { name: "Cruces de Polea Alta", category: "Pecho", settings: "Polea en máxima altura", recommendations: "Cruzar las manos levemente en la fase final.", errors: "Usar inercia del torso al bajar." },
             { name: "Fondos en Paralelas (Pectoral)", category: "Pecho", settings: "Agarre ancho", recommendations: "Inclinar el torso 30° hacia adelante.", errors: "Bajar demasiado forzando la articulación del hombro." },
 
-            // ESPALDA (6)
+            // ESPALDA (7)
+            { name: "Remo Unilateral con Mancuerna", category: "Espalda", settings: "Apoyo en banco plano", recommendations: "Llevar la mancuerna hacia la cadera marcando el arco.", errors: "Rotar el torso excesivamente." },
             { name: "Jalón al Pecho Guiado", category: "Espalda", settings: "Agarre neutro ancho", recommendations: "Inclinación leve de torso de 15°. Llevar la barra al esternón.", errors: "Llevar la barra detrás de la nuca." },
             { name: "Dominadas Asistidas", category: "Espalda", settings: "Plataforma de asistencia ajustada", recommendations: "Subir hasta superar la barbilla completando el rango.", errors: "Kipping o impulso con piernas." },
             { name: "Pull-over con Cuerda en Polea", category: "Espalda", settings: "Polea alta con cuerda", recommendations: "Codos bloqueados en leve flexión, llevar manos a la cadera.", errors: "Flexionar codos convirtiéndolo en tríceps." },
-            { name: "Remo Unilateral con Mancuerna", category: "Espalda", settings: "Apoyo en banco plano", recommendations: "Llevar la mancuerna hacia la cadera marcando el arco.", errors: "Rotar el torso excesivamente." },
+            { name: "Remo con Banda Elástica", category: "Espalda", settings: "Goma anclada a pie o estructura fija", recommendations: "Tirar con codos hacia atrás apretando la escápula.", errors: "Encoger hombros hacia las orejas." },
             { name: "Remo en Barra T", category: "Espalda", settings: "Agarre estrecho", recommendations: "Mantener la columna neutra durante toda la tirada.", errors: "Usar rebotes lumbares." },
             { name: "Hiperextensiones a 45°", category: "Espalda", settings: "Almohadilla bajo la cresta ilíaca", recommendations: "Subir alineando la columna con las piernas sin sobrepasar.", errors: "Hiperextender la zona lumbar en la parte alta." },
 
-            // PIERNAS Y GLÚTEOS (9)
+            // PIERNAS Y GLÚTEOS (11)
+            { name: "Peso Muerto Rumano con Mancuernas", category: "Piernas", settings: "Mancuernas pegadas a los muslos", recommendations: "Llevar cadera hacia atrás flexionando levemente rodillas.", errors: "Curvar la columna lumbar al bajar." },
+            { name: "Pasos Laterales con Banda Elástica (Monster Walk)", category: "Piernas", settings: "Banda sobre las rodillas o tobillos", recommendations: "Mantener tensión constante en la goma sin juntar pies.", errors: "Juntar las rodillas hacia adentro (valgo)." },
+            { name: "Sentadilla Goblet con Mancuerna / Banda", category: "Piernas", settings: "Mancuerna vertical en el pecho", recommendations: "Bajar con espalda erguida abriendo rodillas.", errors: "Levantar los talones del suelo." },
             { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo sobre tobillos", recommendations: "Pausar 1s arriba comprimiendo el cuádriceps.", errors: "Patear con inercia o despegar el glúteo." },
             { name: "Curl Femoral Sentado", category: "Piernas", settings: "Rodillo superior firme en muslos", recommendations: "Flexionar de forma fluida y frenar la bajada.", errors: "Soltar el peso sin control excéntrico." },
             { name: "Curl Femoral Tumbado", category: "Piernas", settings: "Eje de rotación alineado a rodilla", recommendations: "Mantener la cadera pegada al banco.", errors: "Levantar la pelvis al flexionar." },
@@ -480,39 +490,43 @@
             { name: "Elevación de Calcanhares (Gemelos)", category: "Piernas", settings: "Apoyo en metatarsos", recommendations: "Bajar al máximo estirando el sóleo y pausar arriba.", errors: "Rebotar rápido sin pausa." },
             { name: "Sentadilla Búlgara", category: "Piernas", settings: "Pie trasero sobre banco a 40cm", recommendations: "Bajar verticalmente repartiendo el peso.", errors: "Inclinarse hacia adelante perdiendo equilibrio." },
             { name: "Hip Thrust con Barra / Máquina", category: "Piernas", settings: "Borde del banco en las escápulas", recommendations: "Empujar con talones marcando retroversión pélvica 1s arriba.", errors: "Arquear la zona lumbar o levantar talones." },
-            { name: "Máquina Abductora de Cadera", category: "Piernas", settings: "Almohadillas cara externa", recommendations: "Abrir de forma constante marcando 1s de contracción.", errors: "Usar impulso del torso hacia adelante." },
-            { name: "Máquina Adductora de Cadera", category: "Piernas", settings: "Almohadillas cara interna", recommendations: "Cerrar suavemente concentrando la fuerza interna.", errors: "Dejar que las placas choquen bruscamente." },
+            { name: "Máquina Abductora / Adductora", category: "Piernas", settings: "Almohadillas ajustadas", recommendations: "Movimientos constantes con control excéntrico.", errors: "Tironear con inercia del torso." },
 
-            // HOMBROS (5)
+            // HOMBROS (6)
             { name: "Elevaciones Laterales con Mancuernas", category: "Hombros", settings: "Ligera inclinación hacia adelante", recommendations: "Guiar con los codos ligeramente por delante del cuerpo.", errors: "Subir las pesas por encima de la altura de hombros." },
+            { name: "Rotación Externa de Hombro con Banda", category: "Hombros", settings: "Codo pegado a 90° con toalla/almohadilla", recommendations: "Rotar hacia afuera aislando manguito rotador.", errors: "Despegar el codo del costado." },
+            { name: "Band Pull-Apart (Aperturas con Banda)", category: "Hombros", settings: "Banda sujeta con ambas manos a altura de hombros", recommendations: "Separar la goma hasta tocar el pecho retrayendo escápulas.", errors: "Encoger trapecios." },
             { name: "Pájaro en Polea (Deltoides Posterior)", category: "Hombros", settings: "Polea a la altura del rostro", recommendations: "Separar las manos enfocando la parte trasera del hombro.", errors: "Usar fuerza de los trapecios." },
             { name: "Press Arnold", category: "Hombros", settings: "Respaldo vertical", recommendations: "Rotar las muñecas de forma fluida durante el empuje.", errors: "Forzar la rotación del manguito rotador." },
-            { name: "Elevaciones Frontales con Disco", category: "Hombros", settings: "Sujeción lateral de disco", recommendations: "Subir hasta la línea de la mirada de forma controlada.", errors: "Balancear el cuerpo hacia atrás." },
             { name: "Remo al Mentón con Barra Z", category: "Hombros", settings: "Agarre a anchura de hombros", recommendations: "Subir los codos por encima de la barra.", errors: "Usar agarre demasiado estrecho que pille el hombro." },
 
-            // BRAZOS (8)
-            { name: "Extensión de Tríceps en Polea", category: "Brazos", settings: "Cuerda alta", recommendations: "Codos pegados al costado. Abrir la cuerda abajo.", errors: "Mover los codos hacia adelante." },
+            // BRAZOS (9)
+            { name: "Curl de Bíceps Alterno con Mancuernas", category: "Brazos", settings: "De pie o sentado", recommendations: "Supinar la muñeca al subir apretando el bíceps.", errors: "Balancear los hombros o los codos hacia atrás." },
+            { name: "Extensiones de Tríceps sobre Cabeza con Mancuerna", category: "Brazos", settings: "Sentado con espalda recta", recommendations: "Extender verticalmente manteniendo codos mirando al frente.", errors: "Abrir codos hacia los lados." },
+            { name: "Extensión de Tríceps en Polea / Cuerda", category: "Brazos", settings: "Cuerda alta", recommendations: "Codos pegados al costado. Abrir la cuerda abajo.", errors: "Mover los codos hacia adelante." },
             { name: "Curl de Bíceps con Barra Z", category: "Brazos", settings: "Agarre medio", recommendations: "Mantener codos fijos sin mover los hombros.", errors: "Usar balanceo de cadera." },
             { name: "Press Francés con Barra", category: "Brazos", settings: "Banco plano", recommendations: "Bajar la barra hacia la frente manteniendo codos cerrados.", errors: "Abrir codos hacia afuera." },
             { name: "Curl Martillo con Mancuernas", category: "Brazos", settings: "Agarre neutro", recommendations: "Enfocar la contracción en el braquial.", errors: "Girar la muñeca durante el recorrido." },
             { name: "Tríceps Copa a dos Manos", category: "Brazos", settings: "Sentado en banco corto", recommendations: "Bajar la mancuerna por detrás de la cabeza de forma segura.", errors: "Abrir los codos excesivamente." },
             { name: "Curl en Banco Scott (Predicador)", category: "Brazos", settings: "Axilas apoyadas en la almohadilla", recommendations: "Estirar hasta el 90% sin hiperprolongar el codo.", errors: "Soltar el peso bruscamente al final." },
             { name: "Curl Concentrado con Mancuerna", category: "Brazos", settings: "Codo apoyado en muslo interno", recommendations: "Flexionar aislando por completo sin mover el hombro.", errors: "Usar balanceo del torso o despegar el codo." },
-            { name: "Patada de Tríceps en Polea", category: "Brazos", settings: "Torso inclinado a 45°", recommendations: "Extender el codo hacia atrás completamente.", errors: "Mover el brazo desde el hombro reduciendo recorrido." },
 
             // CORE (3)
             { name: "Prensa de Abdominales", category: "Core", settings: "Carga moderada", recommendations: "Exhalar todo el aire al encoger el abdomen.", errors: "Tirar con la fuerza del cuello." },
             { name: "Plancha Abdominal ISO", category: "Core", settings: "Antebrazos apoyados", recommendations: "Mantener cuerpo en línea recta activando glúteos.", errors: "Dejar caer la cadera." },
             { name: "Elevación de Piernas en Suspensión", category: "Core", settings: "Sujeción en torre de fondos", recommendations: "Elevar la pelvis rodando el abdomen.", errors: "Balancear las piernas usando inercia." },
 
-            // CARDIO Y CONDICIONAMIENTO (7)
+            // CARDIO Y CONDICIONAMIENTO (10)
+            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones y mantener postura vertical.", errors: "Encorvar hombros o pedalear solo en puntas." },
+            { name: "Máquina de Bandas Elásticas", category: "Cardio", settings: "Anclaje a altura media o alta según objetivo", recommendations: "Mantener tensión continua en la banda sin perder el control en el retorno.", errors: "Dejar que la goma tire bruscamente de las articulaciones." },
             { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
-            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones.", errors: "Encorvar hombros o pedalear solo en puntas." },
             { name: "Escaladora / Escaleras", category: "Cardio", settings: "Velocidad constante", recommendations: "Mantener centro de gravedad alineado.", errors: "Volcar todo el peso sobre los brazos en la consola." },
             { name: "Remo Ergómetro", category: "Cardio", settings: "Resistencia nivel 5", recommendations: "Empujar con piernas antes de tirar con brazos.", errors: "Curvar la espalda al recuperar el movimiento." },
             { name: "SkiErg / Esquiador de Poleas", category: "Cardio", settings: "Poleas en altura máxima", recommendations: "Iniciar la tracción flexionando cadera y rodillas.", errors: "Tirar únicamente con la fuerza de los brazos." },
             { name: "Saco de Boxeo / Pao", category: "Cardio", settings: "Postura de guardia neutra", recommendations: "Rotar la cadera y hombros al lanzar los golpes.", errors: "Golpear con muñecas dobladas sin vender la pierna." },
-            { name: "Salto a la Comba", category: "Cardio", settings: "Comba a la altura de axilas", recommendations: "Saltos cortos sobre metatarsos usando muñecas.", errors: "Saltar flexionando excesivamente las rodillas." }
+            { name: "Salto a la Comba", category: "Cardio", settings: "Comba a la altura de axilas", recommendations: "Saltos cortos sobre metatarsos usando muñecas.", errors: "Saltar flexionando excesivamente las rodillas." },
+            { name: "Bicicleta Estática / Spinning", category: "Cardio", settings: "Sillín a la altura de la cadera", recommendations: "Pedalear con cadencia constante manteniendo abdomen activado.", errors: "Bajar demasiado el sillín sobrecargando rodillas." },
+            { name: "Sled Push (Empuje de Trineo)", category: "Cardio", settings: "Carga progresiva sobre trineo", recommendations: "Empujar con pasos firmes apoyando metatarsos.", errors: "Curvar la columna dorsal durante el empuje." }
         ];
 
         let appData = {
@@ -525,41 +539,63 @@
                         id: "dia1",
                         name: "Día 1: Torso Pesado",
                         exercises: [
-                            MASTER_50_LIBRARY[0], // Press Pecho Guiado
-                            MASTER_50_LIBRARY[4], // Remo Sentado
-                            MASTER_50_LIBRARY[7]  // Aperturas Polea
+                            MASTER_60_LIBRARY[0], // Press Pecho Guiado
+                            MASTER_60_LIBRARY[4], // Remo Sentado
+                            MASTER_60_LIBRARY[9]  // Aperturas Polea
                         ]
                     },
                     {
                         id: "dia2",
                         name: "Día 2: Pierna y Glúteo",
                         exercises: [
-                            MASTER_50_LIBRARY[1], // Sentadilla
-                            MASTER_50_LIBRARY[24], // Hip Thrust
-                            MASTER_50_LIBRARY[6]  // Prensa Piernas
+                            MASTER_60_LIBRARY[1], // Sentadilla
+                            MASTER_60_LIBRARY[28], // Hip Thrust
+                            MASTER_60_LIBRARY[6]  // Prensa Piernas
                         ]
                     }
                 ]
             },
             logs: [],
-            library: MASTER_50_LIBRARY,
+            library: MASTER_60_LIBRARY,
             completedMap: {},
             activeDayId: "dia1",
             selectedExerciseName: ""
         };
 
+        let wakeLock = null;
+        async function requestLockAndNotifications() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    showToast("📱 Pantalla encendida para entreno.");
+                    document.getElementById('lock-btn').innerText = "📱 Pantalla Activa ✅";
+                }
+                if ("Notification" in window && Notification.permission !== "granted") {
+                    await Notification.requestPermission();
+                }
+            } catch (err) {
+                showToast("Modo activo no disponible.");
+            }
+        }
+
+        function notifyRestEnd(msg) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("GYM PRO", { body: msg, icon: "https://cdn-icons-png.flaticon.com/512/2964/2964514.png" });
+            }
+        }
+
         function saveToStorage() {
             try {
-                localStorage.setItem('gymPro_v50_data', JSON.stringify(appData));
+                localStorage.setItem('gymPro_v60_data', JSON.stringify(appData));
             } catch(e) { console.log('Storage no disponible'); }
         }
 
         function loadFromStorage() {
             try {
-                const stored = localStorage.getItem('gymPro_v50_data');
+                const stored = localStorage.getItem('gymPro_v60_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (parsed && parsed.library && parsed.library.length >= 45) {
+                    if (parsed && parsed.library && parsed.library.length >= 50) {
                         appData = parsed;
                     }
                 }
@@ -578,14 +614,98 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
             document.getElementById('tab-' + tabName).classList.remove('hidden');
-            if (el) el.classList.add('active');
+            if (el) {
+                el.classList.add('active');
+            } else {
+                const targetNav = document.getElementById('nav-' + tabName);
+                if (targetNav) targetNav.classList.add('active');
+            }
 
             if (tabName === 'history') { renderHistory(); renderProgressChart(); }
             if (tabName === 'library') renderLibrary();
             if (tabName === 'users') renderUsersTab();
             if (tabName === 'editor') renderRoutineEditor();
+            if (tabName === 'workout') renderWorkoutTab();
         }
 
+        // --- FLUJO DE INICIO Y GESTIÓN DE USUARIOS ---
+        function renderUsersTab() {
+            const selector = document.getElementById('user-selector');
+            selector.innerHTML = '';
+            appData.users.forEach((u, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = `${u.name} (${u.quiz.level || 'Atleta'})`;
+                if (idx === appData.activeUserIdx) opt.selected = true;
+                selector.appendChild(opt);
+            });
+
+            const active = appData.users[appData.activeUserIdx];
+            if (active) {
+                document.getElementById('ud-name').innerText = active.name || 'Atleta Sin Nombre';
+                document.getElementById('ud-info').innerHTML = `
+                    🎯 <strong>Objetivo:</strong> ${active.quiz.goal || 'General'}<br>
+                    📊 <strong>Nivel:</strong> ${active.quiz.level || 'Intermedio'} | 📅 <strong>Días:</strong> ${active.quiz.days || '4'}<br>
+                    🩹 <strong>Notas/Lesiones:</strong> ${active.quiz.injury || 'Ninguna'}
+                `;
+
+                document.getElementById('q-name').value = active.name || '';
+                document.getElementById('q-level').value = active.quiz.level || 'Intermedio';
+                document.getElementById('q-goal').value = active.quiz.goal || 'Hipertrofia';
+                document.getElementById('q-days').value = active.quiz.days || '4';
+                document.getElementById('q-injury').value = active.quiz.injury || 'Ninguna';
+            }
+        }
+
+        function onUserSelectChange() {
+            appData.activeUserIdx = parseInt(document.getElementById('user-selector').value);
+            saveToStorage();
+            renderUsersTab();
+        }
+
+        function confirmUserAndGoToPlan() {
+            saveToStorage();
+            showToast(`Entrando con ${appData.users[appData.activeUserIdx].name}...`);
+            switchTab('workout');
+        }
+
+        function showNewUserForm() {
+            document.getElementById('q-name').value = '';
+            document.getElementById('q-name').focus();
+            showToast("Rellena los datos para el nuevo atleta.");
+        }
+
+        function deleteCurrentActiveUser() {
+            if (appData.users.length <= 1) return showToast('No puedes borrar el único usuario.');
+            appData.users.splice(appData.activeUserIdx, 1);
+            appData.activeUserIdx = 0;
+            saveToStorage();
+            renderUsersTab();
+        }
+
+        function saveUserFromQuiz() {
+            const name = document.getElementById('q-name').value || `Atleta ${appData.users.length + 1}`;
+            const quizData = {
+                level: document.getElementById('q-level').value,
+                goal: document.getElementById('q-goal').value,
+                days: document.getElementById('q-days').value,
+                injury: document.getElementById('q-injury').value
+            };
+
+            // Si el nombre ingresado no coincide con el activo, creamos uno nuevo
+            if (appData.users[appData.activeUserIdx] && appData.users[appData.activeUserIdx].name === name) {
+                appData.users[appData.activeUserIdx].quiz = quizData;
+            } else {
+                appData.users.push({ name, quiz: quizData });
+                appData.activeUserIdx = appData.users.length - 1;
+            }
+
+            saveToStorage();
+            showToast('Perfil guardado y rutina adaptada.');
+            switchTab('workout');
+        }
+
+        // --- PLAN DE ENTRENAMIENTO ---
         function renderDaysNav() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
@@ -605,6 +725,7 @@
 
         function renderWorkoutTab() {
             renderClinicalGuidelines();
+            renderDaysNav();
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             if (!currentDay) return;
 
@@ -721,33 +842,45 @@
             document.getElementById('clinical-guidelines-content').innerHTML = content;
         }
 
-        let execTimerInterval = null, execSeconds = 0, isExecRunning = false;
-        let restTimerInterval = null, restSecondsLeft = 0;
+        // --- CRONÓMETROS RESISTENTES A BLOQUEO DE PANTALLA ---
+        let execStartTime = null, execTimerInterval = null, isExecRunning = false, accumulatedExecSeconds = 0;
+        let restTargetTime = null, restTimerInterval = null;
 
         function startExecutionTimer() {
             if (isExecRunning) return;
             isExecRunning = true;
+            execStartTime = Date.now();
+
             execTimerInterval = setInterval(() => {
-                execSeconds++;
-                document.getElementById('exec-timer').innerText = String(execSeconds).padStart(2, '0') + 's';
-            }, 1000);
+                const elapsed = Math.floor((Date.now() - execStartTime) / 1000) + accumulatedExecSeconds;
+                document.getElementById('exec-timer').innerText = String(elapsed).padStart(2, '0') + 's';
+            }, 500);
         }
 
         function toggleExecutionTimer() {
-            if (isExecRunning) { clearInterval(execTimerInterval); isExecRunning = false; }
-            else { startExecutionTimer(); }
+            if (isExecRunning) {
+                accumulatedExecSeconds += Math.floor((Date.now() - execStartTime) / 1000);
+                clearInterval(execTimerInterval);
+                isExecRunning = false;
+            } else {
+                startExecutionTimer();
+            }
         }
 
         function resetExecutionTimer() {
-            clearInterval(execTimerInterval); isExecRunning = false; execSeconds = 0;
+            clearInterval(execTimerInterval);
+            isExecRunning = false;
+            accumulatedExecSeconds = 0;
             document.getElementById('exec-timer').innerText = "00s";
         }
 
         function stopExecutionTimer() {
-            clearInterval(execTimerInterval); isExecRunning = false;
-            let final = execSeconds; execSeconds = 0;
-            document.getElementById('exec-timer').innerText = "00s";
-            return final;
+            let finalTime = accumulatedExecSeconds;
+            if (isExecRunning) {
+                finalTime += Math.floor((Date.now() - execStartTime) / 1000);
+            }
+            resetExecutionTimer();
+            return finalTime;
         }
 
         function submitSet() {
@@ -793,30 +926,40 @@
 
         function startRestTimer(seconds = 90) {
             clearInterval(restTimerInterval);
-            restSecondsLeft = seconds;
+            restTargetTime = Date.now() + (seconds * 1000);
             document.getElementById('rest-card').classList.remove('hidden');
             updateRestDisplay();
 
             restTimerInterval = setInterval(() => {
-                restSecondsLeft--;
-                updateRestDisplay();
-                if (restSecondsLeft <= 0) {
+                const remaining = Math.max(0, Math.ceil((restTargetTime - Date.now()) / 1000));
+                updateRestDisplay(remaining);
+
+                if (remaining <= 0) {
                     clearInterval(restTimerInterval);
                     document.getElementById('rest-card').classList.add('hidden');
                     showToast('¡Tiempo de descanso finalizado!');
+                    notifyRestEnd('¡Fin del descanso! Listo para la siguiente serie.');
                 }
-            }, 1000);
+            }, 500);
         }
 
-        function updateRestDisplay() {
-            let m = Math.floor(restSecondsLeft / 60);
-            let s = restSecondsLeft % 60;
+        function updateRestDisplay(overrideSec = null) {
+            let sec = overrideSec !== null ? overrideSec : Math.max(0, Math.ceil((restTargetTime - Date.now()) / 1000));
+            let m = Math.floor(sec / 60);
+            let s = sec % 60;
             document.getElementById('rest-timer-display').innerText = 
                 String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         }
 
-        function addRestTime(sec) { restSecondsLeft += sec; updateRestDisplay(); }
-        function cancelRest() { clearInterval(restTimerInterval); document.getElementById('rest-card').classList.add('hidden'); }
+        function addRestTime(sec) {
+            restTargetTime += (sec * 1000);
+            updateRestDisplay();
+        }
+
+        function cancelRest() {
+            clearInterval(restTimerInterval);
+            document.getElementById('rest-card').classList.add('hidden');
+        }
 
         function renderRoutineEditor() {
             const container = document.getElementById('routine-editor-container');
@@ -864,7 +1007,6 @@
             });
         }
 
-        // COPIADO Y COPIADO AUTOMÁTICO DE TODOS LOS CAMPOS AL SELECCIONAR UN EJERCICIO
         function selectLibraryExForDay(dIdx, eIdx, exName) {
             const masterEx = appData.library.find(l => l.name === exName);
             if (masterEx) {
@@ -1012,7 +1154,6 @@
             });
         }
 
-        // AUTOCOMPLETA TODOS LOS CAMPOS AL CAMBIAR DE OPCIÓN EN EL MODAL DE EDICIÓN
         function openEditModal(exName = '') {
             const selector = document.getElementById('edit-ex-selector');
             selector.innerHTML = '<option value="">-- Seleccionar Ejercicio de la Base de Datos --</option>' + 
@@ -1063,7 +1204,6 @@
                 appData.library.push({ name, category, settings, recommendations, errors });
             }
 
-            // Sincronizar actualización con la rutina del día activo
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             if (currentDay) {
                 const exInDay = currentDay.exercises.find(e => e.name === name);
@@ -1080,65 +1220,6 @@
             renderLibrary();
             renderWorkoutTab();
             showToast('Guardado e integrado correctamente');
-        }
-
-        function renderUsersTab() {
-            const selector = document.getElementById('user-selector');
-            selector.innerHTML = '';
-            appData.users.forEach((u, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.innerText = `${u.name} (${u.quiz.level || 'Atleta'})`;
-                if (idx === appData.activeUserIdx) opt.selected = true;
-                selector.appendChild(opt);
-            });
-
-            const active = appData.users[appData.activeUserIdx];
-            if (active) {
-                document.getElementById('ud-name').innerText = active.name || 'Atleta Sin Nombre';
-                document.getElementById('ud-info').innerHTML = `
-                    🎯 <strong>Objetivo:</strong> ${active.quiz.goal || 'General'}<br>
-                    📊 <strong>Nivel:</strong> ${active.quiz.level || 'Intermedio'} | 📅 <strong>Días:</strong> ${active.quiz.days || '4'}<br>
-                    🩹 <strong>Notas/Lesiones:</strong> ${active.quiz.injury || 'Ninguna'}
-                `;
-            }
-        }
-
-        function switchUserAccount() {
-            appData.activeUserIdx = parseInt(document.getElementById('user-selector').value);
-            saveToStorage();
-            renderUsersTab();
-            renderWorkoutTab();
-        }
-
-        function showNewUserForm() {
-            document.getElementById('q-name').value = '';
-            document.getElementById('q-name').focus();
-        }
-
-        function deleteCurrentActiveUser() {
-            if (appData.users.length <= 1) return showToast('No puedes borrar el único usuario.');
-            appData.users.splice(appData.activeUserIdx, 1);
-            appData.activeUserIdx = 0;
-            saveToStorage();
-            renderUsersTab();
-            renderWorkoutTab();
-        }
-
-        function saveUserFromQuiz() {
-            const name = document.getElementById('q-name').value || `Atleta ${appData.users.length + 1}`;
-            const quizData = {
-                level: document.getElementById('q-level').value,
-                goal: document.getElementById('q-goal').value,
-                days: document.getElementById('q-days').value,
-                injury: document.getElementById('q-injury').value
-            };
-
-            appData.users[appData.activeUserIdx] = { name, quiz: quizData };
-            saveToStorage();
-            showToast('Perfil actualizado');
-            renderUsersTab();
-            switchTab('workout');
         }
 
         function renderHistory() {
@@ -1175,10 +1256,10 @@
             });
         }
 
+        // --- INICIALIZACIÓN: ARRANCAR SIEMPRE EN LA PESTAÑA DE USUARIOS ---
         window.onload = function() {
             loadFromStorage();
-            renderDaysNav();
-            renderWorkoutTab();
+            switchTab('users');
         };
     </script>
 </body>
