@@ -211,20 +211,6 @@
         </div>
     </div>
 
-    <!-- PESTAÑA: CHECKLIST QA -->
-    <div id="tab-checklist" class="container hidden">
-        <div class="card">
-            <div class="card-title">🧪 Checklist de Verificación</div>
-            <p style="font-size: 0.85rem; color: var(--text-sec); margin-bottom: 12px;">Comprueba el comportamiento de cada módulo de la app.</p>
-
-            <div style="display: flex; flex-direction: column; gap: 10px;" id="qa-list">
-                <!-- Generado por JS -->
-            </div>
-
-            <button class="btn btn-outline" style="margin-top: 15px;" onclick="simulate75Days()">⚡ Simular Alerta Día 75</button>
-        </div>
-    </div>
-
     <!-- MODAL: EVALUACIÓN POST-EJERCICIO (AGRADO / MOLESTIA) -->
     <div id="feedback-modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -308,10 +294,6 @@
             <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
             <span>Biblioteca</span>
         </div>
-        <div class="nav-item" onclick="switchTab('checklist', this)">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            <span>QA Checklist</span>
-        </div>
     </div>
 
     <script>
@@ -354,8 +336,7 @@
             logs: JSON.parse(localStorage.getItem('gymPro_logs')) || [],
             library: JSON.parse(localStorage.getItem('gymPro_library')) || [],
             completedMap: JSON.parse(localStorage.getItem('gymPro_completed')) || {}, // Key: dayId_exName -> count
-            activeDayId: "dia1",
-            qaChecks: JSON.parse(localStorage.getItem('gymPro_qa')) || {}
+            activeDayId: "dia1"
         };
 
         // --- SISTEMA DE CRONÓMETROS ---
@@ -464,7 +445,6 @@
 
             if (tabName === 'history') renderHistory();
             if (tabName === 'library') renderLibrary();
-            if (tabName === 'checklist') renderQAChecklist();
         }
 
         function renderDaysNav() {
@@ -627,7 +607,7 @@
 
         // --- EVALUACIÓN POST-EJERCICIO (AGRADO / MOLESTIA) ---
         function openFeedbackModal(exName) {
-            document.getElementById('feedback-subtitle').innerText = `Has completado todas las series de: ${exName}. ¿Qué tal ha sido la sensación?`;
+            document.getElementById('feedback-subtitle').innerText = `Has completado todas las series de: ${exName}. ¿Qué tal ha sido tu sensación?`;
             document.getElementById('feedback-step-1').classList.remove('hidden');
             document.getElementById('feedback-step-2').classList.add('hidden');
             document.getElementById('replacements-list').innerHTML = '';
@@ -702,16 +682,6 @@
             } else {
                 document.getElementById('periodization-alert').classList.add('hidden');
             }
-        }
-
-        function simulate75Days() {
-            let pastDate = new Date();
-            pastDate.setDate(pastDate.getDate() - 76);
-            appData.routine.startDate = pastDate.toISOString();
-            localStorage.setItem('gymPro_routine', JSON.stringify(appData.routine));
-            checkPeriodizationAlert();
-            switchTab('workout');
-            alert('Simulación activada: Fecha de rutina configurada a hace 76 días.');
         }
 
         function renewRoutineAI() {
@@ -855,40 +825,6 @@
             closeEditModal();
             renderLibrary();
             renderWorkoutTab();
-        }
-
-        // --- QA CHECKLIST ---
-        const QA_ITEMS = [
-            { id: "qa1", name: "⏱️ Tiempo por Serie", desc: "Verifica que al anotar repeticiones el cronómetro se guarde en segundos en el historial." },
-            { id: "qa2", name: "🔔 Aviso de Descanso", desc: "Comprueba el sonido (Tone.js) y vibración al llegar a 00:00." },
-            { id: "qa3", name: "❌ Retirada de Ejercicios", desc: "Confirma que al completar un ejercicio desaparece del desplegable sólo en ese día." },
-            { id: "qa4", name: "🩹 Molestias y Sustitución", desc: "Completa un ejercicio, indica molestia y comprueba que reemplaza el ejercicio correctamente." },
-            { id: "qa5", name: "📷 Fotos Comprimidas", desc: "Añade una foto desde la cámara/galería y comprueba su carga rápida." }
-        ];
-
-        function renderQAChecklist() {
-            const container = document.getElementById('qa-list');
-            container.innerHTML = '';
-
-            QA_ITEMS.forEach(item => {
-                const checked = appData.qaChecks[item.id] || false;
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.style.marginBottom = '8px';
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong>${item.name}</strong>
-                        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleQACheck('${item.id}', this.checked)" style="width:20px; height:20px;">
-                    </div>
-                    <div style="font-size:0.8rem; color:var(--text-sec); margin-top:4px;">${item.desc}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function toggleQACheck(id, val) {
-            appData.qaChecks[id] = val;
-            localStorage.setItem('gymPro_qa', JSON.stringify(appData.qaChecks));
         }
 
         // --- INICIALIZACIÓN ---
