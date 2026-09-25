@@ -314,11 +314,14 @@
         </div>
     </div>
 
-    <!-- PESTAÑA: HISTORIAL Y GRÁFICO -->
+    <!-- PESTAÑA: HISTORIAL Y GRÁFICO DE PROGRESIÓN -->
     <div id="tab-history" class="container hidden">
-        <!-- GRÁFICO DE PROGRESIÓN -->
         <div class="card">
-            <div class="card-title">📊 Gráfico de Progresión (Volumen Total)</div>
+            <div class="card-title">📊 Gráfico de Progresión</div>
+            <label style="font-size:0.8rem; color:var(--text-sec);">Filtrar por ejercicio:</label>
+            <select id="chart-exercise-select" onchange="renderProgressChart()">
+                <option value="ALL">Todo el entrenamiento (Volumen Total)</option>
+            </select>
             <canvas id="progressChart"></canvas>
         </div>
 
@@ -647,7 +650,28 @@
         }
 
         // --- GRÁFICO DE PROGRESIÓN (CANVAS) ---
+        function populateChartExerciseFilter() {
+            const select = document.getElementById('chart-exercise-select');
+            if (!select) return;
+            
+            const currentVal = select.value;
+            select.innerHTML = '<option value="ALL">Todo el entrenamiento (Volumen Total)</option>';
+
+            const registeredExercises = Array.from(new Set(appData.logs.map(l => l.exercise)));
+            registeredExercises.forEach(exName => {
+                const opt = document.createElement('option');
+                opt.value = exName;
+                opt.innerText = exName;
+                select.appendChild(opt);
+            });
+
+            if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+                select.value = currentVal;
+            }
+        }
+
         function renderProgressChart() {
+            populateChartExerciseFilter();
             const canvas = document.getElementById('progressChart');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -657,8 +681,11 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            const filterEx = document.getElementById('chart-exercise-select').value;
+            const filteredLogs = filterEx === "ALL" ? appData.logs : appData.logs.filter(l => l.exercise === filterEx);
+
             const grouped = {};
-            appData.logs.forEach(log => {
+            filteredLogs.forEach(log => {
                 const vol = (parseFloat(log.weight) || 0) * (parseFloat(log.reps) || 0);
                 grouped[log.date] = (grouped[log.date] || 0) + vol;
             });
@@ -669,7 +696,7 @@
             if (values.length < 2) {
                 ctx.fillStyle = "#94a3b8";
                 ctx.font = "12px sans-serif";
-                ctx.fillText("Registra más sesiones para ver tu curva de progresión", 20, 100);
+                ctx.fillText("Registra más series para generar la curva de progresión", 20, 100);
                 return;
             }
 
