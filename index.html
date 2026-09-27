@@ -337,11 +337,11 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 60 EJERCICIOS -->
+    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 65 EJERCICIOS -->
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
-                <span>📚 Biblioteca del Sistema (60 Ejercicios)</span>
+                <span>📚 Biblioteca del Sistema (65 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
             <div id="library-container"></div>
@@ -447,8 +447,8 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (60 EJERCICIOS) ---
-        const MASTER_60_LIBRARY = [
+        // --- BASE DE DATOS MASTER COMPLETA (65 EJERCICIOS) ---
+        const MASTER_65_LIBRARY = [
             { name: "Press de Pecho Guiado", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Retraer omóplatos. Bajar el peso de forma controlada en 2s.", errors: "Despegar la zona lumbar del respaldo o bloquear codos bruscamente." },
             { name: "Sentadilla con Barra", category: "Compuesto Heavy", settings: "Soporte a la altura del esternón", recommendations: "Mantener pies a anchura de hombros y empujar con los talones.", errors: "Guiar con las rodillas hacia adentro o curvar la espalda baja." },
             { name: "Peso Muerto Convencional", category: "Compuesto Heavy", settings: "Barra sobre mitad del pie", recommendations: "Mantener la barra pegada a las espinillas y activar dorsales.", errors: "Chepar la espalda o iniciar tirando con los brazos." },
@@ -470,6 +470,7 @@
             { name: "Remo con Banda Elástica", category: "Espalda", settings: "Goma anclada a pie o estructura fija", recommendations: "Tirar con codos hacia atrás apretando la escápula.", errors: "Encoger hombros hacia las orejas." },
             { name: "Remo en Barra T", category: "Espalda", settings: "Agarre estrecho", recommendations: "Mantener la columna neutra durante toda la tirada.", errors: "Usar rebotes lumbares." },
             { name: "Hiperextensiones a 45°", category: "Espalda", settings: "Almohadilla bajo la cresta ilíaca", recommendations: "Subir alineando la columna con las piernas sin sobrepasar.", errors: "Hiperextender la zona lumbar en la parte alta." },
+            { name: "Extensión de Espalda en Máquina", category: "Espalda", settings: "Eje de rotación alineado con la cadera", recommendations: "Mantener columna neutra y empujar con glúteos y zona lumbar.", errors: "Hiperextender la columna al final o dar tirones bruscos." },
             { name: "Peso Muerto Rumano con Mancuernas", category: "Piernas", settings: "Mancuernas pegadas a los muslos", recommendations: "Llevar cadera hacia atrás flexionando levemente rodillas.", errors: "Curvar la columna lumbar al bajar." },
             { name: "Pasos Laterales con Banda Elástica (Monster Walk)", category: "Piernas", settings: "Banda sobre las rodillas o tobillos", recommendations: "Mantener tensión constante en la goma sin juntar pies.", errors: "Juntar las rodillas hacia adentro (valgo)." },
             { name: "Sentadilla Goblet con Mancuerna / Banda", category: "Piernas", settings: "Mancuerna vertical en el pecho", recommendations: "Bajar con espalda erguida abriendo rodillas.", errors: "Levantar los talones del suelo." },
@@ -478,8 +479,10 @@
             { name: "Curl Femoral Tumbado", category: "Piernas", settings: "Eje de rotación alineado a rodilla", recommendations: "Mantener la cadera pegada al banco.", errors: "Levantar la pelvis al flexionar." },
             { name: "Zancadas Guiadas (Lunge)", category: "Piernas", settings: "Paso largo hacia adelante", recommendations: "Mantener la rodilla en línea con el segundo dedo del pie.", errors: "Superar excesivamente la punta del pie desestabilizando." },
             { name: "Elevación de Calcanhares (Gemelos)", category: "Piernas", settings: "Apoyo en metatarsos", recommendations: "Bajar al máximo estirando el sóleo y pausar arriba.", errors: "Rebotar rápido sin pausa." },
+            { name: "Gemelos Sentado en Máquina", category: "Piernas", settings: "Puntas de los pies en el borde de la plataforma", recommendations: "Realizar un recorrido completo buscando estiramiento profundo y máxima contracción.", errors: "Hacer rebotes cortos o apoyar toda la planta del pie." },
             { name: "Sentadilla Búlgara", category: "Piernas", settings: "Pie trasero sobre banco a 40cm", recommendations: "Bajar verticalmente repartiendo el peso.", errors: "Inclinarse hacia adelante perdiendo equilibrio." },
             { name: "Hip Thrust con Barra / Máquina", category: "Piernas", settings: "Borde del banco en las escápulas", recommendations: "Empujar con talones marcando retroversión pélvica 1s arriba.", errors: "Arquear la zona lumbar o levantar talones." },
+            { name: "Glute Lift (Hip Thrust en Máquina)", category: "Piernas", settings: "Cinturón o rodillo sobre pliegue de la cadera", recommendations: "Empujar con los talones manteniendo mirada al frente y espinillas a 90°.", errors: "Hiperextender la espalda baja o despegar los talones del suelo." },
             { name: "Máquina Abductora / Adductora", category: "Piernas", settings: "Almohadillas ajustadas", recommendations: "Movimientos constantes con control excéntrico.", errors: "Tironear con inercia del torso." },
             { name: "Elevaciones Laterales con Mancuernas", category: "Hombros", settings: "Ligera inclinación hacia adelante", recommendations: "Guiar con los codos ligeramente por delante del cuerpo.", errors: "Subir las pesas por encima de la altura de hombros." },
             { name: "Rotación Externa de Hombro con Banda", category: "Hombros", settings: "Codo pegado a 90° con toalla/almohadilla", recommendations: "Rotar hacia afuera aislando manguito rotador.", errors: "Despegar el codo del costado." },
@@ -487,6 +490,7 @@
             { name: "Pájaro en Polea (Deltoides Posterior)", category: "Hombros", settings: "Polea a la altura del rostro", recommendations: "Separar las manos enfocando la parte trasera del hombro.", errors: "Usar fuerza de los trapecios." },
             { name: "Press Arnold", category: "Hombros", settings: "Respaldo vertical", recommendations: "Rotar las muñecas de forma fluida durante el empuje.", errors: "Forzar la rotación del manguito rotador." },
             { name: "Remo al Mentón con Barra Z", category: "Hombros", settings: "Agarre a anchura de hombros", recommendations: "Subir los codos por encima de la barra.", errors: "Usar agarre demasiado estrecho que pille el hombro." },
+            { name: "Press de Triceps en Máquina", category: "Brazos", settings: "Asiento ajustado a altura del pecho", recommendations: "Mantener codos pegados al cuerpo y empujar hacia abajo sin bloquear.", errors: "Abrir codos hacia los lados o despegar la espalda del respaldo." },
             { name: "Curl de Bíceps Alterno con Mancuernas", category: "Brazos", settings: "De pie o sentado", recommendations: "Supinar la muñeca al subir apretando el bíceps.", errors: "Balancear los hombros o los codos hacia atrás." },
             { name: "Extensiones de Tríceps sobre Cabeza con Mancuerna", category: "Brazos", settings: "Sentado con espalda recta", recommendations: "Extender verticalmente manteniendo codos mirando al frente.", errors: "Abrir codos hacia los lados." },
             { name: "Extensión de Tríceps en Polea / Cuerda", category: "Brazos", settings: "Cuerda alta", recommendations: "Codos pegados al costado. Abrir la cuerda abajo.", errors: "Mover los codos hacia adelante." },
@@ -496,6 +500,7 @@
             { name: "Tríceps Copa a dos Manos", category: "Brazos", settings: "Sentado en banco corto", recommendations: "Bajar la mancuerna por detrás de la cabeza de forma segura.", errors: "Abrir los codos excesivamente." },
             { name: "Curl en Banco Scott (Predicador)", category: "Brazos", settings: "Axilas apoyadas en la almohadilla", recommendations: "Estirar hasta el 90% sin hiperprolongar el codo.", errors: "Soltar el peso bruscamente al final." },
             { name: "Curl Concentrado con Mancuerna", category: "Brazos", settings: "Codo apoyado en muslo interno", recommendations: "Flexionar aislando por completo sin mover el hombro.", errors: "Usar balanceo del torso o despegar el codo." },
+            { name: "Contracción Abdominal en Máquina", category: "Core", settings: "Eje de giro alineado a la altura del ombligo", recommendations: "Flexionar la columna aproximando las costillas a la cadera con el abdomen.", errors: "Tirar con los brazos y hombros o flexionar la cadera sin doblar el torso." },
             { name: "Prensa de Abdominales", category: "Core", settings: "Carga moderada", recommendations: "Exhalar todo el aire al encoger el abdomen.", errors: "Tirar con la fuerza del cuello." },
             { name: "Plancha Abdominal ISO", category: "Core", settings: "Antebrazos apoyados", recommendations: "Mantener cuerpo en línea recta activando glúteos.", errors: "Dejar caer la cadera." },
             { name: "Elevación de Piernas en Suspensión", category: "Core", settings: "Sujeción en torre de fondos", recommendations: "Elevar la pelvis rodando el abdomen.", errors: "Balancear las piernas usando inercia." },
@@ -517,12 +522,12 @@
             routine: {
                 startDate: new Date().toISOString(),
                 days: [
-                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_60_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_60_LIBRARY[4], {target:"3x12"}) ] },
-                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_60_LIBRARY[1], {target:"3x10"}), Object.assign({}, MASTER_60_LIBRARY[30], {target:"3x12"}) ] }
+                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_65_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_65_LIBRARY[4], {target:"3x12"}) ] },
+                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_65_LIBRARY[1], {target:"3x10"}), Object.assign({}, MASTER_65_LIBRARY[32], {target:"3x12"}) ] }
                 ]
             },
             logs: [],
-            library: MASTER_60_LIBRARY,
+            library: MASTER_65_LIBRARY,
             completedMap: {},
             activeDayId: "dia1",
             selectedExerciseName: ""
@@ -1345,7 +1350,7 @@
             });
         }
 
-        // --- INICIALIZACIÓN COMPROBADA EN PESTAÑA USUARIOS ---
+        // --- INICIALIZACIÓN EN PESTAÑA USUARIOS ---
         window.onload = function() {
             loadFromStorage();
             switchTab('users');
