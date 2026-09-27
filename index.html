@@ -376,7 +376,7 @@
                 </div>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Al pulsar "+ Añadir Ejercicio", escribe en la casilla para buscar en la base de datos de 209 ejercicios.
+                Al pulsar "+ Añadir Ejercicio", la casilla estará en blanco. Escribe para buscar e importar cualquier ejercicio de la biblioteca.
             </p>
             <div id="routine-editor-container"></div>
         </div>
@@ -451,7 +451,7 @@
             <span>Usuario</span>
         </div>
         <div class="nav-item" onclick="switchTab('workout', this)" id="nav-workout">
-            <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 6.29 3.43 4.86 2 3.43 3.43 2 4.86 3.43 6.29 2 7.71 3.43 12 7 20.57 10.57 22 12 20.57 13.43 22 14.86 20.57 16.29 22 17.71 20.57 19.14 22 20.57z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 6.29 3.43 4.86 2 3.43 3.43 2 4.86 3.43 6.29 2 7.71 3.43 9.14 2 10.57 3.43 12 7 20.57 10.57 22 12 20.57 13.43 22 14.86 20.57 16.29 22 17.71 20.57 19.14 22 20.57z"/></svg>
             <span>Plan</span>
         </div>
         <div class="nav-item" onclick="switchTab('history', this)" id="nav-history">
@@ -984,6 +984,7 @@
             let firstPendingEx = "";
 
             currentDay.exercises.forEach(ex => {
+                if (!ex.name) return;
                 const key = `${currentDay.id}_${ex.name}`;
                 const completedSets = appData.completedMap[key] || 0;
                 const targetSets = parseInt((ex.target || "3x12").split('x')[0]) || 3;
@@ -1015,6 +1016,7 @@
             listContainer.innerHTML = '';
 
             currentDay.exercises.forEach(ex => {
+                if (!ex.name) return;
                 const key = `${currentDay.id}_${ex.name}`;
                 const completedSets = appData.completedMap[key] || 0;
                 const targetSets = parseInt((ex.target || "3x12").split('x')[0]) || 3;
@@ -1039,7 +1041,7 @@
                         <div>
                             <div class="ex-title">${isDone ? '✅ ' : ''}${ex.name}</div>
                             <div style="font-size:0.75rem; color:var(--text-sec); display:flex; align-items:center; gap:6px; margin-top:2px;">
-                                <span>${ex.category}</span>
+                                <span>${ex.category || 'Entrenamiento'}</span>
                                 <span class="ex-badge" onclick="openEditModal('${ex.name.replace(/'/g, "\\'")}')">🎯 Obj: ${ex.target || '3x12'} ✏️</span>
                             </div>
                         </div>
@@ -1243,7 +1245,7 @@
             document.getElementById('rest-card').classList.add('hidden');
         }
 
-        // --- EDITOR MANUAL CON BÚSQUEDA Y SUGERENCIAS DINÁMICAS ---
+        // --- EDITOR MANUAL CON CAMPO TOTALMENTE EN BLANCO AL AÑADIR ---
         function renderRoutineEditor() {
             const container = document.getElementById('routine-editor-container');
             container.innerHTML = '';
@@ -1272,8 +1274,8 @@
 
                         exRow.innerHTML = `
                             <div style="display:flex; gap:6px; align-items:center;">
-                                <input type="text" placeholder="🔍 Buscar ejercicio en biblioteca..." value="${ex.name || ''}" style="flex:2; margin:0;" oninput="onEditorSearchInput(${dIdx}, ${eIdx}, this.value)" autocomplete="off">
-                                <input type="text" value="${ex.target || '3x12'}" style="flex:1; margin:0;" onchange="updateExField(${dIdx}, ${eIdx}, 'target', this.value)">
+                                <input type="text" placeholder="🔍 Escribe para buscar ejercicio..." value="${ex.name || ''}" style="flex:2; margin:0;" oninput="onEditorSearchInput(${dIdx}, ${eIdx}, this.value)" autocomplete="off">
+                                <input type="text" value="${ex.target || '3x12'}" style="flex:1; margin:0;" onchange="updateExField(${dIdx}, ${eIdx}, 'target', this.value)" placeholder="3x12">
                                 <button class="btn btn-danger btn-sm" style="margin:0; padding:6px 10px;" onclick="removeExFromDay(${dIdx}, ${eIdx})">✖</button>
                             </div>
                             <div id="editor-sug-${dIdx}-${eIdx}" class="suggestions-box hidden"></div>
@@ -1340,15 +1342,16 @@
                 id: newId, 
                 isRest: isRest,
                 name: isRest ? `Día ${appData.routine.days.length + 1}: Descanso` : `Día ${appData.routine.days.length + 1}`, 
-                exercises: isRest ? [] : [{ name: "", target: "3x12" }] 
+                exercises: isRest ? [] : [{ name: "", target: "3x12", category: "Compuesto Heavy" }] 
             });
             saveToStorage();
             renderRoutineEditor();
             renderDaysNav();
         }
 
+        // AÑADE UN EJERCICIO 100% EN BLANCO A LA RUTINA
         function addExerciseToDay(dIdx) {
-            appData.routine.days[dIdx].exercises.push({ name: "", target: "3x12" });
+            appData.routine.days[dIdx].exercises.push({ name: "", target: "3x12", category: "Compuesto Heavy" });
             saveToStorage();
             renderRoutineEditor();
         }
