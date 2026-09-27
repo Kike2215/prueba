@@ -115,6 +115,10 @@
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
 
+        .suggestions-box { background: #0f172a; border: 1px solid var(--primary); border-radius: 8px; max-height: 140px; overflow-y: auto; position: absolute; width: calc(100% - 24px); z-index: 150; margin-top: -10px; }
+        .suggestion-item { padding: 8px 12px; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+        .suggestion-item:hover { background: var(--surface-card); color: var(--primary); }
+
         canvas#progressChart { width: 100%; height: 200px; background: #0f172a; border-radius: 8px; border: 1px solid var(--border); margin-top: 8px; }
 
         #toast {
@@ -241,11 +245,14 @@
         <div class="days-nav" id="days-container"></div>
 
         <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button class="btn btn-success btn-sm" style="flex: 1;" onclick="optimizeCurrentDayBiomechanics()">
+                ⚡ Orden Óptimo
+            </button>
             <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="switchTab('editor')">
-                🛠️ Editar Días de Rutina
+                🛠️ Editar Días
             </button>
             <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="window.print()">
-                📄 Exportar PDF
+                📄 PDF
             </button>
         </div>
 
@@ -265,7 +272,7 @@
         <!-- REGISTRO DE SERIE ACTIVA -->
         <div class="card" id="logging-card">
             <div class="card-title">
-                <span>📝 Anotar Serie</span>
+                <span>📝 Anotar Serie / Cardio</span>
                 <span id="active-day-label" style="font-size: 0.8rem; color: var(--text-sec);">Día 1</span>
             </div>
 
@@ -278,17 +285,17 @@
 
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
-                    <label style="font-size: 0.75rem; color: var(--text-sec);">Peso / Resistencia (kg):</label>
+                    <label id="lbl-param-1" style="font-size: 0.75rem; color: var(--text-sec);">Peso / Resistencia (kg):</label>
                     <input type="number" id="weight-input" placeholder="0" onfocus="startExecutionTimer()">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size: 0.75rem; color: var(--text-sec);">Reps / Minutos:</label>
+                    <label id="lbl-param-2" style="font-size: 0.75rem; color: var(--text-sec);">Reps:</label>
                     <input type="number" id="reps-input" placeholder="0" onfocus="startExecutionTimer()">
                 </div>
             </div>
 
             <div class="timer-box">
-                <div style="font-size: 0.75rem; color: var(--text-sec); margin-bottom: 4px;">TIEMPO DE EJECUCIÓN POR SERIE (TUT)</div>
+                <div style="font-size: 0.75rem; color: var(--text-sec); margin-bottom: 4px;">TIEMPO DE EJECUCIÓN (TUT)</div>
                 <div id="exec-timer" class="timer-time">00s</div>
                 <div style="display: flex; gap: 8px; justify-content: center; margin-top: 6px;">
                     <button class="btn btn-outline btn-sm" onclick="toggleExecutionTimer()">Pausa / Reanudar</button>
@@ -296,7 +303,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-success" onclick="submitSet()">💾 Guardar Serie y Descansar</button>
+            <button class="btn btn-success" onclick="submitSet()">💾 Guardar Registro y Descansar</button>
         </div>
 
         <div id="rest-card" class="card hidden" style="border-color: var(--success); text-align: center;">
@@ -316,8 +323,18 @@
         </button>
     </div>
 
-    <!-- PESTAÑA 3: HISTÓRICO -->
+    <!-- PESTAÑA 3: HISTÓRICO Y ASESOR IA -->
     <div id="tab-history" class="container hidden">
+        <div class="card" style="border-left: 4px solid var(--primary);">
+            <div class="card-title">
+                <span>🧠 Asesor IA de Rendimiento y Progresión</span>
+                <button class="btn btn-outline btn-sm" onclick="analyzeHistoryPerformance()">🔄 Analizar Rendimiento</button>
+            </div>
+            <div id="ai-performance-advice" style="font-size: 0.85rem; color: var(--text-sec); line-height: 1.5;">
+                Pulsa en <strong>"Analizar Rendimiento"</strong> para procesar tus cargas anteriores y recibir pautas de sobrecarga progresiva.
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-title">📊 Gráfico de Progresión</div>
             <label style="font-size:0.8rem; color:var(--text-sec);">Filtrar por ejercicio:</label>
@@ -359,7 +376,7 @@
                 </div>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Escribe en la casilla de búsqueda de cada ejercicio para seleccionarlo e importar todos sus datos biomecánicos.
+                Escribe en la casilla para buscar en la base de datos de 209 ejercicios y cargarlo al instante.
             </p>
             <div id="routine-editor-container"></div>
         </div>
@@ -376,17 +393,17 @@
         </div>
     </div>
 
-    <!-- MODAL: EDITAR / AÑADIR EJERCICIO -->
+    <!-- MODAL: EDITAR / AÑADIR EJERCICIO CON BÚSQUEDA INTELIGENTE -->
     <div id="edit-modal" class="modal-overlay hidden">
-        <div class="modal-content">
+        <div class="modal-content" style="position:relative;">
             <div class="card-title">
                 <span id="modal-edit-title">Editar Ejercicio</span>
                 <span style="cursor: pointer;" onclick="closeEditModal()">✖</span>
             </div>
 
-            <label style="font-size: 0.8rem; color: var(--text-sec);">🔍 Buscar Ejercicio en la Base de Datos:</label>
-            <input type="text" id="modal-search-input" placeholder="Escribe para buscar (ej: Prensa, Cinta, Jalón)..." oninput="filterModalExerciseSelector(this.value)">
-            <select id="edit-ex-selector" onchange="onModalExerciseSelectChange(this.value)"></select>
+            <label style="font-size: 0.8rem; color: var(--text-sec);">🔍 Buscar en la Base de Datos:</label>
+            <input type="text" id="modal-search-input" placeholder="Escribe para autocompletar (ej: Cinta, Prensa)..." oninput="handleModalSearchInput(this.value)" autocomplete="off">
+            <div id="modal-suggestions" class="suggestions-box hidden"></div>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre del ejercicio:</label>
             <input type="text" id="edit-ex-name">
@@ -397,8 +414,8 @@
                     <input type="number" id="edit-ex-sets" placeholder="3" min="1" max="10">
                 </div>
                 <div style="flex:1;">
-                    <label style="font-size: 0.8rem; color: var(--text-sec);">Reps Objetivo:</label>
-                    <input type="text" id="edit-ex-reps" placeholder="12 o 8-12">
+                    <label style="font-size: 0.8rem; color: var(--text-sec);">Reps / Minutos Objetivo:</label>
+                    <input type="text" id="edit-ex-reps" placeholder="12 o 20 min">
                 </div>
             </div>
 
@@ -415,7 +432,7 @@
             </select>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">🎯 Posición Anatómica / Ajustes:</label>
-            <input type="text" id="edit-ex-settings" placeholder="Ej: Asiento Posición 3">
+            <input type="text" id="edit-ex-settings" placeholder="Ej: Asiento Posición 3 / Inclinación 3%">
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">💡 Recomendaciones de Ejecución:</label>
             <textarea id="edit-ex-recommendations" style="height:60px;"></textarea>
@@ -448,9 +465,9 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (209 EJERCICIOS CON CARDIO Y BUSCADOR) ---
+        // --- BASE DE DATOS MASTER COMPLETA (209 EJERCICIOS) ---
         const MASTER_209_LIBRARY = [
-            // PECHO (1 - 25)
+            // PECHO
             { name: "Press de Pecho en Máquina Plana", category: "Compuesto Heavy", settings: "Asiento ajustado a altura de los pezones", recommendations: "Empujar hacia adelante apretando el pecho al final del recorrido.", errors: "Despegar la espalda baja o encoger los hombros hacia las orejas." },
             { name: "Press Inclinado en Máquina", category: "Compuesto Heavy", settings: "Asiento a altura de la clavícula", recommendations: "Enfocar el empuje hacia arriba para activar la porción superior del pecho.", errors: "Abrir demasiado los codos a 90° sobrecargando los hombros." },
             { name: "Press Declinado en Máquina", category: "Pecho", settings: "Asiento elevado para empujar hacia abajo", recommendations: "Llevar la carga hacia la zona inferior del pectoral.", errors: "Forzar la zona lumbar o usar tirones de brazo." },
@@ -477,7 +494,7 @@
             { name: "Floor Press en Multipower (Smith)", category: "Pecho", settings: "Acostado directamente en el suelo", recommendations: "Bajar la barra hasta que los tríceps toquen suavemente el suelo.", errors: "Chocar los codos con fuerza contra el suelo." },
             { name: "Dips de Pecho en Máquina Asistida", category: "Pecho", settings: "Torso ligeramente inclinado al frente", recommendations: "Bajar doblando codos con el cuerpo inclinado para enfocar el pecho.", errors: "Mantenerse totalmente vertical (enfoca en tríceps)." },
 
-            // ESPALDA (26 - 55)
+            // ESPALDA
             { name: "Jalón al Pecho Agarre Ancho", category: "Espalda", settings: "Barra tomada más ancha que los hombros", recommendations: "Traer la barra al pecho sacando el tórax.", errors: "Reclinarse en exceso hacia atrás o bajar la barra tras nuca." },
             { name: "Jalón al Pecho Agarre Neutro", category: "Espalda", settings: "Agarre en 'V' o palmas enfrentadas", recommendations: "Tirar hacia abajo concentrando la fuerza en los dorsales.", errors: "Impulsarse con la zona lumbar al iniciar el tirón." },
             { name: "Jalón Supino (Agarre Invertido)", category: "Espalda", settings: "Palmas mirando hacia ti", recommendations: "Tirar del manillar hacia la parte superior del pecho.", errors: "Sobrecargar los bíceps en lugar de la espalda." },
@@ -504,7 +521,7 @@
             { name: "Shrugs/Encogimientos de Espalda en Máquina", category: "Espalda", settings: "Agarres laterales", recommendations: "Elevar las escápulas directamente hacia arriba.", errors: "Rotar los hombros en círculos." },
             { name: "Remo Kroc en Polea Baja", category: "Compuesto Heavy", settings: "Un pie adelantado", recommendations: "Tirar con fuerza controlada llevando el codo bien atrás.", errors: "Mover la cadera para iniciar el movimiento." },
 
-            // HOMBROS (56 - 80)
+            // HOMBROS
             { name: "Press Militar en Máquina", category: "Compuesto Heavy", settings: "Asiento con espalda apoyada", recommendations: "Empujar los agarres sobre la cabeza de forma controlada.", errors: "Arquear en exceso la zona lumbar al subir." },
             { name: "Elevaciones Laterales en Máquina", category: "Hombros", settings: "Rodillos sobre los antebrazos", recommendations: "Subir los codos hacia los lados hasta la altura de hombros.", errors: "Encoger el cuello o usar el torso para balancear." },
             { name: "Pájaro en Máquina (Deltoides Posterior)", category: "Hombros", settings: "Pecho pegado al respaldo", recommendations: "Abrir los brazos hacia los lados liderando con codos.", errors: "Usar los trapecios o encorvar los hombros." },
@@ -531,7 +548,7 @@
             { name: "Elevación Lateral con Apoyo de Torso", category: "Hombros", settings: "Torso apoyado de lado en almohadilla", recommendations: "Elevar la mano libre aislando la cabeza lateral.", errors: "Soltar el cuerpo de la almohadilla." },
             { name: "Rotación Externa en Polea (Manguito Rotador)", category: "Hombros", settings: "Codo pegado a 90°", recommendations: "Rotar el antebrazo hacia afuera alejándolo del abdomen.", errors: "Separar el codo del costado del cuerpo." },
 
-            // BÍCEPS (81 - 105)
+            // BÍCEPS
             { name: "Curl de Bíceps en Polea Baja", category: "Brazos", settings: "Barra recta o Z", recommendations: "Subir la barra flexionando codos sin mover la parte superior del brazo.", errors: "Balancarse hacia atrás para mover la barra." },
             { name: "Curl Predicador en Máquina", category: "Brazos", settings: "Axilas apoyadas en el cojín", recommendations: "Flexionar codos manteniendo los brazos fijos en el cojín.", errors: "Despegar los brazos del apoyo o soltar de golpe." },
             { name: "Curl Martillo en Polea", category: "Brazos", settings: "Agarre con cuerda", recommendations: "Subir la cuerda con palmas enfrentadas hacia los hombros.", errors: "Separar los codos de los costados del cuerpo." },
@@ -558,7 +575,7 @@
             { name: "Curl en Polea Media de Pie", category: "Brazos", settings: "Polea a altura de la cintura", recommendations: "Flexionar codos manteniendo brazo en extensión neutra.", errors: "Balancear el peso." },
             { name: "Curl Prono Unilateral en Polea", category: "Brazos", settings: "Palma hacia abajo", recommendations: "Subir la manija enfocando el antebrazo y braquial.", errors: "Quebrar la muñeca al subir." },
 
-            // TRÍCEPS (106 - 130)
+            // TRÍCEPS
             { name: "Pushdown de Triceps con Barra en Polea", category: "Brazos", settings: "Barra Z o recta", recommendations: "Extender los brazos hacia abajo con codos pegados a los costados.", errors: "Abrir codos o inclinar el cuerpo sobre la barra." },
             { name: "Pushdown de Triceps con Cuerda", category: "Brazos", settings: "Cuerda en polea alta", recommendations: "Empujar hacia abajo y abrir los extremos de la cuerda al final.", errors: "Mover los hombros durante la ejecución." },
             { name: "Extensiones OverHead en Polea (Sobre la Cabeza)", category: "Brazos", settings: "Cuerda o barra fija atrás", recommendations: "Extender los brazos hacia el frente sobre la cabeza.", errors: "Arqueo excesivo de la zona lumbar." },
@@ -585,7 +602,7 @@
             { name: "Extensiones de Triceps Horizontal en Polea", category: "Brazos", settings: "Polea a la altura del pecho", recommendations: "Empujar el cable directo al frente hasta extender el brazo.", errors: "Subir los codos durante la extensión." },
             { name: "Extensiones de Triceps con Cuerda desde Suelo", category: "Brazos", settings: "De rodillas frente a la polea alta", recommendations: "Llevar la cuerda detrás de la cabeza y extender hacia el frente.", errors: "Movilizar la cadera." },
 
-            // CUÁDRICEPS Y PIERNAS (131 - 150)
+            // CUÁDRICEPS Y PIERNAS
             { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo en espinillas", recommendations: "Extender rodillas al máximo apretando el músculo arriba.", errors: "Levantarse del asiento o usar impulsos bruscos." },
             { name: "Prensa 45°", category: "Compuesto Heavy", settings: "Pies a ancho de hombros en plataforma", recommendations: "Bajar controlado flexionando rodillas hasta 90°.", errors: "Bloquear las rodillas arriba o despegar la cadera del respaldo." },
             { name: "Sentadilla Hack", category: "Compuesto Heavy", settings: "Espalda pegada al respaldo inclinado", recommendations: "Bajar profundo manteniendo toda la planta del pie apoyada.", errors: "Despegar talones o permitir que las rodillas colapsen hacia adentro." },
@@ -607,7 +624,7 @@
             { name: "Sentadilla Hack Inversa (Reverse Hack)", category: "Compuesto Heavy", settings: "Mirando hacia el respaldo de la máquina", recommendations: "Bajar flexionando rodillas profundamente sacando la cadera.", errors: "Chepar la espalda baja." },
             { name: "Extensiones de Cuádriceps con Pies Hacia Adentro", category: "Piernas", settings: "Puntas mirando hacia el centro", recommendations: "Extender enfocando en la cara externa del cuádriceps (vasto lateral).", errors: "Forzar la articulación de la rodilla de forma violenta." },
 
-            // ISQUIOS Y GLÚTEOS (151 - 175)
+            // ISQUIOS Y GLÚTEOS
             { name: "Curl Femoral Tumbado", category: "Piernas", settings: "Rodillo tras los tobillos", recommendations: "Llevar los talones hacia los glúteos doblando rodillas.", errors: "Levantar la cadera de la mesa al flexionar." },
             { name: "Curl Femoral Sentado", category: "Piernas", settings: "Rodillo ajustado en muslos", recommendations: "Flexionar rodillas llevando talones abajo y atrás.", errors: "Encorvar la espalda o soltar el peso rápido." },
             { name: "Curl Femoral de Pie Unilateral", category: "Piernas", settings: "Una pierna apoyada", recommendations: "Llevar el talón hacia el glúteo en posición erguida.", errors: "Inclinarse demasiado hacia adelante." },
@@ -634,7 +651,7 @@
             { name: "Abducción de Cadera Inclinado hacia Adelante", category: "Piernas", settings: "Sentado despegado del respaldo", recommendations: "Abrir las piernas inclinado al frente enfocando el glúteo superior.", errors: "Usar el impulso de los hombros." },
             { name: "Crossover Lateral de Cadera en Polea", category: "Piernas", settings: "Tobillera en cable", recommendations: "Cruzar la pierna por detrás de la de apoyo y abrir afuera.", errors: "Perder el equilibrio de la pierna base." },
 
-            // GEMELOS / PANTORRILLA (176 - 188)
+            // GEMELOS / PANTORRILLA
             { name: "Gemelos Sentado en Máquina", category: "Piernas", settings: "Puntas de los pies en el borde de la plataforma", recommendations: "Realizar un recorrido completo buscando estiramiento profundo y máxima contracción.", errors: "Hacer rebotes cortos o apoyar toda la planta del pie." },
             { name: "Gemelos de Pie en Máquina", category: "Piernas", settings: "Almohadillas sobre los hombros", recommendations: "Elevar los talones extendiendo los tobillos completamente.", errors: "Doblar las rodillas para ayudar a subir." },
             { name: "Gemelos en Prensa de Piernas", category: "Piernas", settings: "Puntas de pies en el borde de la plataforma", recommendations: "Empujar la plataforma solo flexionando los tobillos.", errors: "Doblar las rodillas transformándolo en una prensa." },
@@ -649,7 +666,7 @@
             { name: "Elevación de Puntas en Polea Baja", category: "Piernas", settings: "Sentado frente a la polea con agarre en pies", recommendations: "Traer las puntas de los pies hacia las espinillas contra el cable.", errors: "Mover las rodillas arriba y abajo." },
             { name: "Gemelos en Prensa Horizontal", category: "Piernas", settings: "Puntas en la zona inferior del carro", recommendations: "Flexionar y extender la articulación del tobillo con espalda fija.", errors: "Doblar las rodillas al subir la carga." },
 
-            // ABDOMINALES Y CORE (189 - 200)
+            // ABDOMINALES Y CORE
             { name: "Contracción Abdominal en Máquina (Crunch)", category: "Core", settings: "Eje de giro alineado a la altura del ombligo", recommendations: "Flexionar la columna aproximando las costillas a la cadera con el abdomen.", errors: "Tirar con los brazos y hombros o flexionar la cadera sin doblar el torso." },
             { name: "Rotación del Torso en Máquina (Oblicuos)", category: "Core", settings: "Asiento rotatorio", recommendations: "Girar el torso usando la fuerza de los oblicuos.", errors: "Usar impulso de los brazos o piernas." },
             { name: "Crunch Abdominal en Polea Alta", category: "Core", settings: "De rodillas sosteniendo cuerda", recommendations: "Flexionar la columna hacia abajo llevando codos a muslos.", errors: "Sentarse en los talones durante la bajada." },
@@ -663,7 +680,7 @@
             { name: "Woodchopper (Leñador) Bajo a Alto en Polea", category: "Core", settings: "Cable en polea baja", recommendations: "Tirar del cable en diagonal desde la rodilla hacia el hombro opuesto.", errors: "Usar solo los brazos sin rotar el torso." },
             { name: "Crunch en Máquina con Carga en Pies y Torso", category: "Core", settings: "Doble palanca", recommendations: "Flexionar el torso mientras se elevan las rodillas al mismo tiempo.", errors: "Tirar bruscamente con la cabeza o el cuello." },
 
-            // CARDIO Y CONDICIONAMIENTO (201 - 209)
+            // CARDIO Y CONDICIONAMIENTO
             { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones y mantener postura vertical.", errors: "Encorvar hombros o pedalear solo en puntas." },
             { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
             { name: "Bicicleta Estática / Spinning", category: "Cardio", settings: "Sillín a la altura de la cadera", recommendations: "Pedalear con cadencia constante manteniendo abdomen activado.", errors: "Bajar demasiado el sillín sobrecargando rodillas." },
@@ -894,6 +911,35 @@
             saveToStorage();
         }
 
+        // --- ORDENACIÓN BIOMECÁNICA INTELIGENTE DEL DÍA ACTIVO ---
+        function optimizeCurrentDayBiomechanics() {
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            if (!currentDay || currentDay.isRest || currentDay.exercises.length === 0) {
+                return showToast("⚠️ No hay ejercicios de musculación en este día para reordenar.");
+            }
+
+            const priorityMap = {
+                "Compuesto Heavy": 1,
+                "Pecho": 2,
+                "Espalda": 2,
+                "Piernas": 2,
+                "Hombros": 3,
+                "Brazos": 4,
+                "Core": 5,
+                "Cardio": 6
+            };
+
+            currentDay.exercises.sort((a, b) => {
+                const prioA = priorityMap[a.category] || 3;
+                const prioB = priorityMap[b.category] || 3;
+                return prioA - prioB;
+            });
+
+            saveToStorage();
+            renderWorkoutTab();
+            showToast("⚡ Día reordenado: Compuestos Heavy ➔ Aislamiento ➔ Cardio.");
+        }
+
         function renderDaysNav() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
@@ -974,6 +1020,7 @@
                 const completedSets = appData.completedMap[key] || 0;
                 const targetSets = parseInt((ex.target || "3x12").split('x')[0]) || 3;
                 const isDone = completedSets >= targetSets;
+                const isCardio = ex.category === "Cardio";
 
                 const card = document.createElement('div');
                 card.className = `ex-item ${isDone ? 'completed' : ''}`;
@@ -984,7 +1031,7 @@
                 let setsHTML = exLogs.map((s, idx) => `
                     <div class="set-row">
                         <span>Serie ${idx+1}: ⏱️ ${s.duration}s</span>
-                        <strong>${s.weight} kg × ${s.reps} reps/min</strong>
+                        <strong>${isCardio ? `${s.weight} min · ${s.reps} km` : `${s.weight} kg × ${s.reps} reps`}</strong>
                     </div>
                 `).join('');
 
@@ -1027,7 +1074,7 @@
             appData.activeDayId = appData.routine.days[nextIdx].id;
 
             saveToStorage();
-            showToast(`🏁 Día cerrado. Volumen: ${totalVol} kg. ¡Siguiente día activado!`);
+            showToast(`🏁 Día cerrado. ¡Siguiente día activado!`);
             switchTab('history');
         }
 
@@ -1037,6 +1084,9 @@
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             const infoBox = document.getElementById('exercise-info-box');
 
+            const lbl1 = document.getElementById('lbl-param-1');
+            const lbl2 = document.getElementById('lbl-param-2');
+
             if (!exName) {
                 infoBox.classList.add('hidden');
                 return;
@@ -1044,6 +1094,14 @@
 
             const ex = currentDay.exercises.find(e => e.name === exName);
             if (ex) {
+                if (ex.category === "Cardio") {
+                    lbl1.innerText = "Tiempo (Minutos):";
+                    lbl2.innerText = "Distancia (km):";
+                } else {
+                    lbl1.innerText = "Peso / Resistencia (kg):";
+                    lbl2.innerText = "Reps:";
+                }
+
                 infoBox.classList.remove('hidden');
                 infoBox.innerHTML = `
                     <div style="font-weight: bold; color: var(--primary); margin-bottom: 4px;">Objetivo: ${ex.target || '3x12'}</div>
@@ -1115,7 +1173,7 @@
             const reps = document.getElementById('reps-input').value;
 
             if (!exName || !weight || !reps) {
-                showToast('Introduce peso y repeticiones.');
+                showToast('Introduce los datos del ejercicio.');
                 return;
             }
 
@@ -1213,6 +1271,7 @@
                         exRow.style.background = 'rgba(0,0,0,0.2)';
                         exRow.style.padding = '8px';
                         exRow.style.borderRadius = '6px';
+                        exRow.style.position = 'relative';
 
                         exRow.innerHTML = `
                             <div style="display:flex; gap:6px; align-items:center;">
@@ -1232,6 +1291,9 @@
             const matched = appData.library.find(l => l.name.toLowerCase().includes(query));
             if (matched) {
                 appData.routine.days[dIdx].exercises[eIdx] = Object.assign({}, matched, { target: appData.routine.days[dIdx].exercises[eIdx].target || "3x12" });
+                saveToStorage();
+            } else {
+                appData.routine.days[dIdx].exercises[eIdx].name = searchVal;
                 saveToStorage();
             }
         }
@@ -1277,6 +1339,31 @@
             appData.routine.days[dIdx].exercises.splice(eIdx, 1);
             saveToStorage();
             renderRoutineEditor();
+        }
+
+        // --- ASESOR IA DE RENDIMIENTO BASADO EN EL HISTÓRICO ---
+        function analyzeHistoryPerformance() {
+            const box = document.getElementById('ai-performance-advice');
+            if (!appData.logs || appData.logs.length === 0) {
+                box.innerHTML = "⚠️ <strong>Insuficientes datos:</strong> Registra varias sesiones de entrenamiento para que la IA pueda calcular la sobrecarga progresiva.";
+                return;
+            }
+
+            const totalSets = appData.logs.length;
+            const exercisesCount = new Set(appData.logs.map(l => l.exercise)).size;
+            
+            let advice = `📊 <strong>Análisis Completado (${totalSets} series registradas en ${exercisesCount} ejercicios):</strong><br><br>`;
+            
+            if (totalSets < 10) {
+                advice += `• 📈 <strong>Consistencia Inicial:</strong> Estás construyendo tu base. Mantén el objetivo de RPE 7-8 sin llegar al fallo total en los ejercicios compuestos.<br>`;
+            } else {
+                advice += `• 🚀 <strong>Sobrecarga Progresiva:</strong> Tu volumen acumulado indica adaptaciones fisiológicas. Se aconseja subir un <strong>2.5% a 5% la carga</strong> en el primer ejercicio del día si completaste todas las repeticiones prescritas.<br>`;
+            }
+
+            advice += `• ⏱️ <strong>Densidad de Entrenamiento:</strong> Asegura descansos de al menos 90-120s en ejercicios de alta demanda articular.`;
+
+            box.innerHTML = advice;
+            showToast("🧠 Análisis de rendimiento generado.");
         }
 
         function populateChartExerciseFilter() {
@@ -1357,7 +1444,7 @@
                 
                 ctx.fillStyle = "#f8fafc";
                 ctx.font = "10px sans-serif";
-                ctx.fillText(`${val}kg`, x - 10, y - 8);
+                ctx.fillText(`${val}`, x - 10, y - 8);
             });
 
             ctx.stroke();
@@ -1394,8 +1481,38 @@
             });
         }
 
+        function handleModalSearchInput(val) {
+            const suggestionsBox = document.getElementById('modal-suggestions');
+            const query = val.toLowerCase().trim();
+            document.getElementById('edit-ex-name').value = val;
+
+            if (!query) {
+                suggestionsBox.classList.add('hidden');
+                return;
+            }
+
+            const matches = appData.library.filter(e => e.name.toLowerCase().includes(query)).slice(0, 5);
+            if (matches.length > 0) {
+                suggestionsBox.classList.remove('hidden');
+                suggestionsBox.innerHTML = matches.map(m => `
+                    <div class="suggestion-item" onclick="selectModalSuggestion('${m.name.replace(/'/g, "\\'")}')">
+                        <strong>${m.name}</strong> (${m.category})
+                    </div>
+                `).join('');
+            } else {
+                suggestionsBox.classList.add('hidden');
+            }
+        }
+
+        function selectModalSuggestion(exName) {
+            document.getElementById('modal-suggestions').classList.add('hidden');
+            onModalExerciseSelectChange(exName);
+        }
+
         function openEditModal(exName = '') {
-            filterModalExerciseSelector('');
+            document.getElementById('modal-suggestions').classList.add('hidden');
+            document.getElementById('modal-search-input').value = exName;
+            
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             let activeExInDay = currentDay ? currentDay.exercises.find(e => e.name === exName) : null;
 
@@ -1419,15 +1536,6 @@
             }
 
             document.getElementById('edit-modal').classList.remove('hidden');
-        }
-
-        function filterModalExerciseSelector(query) {
-            const selector = document.getElementById('edit-ex-selector');
-            const q = query.toLowerCase().trim();
-            const matched = appData.library.filter(e => e.name.toLowerCase().includes(q) || (e.category||'').toLowerCase().includes(q));
-
-            selector.innerHTML = '<option value="">-- Seleccionar Ejercicio de la Base de Datos --</option>' + 
-                matched.map(e => `<option value="${e.name}">${e.name} (${e.category})</option>`).join('');
         }
 
         function onModalExerciseSelectChange(exName) {
@@ -1507,11 +1615,15 @@
                 dayCard.className = 'card';
                 dayCard.style.marginBottom = '10px';
 
-                let logsHTML = grouped[date].map(l => `
-                    <div style="font-size:0.85rem; border-bottom:1px solid #334155; padding:6px 0;">
-                        <strong>${l.exercise}</strong>: ⏱️ ${l.duration || '--'}s · ${l.weight}kg × ${l.reps} reps/min
-                    </div>
-                `).join('');
+                let logsHTML = grouped[date].map(l => {
+                    const exObj = appData.library.find(e => e.name === l.exercise);
+                    const isCardio = exObj && exObj.category === "Cardio";
+                    return `
+                        <div style="font-size:0.85rem; border-bottom:1px solid #334155; padding:6px 0;">
+                            <strong>${l.exercise}</strong>: ⏱️ ${l.duration || '--'}s · ${isCardio ? `${l.weight} min · ${l.reps} km` : `${l.weight} kg × ${l.reps} reps`}
+                        </div>
+                    `;
+                }).join('');
 
                 dayCard.innerHTML = `
                     <div style="font-weight:bold; color:var(--primary); margin-bottom:6px;">${date}</div>
