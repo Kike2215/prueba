@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gym Pro - PWA Móvil (200 Ejercicios)</title>
+    <title>Gym Pro - PWA Móvil (209 Ejercicios)</title>
     <!-- Tone.js para sintetizador de sonido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- PDF.js para lectura e importación de PDFs -->
@@ -282,7 +282,7 @@
                     <input type="number" id="weight-input" placeholder="0" onfocus="startExecutionTimer()">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size: 0.75rem; color: var(--text-sec);">Reps:</label>
+                    <label style="font-size: 0.75rem; color: var(--text-sec);">Reps / Minutos:</label>
                     <input type="number" id="reps-input" placeholder="0" onfocus="startExecutionTimer()">
                 </div>
             </div>
@@ -336,13 +336,14 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 200 EJERCICIOS -->
+    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 209 EJERCICIOS CON BUSCADOR -->
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
-                <span>📚 Biblioteca del Sistema (200 Ejercicios)</span>
+                <span>📚 Biblioteca del Sistema (209 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
+            <input type="text" id="library-search-input" placeholder="🔍 Escribe para buscar ejercicio..." oninput="renderLibrary()" style="margin-bottom: 10px;">
             <div id="library-container"></div>
         </div>
     </div>
@@ -358,7 +359,7 @@
                 </div>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 12px;">
-                Selecciona cualquier ejercicio de la biblioteca para copiar automáticamente todos sus parámetros.
+                Escribe en la casilla de búsqueda de cada ejercicio para seleccionarlo e importar todos sus datos biomecánicos.
             </p>
             <div id="routine-editor-container"></div>
         </div>
@@ -375,7 +376,7 @@
         </div>
     </div>
 
-    <!-- MODAL: EDITAR / AÑADIR EJERCICIO CON CAMBIO DE SERIES Y REPETICIONES -->
+    <!-- MODAL: EDITAR / AÑADIR EJERCICIO -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="card-title">
@@ -383,7 +384,8 @@
                 <span style="cursor: pointer;" onclick="closeEditModal()">✖</span>
             </div>
 
-            <label style="font-size: 0.8rem; color: var(--text-sec);">Cargar Datos desde la Base de Datos:</label>
+            <label style="font-size: 0.8rem; color: var(--text-sec);">🔍 Buscar Ejercicio en la Base de Datos:</label>
+            <input type="text" id="modal-search-input" placeholder="Escribe para buscar (ej: Prensa, Cinta, Jalón)..." oninput="filterModalExerciseSelector(this.value)">
             <select id="edit-ex-selector" onchange="onModalExerciseSelectChange(this.value)"></select>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre del ejercicio:</label>
@@ -446,8 +448,8 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (200 EJERCICIOS CONSOLIDADOS SIN DUPLICADOS) ---
-        const MASTER_200_LIBRARY = [
+        // --- BASE DE DATOS MASTER COMPLETA (209 EJERCICIOS CON CARDIO Y BUSCADOR) ---
+        const MASTER_209_LIBRARY = [
             // PECHO (1 - 25)
             { name: "Press de Pecho en Máquina Plana", category: "Compuesto Heavy", settings: "Asiento ajustado a altura de los pezones", recommendations: "Empujar hacia adelante apretando el pecho al final del recorrido.", errors: "Despegar la espalda baja o encoger los hombros hacia las orejas." },
             { name: "Press Inclinado en Máquina", category: "Compuesto Heavy", settings: "Asiento a altura de la clavícula", recommendations: "Enfocar el empuje hacia arriba para activar la porción superior del pecho.", errors: "Abrir demasiado los codos a 90° sobrecargando los hombros." },
@@ -659,7 +661,18 @@
             { name: "Crunch Abdominal Unilateral en Polea", category: "Core", settings: "Cuerda a un solo lado de la cabeza", recommendations: "Flexionar el torso en diagonal llevando el codo a la rodilla opuesta.", errors: "Girar las caderas durante la bajada." },
             { name: "Woodchopper (Leñador) Alto a Bajo en Polea", category: "Core", settings: "Cable en polea alta", recommendations: "Diagonalizar la bajada del cable desde el hombro a la rodilla opuesta.", errors: "Doblar excesivamente los codos." },
             { name: "Woodchopper (Leñador) Bajo a Alto en Polea", category: "Core", settings: "Cable en polea baja", recommendations: "Tirar del cable en diagonal desde la rodilla hacia el hombro opuesto.", errors: "Usar solo los brazos sin rotar el torso." },
-            { name: "Crunch en Máquina con Carga en Pies y Torso", category: "Core", settings: "Doble palanca", recommendations: "Flexionar el torso mientras se elevan las rodillas al mismo tiempo.", errors: "Tirar bruscamente con la cabeza o el cuello." }
+            { name: "Crunch en Máquina con Carga en Pies y Torso", category: "Core", settings: "Doble palanca", recommendations: "Flexionar el torso mientras se elevan las rodillas al mismo tiempo.", errors: "Tirar bruscamente con la cabeza o el cuello." },
+
+            // CARDIO Y CONDICIONAMIENTO (201 - 209)
+            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones y mantener postura vertical.", errors: "Encorvar hombros o pedalear solo en puntas." },
+            { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
+            { name: "Bicicleta Estática / Spinning", category: "Cardio", settings: "Sillín a la altura de la cadera", recommendations: "Pedalear con cadencia constante manteniendo abdomen activado.", errors: "Bajar demasiado el sillín sobrecargando rodillas." },
+            { name: "Escaladora / Escaleras", category: "Cardio", settings: "Velocidad constante", recommendations: "Mantener centro de gravedad alineado sin apoyarse en consolas.", errors: "Volcar todo el peso sobre los brazos en los laterales." },
+            { name: "Remo Ergómetro", category: "Cardio", settings: "Resistencia nivel 5", recommendations: "Empujar con piernas antes de tirar con brazos en fase concéntrica.", errors: "Curvar la espalda al recuperar el movimiento." },
+            { name: "SkiErg / Esquiador de Poleas", category: "Cardio", settings: "Poleas en altura máxima", recommendations: "Iniciar la tracción flexionando cadera y rodillas dinámicamente.", errors: "Tirar únicamente con la fuerza de los brazos." },
+            { name: "Saco de Boxeo / Pao", category: "Cardio", settings: "Postura de guardia neutra", recommendations: "Rotar la cadera y hombros al lanzar los golpes.", errors: "Golpear con muñecas dobladas sin vender la pierna." },
+            { name: "Salto a la Comba", category: "Cardio", settings: "Comba a la altura de axilas", recommendations: "Saltos cortos sobre metatarsos usando el giro de muñecas.", errors: "Saltar flexionando excesivamente las rodillas." },
+            { name: "Sled Push (Empuje de Trineo)", category: "Cardio", settings: "Carga progresiva sobre trineo", recommendations: "Empujar con pasos firmes apoyando metatarsos y torso inclinado.", errors: "Curvar la columna dorsal durante el empuje." }
         ];
 
         let appData = {
@@ -668,12 +681,12 @@
             routine: {
                 startDate: new Date().toISOString(),
                 days: [
-                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_200_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_200_LIBRARY[28], {target:"3x12"}) ] },
-                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_200_LIBRARY[131], {target:"3x10"}), Object.assign({}, MASTER_200_LIBRARY[154], {target:"3x12"}) ] }
+                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_209_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_209_LIBRARY[28], {target:"3x12"}) ] },
+                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_209_LIBRARY[131], {target:"3x10"}), Object.assign({}, MASTER_209_LIBRARY[154], {target:"3x12"}) ] }
                 ]
             },
             logs: [],
-            library: MASTER_200_LIBRARY,
+            library: MASTER_209_LIBRARY,
             completedMap: {},
             activeDayId: "dia1",
             selectedExerciseName: ""
@@ -681,13 +694,13 @@
 
         function saveToStorage() {
             try {
-                localStorage.setItem('gymPro_v200_data', JSON.stringify(appData));
+                localStorage.setItem('gymPro_v209_data', JSON.stringify(appData));
             } catch(e) { console.log('Storage no disponible'); }
         }
 
         function loadFromStorage() {
             try {
-                const stored = localStorage.getItem('gymPro_v200_data');
+                const stored = localStorage.getItem('gymPro_v209_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
                     if (parsed && parsed.library && parsed.library.length >= 100) {
@@ -971,7 +984,7 @@
                 let setsHTML = exLogs.map((s, idx) => `
                     <div class="set-row">
                         <span>Serie ${idx+1}: ⏱️ ${s.duration}s</span>
-                        <strong>${s.weight} kg × ${s.reps} reps</strong>
+                        <strong>${s.weight} kg × ${s.reps} reps/min</strong>
                     </div>
                 `).join('');
 
@@ -1201,15 +1214,9 @@
                         exRow.style.padding = '8px';
                         exRow.style.borderRadius = '6px';
 
-                        let selectOptions = appData.library.map(libEx => 
-                            `<option value="${libEx.name}" ${libEx.name === ex.name ? 'selected' : ''}>${libEx.name} (${libEx.category})</option>`
-                        ).join('');
-
                         exRow.innerHTML = `
                             <div style="display:flex; gap:6px; align-items:center;">
-                                <select style="flex:2; margin:0;" onchange="selectLibraryExForDay(${dIdx}, ${eIdx}, this.value)">
-                                    ${selectOptions}
-                                </select>
+                                <input type="text" placeholder="🔍 Escribe para buscar ejercicio..." value="${ex.name}" style="flex:2; margin:0;" oninput="searchAndSetLibraryExForDay(${dIdx}, ${eIdx}, this.value)">
                                 <input type="text" value="${ex.target || '3x12'}" style="flex:1; margin:0;" onchange="updateExField(${dIdx}, ${eIdx}, 'target', this.value)">
                                 <button class="btn btn-danger btn-sm" style="margin:0; padding:6px 10px;" onclick="removeExFromDay(${dIdx}, ${eIdx})">✖</button>
                             </div>
@@ -1220,12 +1227,12 @@
             });
         }
 
-        function selectLibraryExForDay(dIdx, eIdx, exName) {
-            const masterEx = appData.library.find(l => l.name === exName);
-            if (masterEx) {
-                appData.routine.days[dIdx].exercises[eIdx] = Object.assign({}, masterEx, { target: appData.routine.days[dIdx].exercises[eIdx].target || "3x12" });
+        function searchAndSetLibraryExForDay(dIdx, eIdx, searchVal) {
+            const query = searchVal.trim().toLowerCase();
+            const matched = appData.library.find(l => l.name.toLowerCase().includes(query));
+            if (matched) {
+                appData.routine.days[dIdx].exercises[eIdx] = Object.assign({}, matched, { target: appData.routine.days[dIdx].exercises[eIdx].target || "3x12" });
                 saveToStorage();
-                showToast(`Cargado completamente: ${exName}`);
             }
         }
 
@@ -1358,9 +1365,20 @@
 
         function renderLibrary() {
             const container = document.getElementById('library-container');
+            const searchVal = (document.getElementById('library-search-input')?.value || '').toLowerCase().trim();
             container.innerHTML = '';
 
-            appData.library.forEach(ex => {
+            const filtered = appData.library.filter(ex => 
+                ex.name.toLowerCase().includes(searchVal) || 
+                (ex.category || '').toLowerCase().includes(searchVal)
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-sec); font-size:0.85rem;">No se han encontrado ejercicios con esa búsqueda.</p>';
+                return;
+            }
+
+            filtered.forEach(ex => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
@@ -1377,10 +1395,7 @@
         }
 
         function openEditModal(exName = '') {
-            const selector = document.getElementById('edit-ex-selector');
-            selector.innerHTML = '<option value="">-- Seleccionar Ejercicio de la Base de Datos --</option>' + 
-                appData.library.map(e => `<option value="${e.name}" ${e.name === exName ? 'selected' : ''}>${e.name} (${e.category})</option>`).join('');
-
+            filterModalExerciseSelector('');
             const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
             let activeExInDay = currentDay ? currentDay.exercises.find(e => e.name === exName) : null;
 
@@ -1404,6 +1419,15 @@
             }
 
             document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function filterModalExerciseSelector(query) {
+            const selector = document.getElementById('edit-ex-selector');
+            const q = query.toLowerCase().trim();
+            const matched = appData.library.filter(e => e.name.toLowerCase().includes(q) || (e.category||'').toLowerCase().includes(q));
+
+            selector.innerHTML = '<option value="">-- Seleccionar Ejercicio de la Base de Datos --</option>' + 
+                matched.map(e => `<option value="${e.name}">${e.name} (${e.category})</option>`).join('');
         }
 
         function onModalExerciseSelectChange(exName) {
@@ -1485,7 +1509,7 @@
 
                 let logsHTML = grouped[date].map(l => `
                     <div style="font-size:0.85rem; border-bottom:1px solid #334155; padding:6px 0;">
-                        <strong>${l.exercise}</strong>: ⏱️ ${l.duration || '--'}s · ${l.weight}kg × ${l.reps} reps
+                        <strong>${l.exercise}</strong>: ⏱️ ${l.duration || '--'}s · ${l.weight}kg × ${l.reps} reps/min
                     </div>
                 `).join('');
 
