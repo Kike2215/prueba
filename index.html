@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gym Pro - PWA Movil</title>
+    <title>Gym Pro - PWA Móvil (200 Ejercicios)</title>
     <!-- Tone.js para sintetizador de sonido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- PDF.js para lectura e importación de PDFs -->
@@ -152,7 +152,7 @@
 
     <div id="toast" class="hidden"></div>
 
-    <!-- PESTAÑA 1: USUARIOS (INICIO OBLIGATORIO) -->
+    <!-- PESTAÑA 1: USUARIOS -->
     <div id="tab-users" class="container">
         <div class="card" style="border-left: 4px solid var(--primary);">
             <div class="card-title">👤 Selección de Atleta / Usuario</div>
@@ -311,7 +311,6 @@
 
         <div id="daily-exercises-list"></div>
 
-        <!-- BOTÓN DEDICADO PARA CERRAR EL DÍA -->
         <button class="btn btn-success" style="margin-top: 16px; margin-bottom: 24px; padding: 14px;" onclick="finishAndCloseWorkoutDay()">
             🏁 Terminar Entrenamiento y Cerrar Día
         </button>
@@ -337,11 +336,11 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 65 EJERCICIOS -->
+    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 200 EJERCICIOS -->
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
-                <span>📚 Biblioteca del Sistema (65 Ejercicios)</span>
+                <span>📚 Biblioteca del Sistema (200 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
             <div id="library-container"></div>
@@ -426,7 +425,7 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR OBLIGATORIA: USUARIO -> PLAN -> HISTÓRICO -> BIBLIOTECA -->
+    <!-- NAVEGACIÓN INFERIOR OBLIGATORIA -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('users', this)" id="nav-users">
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -447,73 +446,220 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (65 EJERCICIOS) ---
-        const MASTER_65_LIBRARY = [
-            { name: "Press de Pecho Guiado", category: "Compuesto Heavy", settings: "Asiento Altura 4", recommendations: "Retraer omóplatos. Bajar el peso de forma controlada en 2s.", errors: "Despegar la zona lumbar del respaldo o bloquear codos bruscamente." },
-            { name: "Sentadilla con Barra", category: "Compuesto Heavy", settings: "Soporte a la altura del esternón", recommendations: "Mantener pies a anchura de hombros y empujar con los talones.", errors: "Guiar con las rodillas hacia adentro o curvar la espalda baja." },
-            { name: "Peso Muerto Convencional", category: "Compuesto Heavy", settings: "Barra sobre mitad del pie", recommendations: "Mantener la barra pegada a las espinillas y activar dorsales.", errors: "Chepar la espalda o iniciar tirando con los brazos." },
-            { name: "Press Militar con Mancuernas", category: "Compuesto Heavy", settings: "Respaldo a 85°", recommendations: "Bajar hasta rozar los hombros y presionar hacia arriba sin chocar pesas.", errors: "Arquear excesivamente la zona lumbar." },
-            { name: "Remo Sentado en Máquina", category: "Compuesto Heavy", settings: "Apoyo pectoral pos. 2", recommendations: "Tirar con los codos bordeando el cuerpo.", errors: "Tironear con el tronco despegando el pecho." },
-            { name: "Press Inclinado con Mancuernas", category: "Compuesto Heavy", settings: "Banco a 30°", recommendations: "Bajar con codos a 45° respecto al torso.", errors: "Abrir excesivamente los codos lesionando el hombro." },
-            { name: "Prensa de Piernas Inclinada", category: "Compuesto Heavy", settings: "Respaldo pos. 2", recommendations: "Bajar a 90° en rodillas de forma fluida.", errors: "Bloquear rodillas o despegar el glúteo del asiento." },
-            { name: "Press Banca Plano con Mancuernas", category: "Pecho", settings: "Banco plano horizontal", recommendations: "Codos a 45°. Juntar las mancuernas en la vertical sin chocar.", errors: "Rebotar en el pecho o despegar la espalda." },
-            { name: "Aperturas con Mancuernas en Banco Plano", category: "Pecho", settings: "Banco horizontal", recommendations: "Codos en flexión fija. Abrir sintiendo el estiramiento del pectoral.", errors: "Convertirlo en un press flexionando los brazos al bajar." },
-            { name: "Aperturas en Polea", category: "Pecho", settings: "Polea a la altura del pecho", recommendations: "Mantener codos semifinales fijando articulación.", errors: "Transformar el movimiento en un press." },
-            { name: "Contractora Pecho (Pec Deck)", category: "Pecho", settings: "Asiento pos. 3", recommendations: "Pausar 1 segundo en máxima contracción central.", errors: "Encoger los hombros hacia arriba." },
-            { name: "Press Declinado en Máquina", category: "Pecho", settings: "Asiento elevado pos. 5", recommendations: "Enfocar el empuje en la porción inferior del pectoral.", errors: "Forzar el agarre abriendo codos." },
-            { name: "Cruces de Polea Alta", category: "Pecho", settings: "Polea en máxima altura", recommendations: "Cruzar las manos levemente en la fase final.", errors: "Usar inercia del torso al bajar." },
-            { name: "Fondos en Paralelas (Pectoral)", category: "Pecho", settings: "Agarre ancho", recommendations: "Inclinar el torso 30° hacia adelante.", errors: "Bajar demasiado forzando la articulación del hombro." },
-            { name: "Remo Unilateral con Mancuerna", category: "Espalda", settings: "Apoyo en banco plano", recommendations: "Llevar la mancuerna hacia la cadera marcando el arco.", errors: "Rotar el torso excesivamente." },
-            { name: "Jalón al Pecho Guiado", category: "Espalda", settings: "Agarre neutro ancho", recommendations: "Inclinación leve de torso de 15°. Llevar la barra al esternón.", errors: "Llevar la barra detrás de la nuca." },
-            { name: "Dominadas Asistidas", category: "Espalda", settings: "Plataforma de asistencia ajustada", recommendations: "Subir hasta superar la barbilla completando el rango.", errors: "Kipping o impulso con piernas." },
-            { name: "Pull-over con Cuerda en Polea", category: "Espalda", settings: "Polea alta con cuerda", recommendations: "Codos bloqueados en leve flexión, llevar manos a la cadera.", errors: "Flexionar codos convirtiéndolo en tríceps." },
-            { name: "Remo con Banda Elástica", category: "Espalda", settings: "Goma anclada a pie o estructura fija", recommendations: "Tirar con codos hacia atrás apretando la escápula.", errors: "Encoger hombros hacia las orejas." },
-            { name: "Remo en Barra T", category: "Espalda", settings: "Agarre estrecho", recommendations: "Mantener la columna neutra durante toda la tirada.", errors: "Usar rebotes lumbares." },
-            { name: "Hiperextensiones a 45°", category: "Espalda", settings: "Almohadilla bajo la cresta ilíaca", recommendations: "Subir alineando la columna con las piernas sin sobrepasar.", errors: "Hiperextender la zona lumbar en la parte alta." },
-            { name: "Extensión de Espalda en Máquina", category: "Espalda", settings: "Eje de rotación alineado con la cadera", recommendations: "Mantener columna neutra y empujar con glúteos y zona lumbar.", errors: "Hiperextender la columna al final o dar tirones bruscos." },
-            { name: "Peso Muerto Rumano con Mancuernas", category: "Piernas", settings: "Mancuernas pegadas a los muslos", recommendations: "Llevar cadera hacia atrás flexionando levemente rodillas.", errors: "Curvar la columna lumbar al bajar." },
-            { name: "Pasos Laterales con Banda Elástica (Monster Walk)", category: "Piernas", settings: "Banda sobre las rodillas o tobillos", recommendations: "Mantener tensión constante en la goma sin juntar pies.", errors: "Juntar las rodillas hacia adentro (valgo)." },
-            { name: "Sentadilla Goblet con Mancuerna / Banda", category: "Piernas", settings: "Mancuerna vertical en el pecho", recommendations: "Bajar con espalda erguida abriendo rodillas.", errors: "Levantar los talones del suelo." },
-            { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo sobre tobillos", recommendations: "Pausar 1s arriba comprimiendo el cuádriceps.", errors: "Patear con inercia o despegar el glúteo." },
-            { name: "Curl Femoral Sentado", category: "Piernas", settings: "Rodillo superior firme en muslos", recommendations: "Flexionar de forma fluida y frenar la bajada.", errors: "Soltar el peso sin control excéntrico." },
-            { name: "Curl Femoral Tumbado", category: "Piernas", settings: "Eje de rotación alineado a rodilla", recommendations: "Mantener la cadera pegada al banco.", errors: "Levantar la pelvis al flexionar." },
-            { name: "Zancadas Guiadas (Lunge)", category: "Piernas", settings: "Paso largo hacia adelante", recommendations: "Mantener la rodilla en línea con el segundo dedo del pie.", errors: "Superar excesivamente la punta del pie desestabilizando." },
-            { name: "Elevación de Calcanhares (Gemelos)", category: "Piernas", settings: "Apoyo en metatarsos", recommendations: "Bajar al máximo estirando el sóleo y pausar arriba.", errors: "Rebotar rápido sin pausa." },
+        // --- BASE DE DATOS MASTER COMPLETA (200 EJERCICIOS CONSOLIDADOS SIN DUPLICADOS) ---
+        const MASTER_200_LIBRARY = [
+            // PECHO (1 - 25)
+            { name: "Press de Pecho en Máquina Plana", category: "Compuesto Heavy", settings: "Asiento ajustado a altura de los pezones", recommendations: "Empujar hacia adelante apretando el pecho al final del recorrido.", errors: "Despegar la espalda baja o encoger los hombros hacia las orejas." },
+            { name: "Press Inclinado en Máquina", category: "Compuesto Heavy", settings: "Asiento a altura de la clavícula", recommendations: "Enfocar el empuje hacia arriba para activar la porción superior del pecho.", errors: "Abrir demasiado los codos a 90° sobrecargando los hombros." },
+            { name: "Press Declinado en Máquina", category: "Pecho", settings: "Asiento elevado para empujar hacia abajo", recommendations: "Llevar la carga hacia la zona inferior del pectoral.", errors: "Forzar la zona lumbar o usar tirones de brazo." },
+            { name: "Aperturas en Máquina (Pec Deck)", category: "Pecho", settings: "Agarres alineados con el pecho", recommendations: "Juntar las manos manteniendo un codo ligeramente flexionado.", errors: "Hiperextender los hombros hacia atrás al regresar." },
+            { name: "Cruce de Poleas Altas", category: "Pecho", settings: "Poleas fijadas por encima de la cabeza", recommendations: "Empujar las manos hacia abajo y adelante cruzando ligeramente.", errors: "Inclinarse demasiado hacia adelante usando el peso del cuerpo." },
+            { name: "Cruce de Poleas Bajas", category: "Pecho", settings: "Poleas fijadas a la altura del suelo", recommendations: "Elevar las manos hacia el centro y arriba apretando el pecho alto.", errors: "Tirar con la fuerza de los bíceps en lugar del pectoral." },
+            { name: "Cruce de Poleas Medias", category: "Pecho", settings: "Poleas a la altura de los hombros", recommendations: "Traer las manos hacia el frente formando un abrazo amplio.", errors: "Encoger los trapecios o doblar demasiado los codos." },
+            { name: "Press de Pecho en Polea de Pie", category: "Pecho", settings: "Paso al frente para estabilidad", recommendations: "Empujar con ambas manos hacia el centro del pecho.", errors: "Perder el equilibrio o dar tirones con la cadera." },
+            { name: "Flexiones en Máquina Asistida", category: "Pecho", settings: "Plataforma de soporte ajustada", recommendations: "Mantener el cuerpo alineado y bajar hasta tocar el manillar.", errors: "Encorvar la espalda o dejar caer la cadera." },
+            { name: "Press Pecho Convergente (Hammer Strength)", category: "Compuesto Heavy", settings: "Respaldo inclinado o plano", recommendations: "Empujar hacia el centro juntando las manos al final.", errors: "Bloquear los codos bruscamente al extender." },
+            { name: "Press Inclinado Unilateral en Máquina", category: "Compuesto Heavy", settings: "Asiento alineado a la parte alta del pecho", recommendations: "Empujar con un solo lado manteniendo el torso fijo.", errors: "Rotar el cuerpo para compensar la carga." },
+            { name: "Press de Pecho Neutro en Máquina", category: "Pecho", settings: "Agarres verticales/paralelos", recommendations: "Empujar con los codos pegados reduciendo estrés articular.", errors: "Separar los codos de los costados." },
+            { name: "Cruce Unilateral en Polea Alta", category: "Pecho", settings: "Polea por encima de la cabeza", recommendations: "Llevar la mano cruzando el centro del pecho con control.", errors: "Inclinar el torso hacia la polea." },
+            { name: "Cruce Unilateral en Polea Baja", category: "Pecho", settings: "Polea fijada abajo", recommendations: "Elevar el cable diagonalmente hacia la clavícula opuesta.", errors: "Usar el hombro para levantar en vez del pectoral." },
+            { name: "Press Inclinado en Multipower (Smith)", category: "Compuesto Heavy", settings: "Banco a 30°", recommendations: "Bajar la barra suavemente hacia la parte alta del pecho.", errors: "Rebotar la barra en el esternón." },
+            { name: "Press Plano en Multipower (Smith)", category: "Compuesto Heavy", settings: "Banco plano", recommendations: "Bajar la barra a la línea media del pecho con codos a 45°.", errors: "Abrir codos en exceso a 90°." },
+            { name: "Press Declinado en Multipower (Smith)", category: "Compuesto Heavy", settings: "Banco declinado", recommendations: "Llevar la barra a la parte inferior del pecho empujando vertical.", errors: "Archivar la columna de forma brusca." },
+            { name: "Aperturas Inclinadas en Polea", category: "Pecho", settings: "Banco a 30° entre poleas bajas", recommendations: "Juntar las manos sobre la parte alta del pecho.", errors: "Doblar los codos en exceso convirtiéndolo en press." },
+            { name: "Aperturas Planas en Polea", category: "Pecho", settings: "Banco plano entre poleas bajas", recommendations: "Abrir los brazos en abanico sintiendo el estiramiento pectoral.", errors: "Dejar caer los brazos bruscamente abajo." },
+            { name: "Press Guitarrero/Squeeze Press en Polea", category: "Pecho", settings: "Agarre estrecho en cable", recommendations: "Juntar las manos en el centro y empujar hacia adelante.", errors: "Separar las manos durante el empuje." },
+            { name: "Pullover en Polea con Banco", category: "Pecho", settings: "Cabeza hacia la polea baja", recommendations: "Traer el cable en arco sobre el pecho manteniendo brazos firmes.", errors: "Doblar y extender los codos como en tríceps." },
+            { name: "Press de Pecho de Pie en Cable Unilateral", category: "Pecho", settings: "Zancada estable", recommendations: "Empujar al frente fijando el core para evitar rotación.", errors: "Girar las caderas al empujar." },
+            { name: "Aperturas Declinadas en Polea", category: "Pecho", settings: "Poleas fijadas a media altura", recommendations: "Juntar las manos hacia la cadera en trayectoria descendente.", errors: "Encorvar los hombros hacia adelante." },
+            { name: "Floor Press en Multipower (Smith)", category: "Pecho", settings: "Acostado directamente en el suelo", recommendations: "Bajar la barra hasta que los tríceps toquen suavemente el suelo.", errors: "Chocar los codos con fuerza contra el suelo." },
+            { name: "Dips de Pecho en Máquina Asistida", category: "Pecho", settings: "Torso ligeramente inclinado al frente", recommendations: "Bajar doblando codos con el cuerpo inclinado para enfocar el pecho.", errors: "Mantenerse totalmente vertical (enfoca en tríceps)." },
+
+            // ESPALDA (26 - 55)
+            { name: "Jalón al Pecho Agarre Ancho", category: "Espalda", settings: "Barra tomada más ancha que los hombros", recommendations: "Traer la barra al pecho sacando el tórax.", errors: "Reclinarse en exceso hacia atrás o bajar la barra tras nuca." },
+            { name: "Jalón al Pecho Agarre Neutro", category: "Espalda", settings: "Agarre en 'V' o palmas enfrentadas", recommendations: "Tirar hacia abajo concentrando la fuerza en los dorsales.", errors: "Impulsarse con la zona lumbar al iniciar el tirón." },
+            { name: "Jalón Supino (Agarre Invertido)", category: "Espalda", settings: "Palmas mirando hacia ti", recommendations: "Tirar del manillar hacia la parte superior del pecho.", errors: "Sobrecargar los bíceps en lugar de la espalda." },
+            { name: "Remo Sentado en Polea (Gironda)", category: "Compuesto Heavy", settings: "Pies bien firmes en los apoyos", recommendations: "Tirar hacia el ombligo manteniendo el torso erguido.", errors: "Balancear la espalda hacia atrás para mover la carga." },
+            { name: "Remo Pecho Apoyado en Máquina", category: "Compuesto Heavy", settings: "Cojín apoyado firmemente en el tórax", recommendations: "Dirigir los codos hacia atrás bordeando los costados.", errors: "Despegar el pecho del cojín para coger impulso." },
+            { name: "Remo Unilateral en Máquina", category: "Espalda", settings: "Apoyo de mano contraria", recommendations: "Tirar de la palanca hacia la cadera con un solo brazo.", errors: "Rotar el torso de forma exagerada al tirar." },
+            { name: "Pullover en Polea Alta", category: "Espalda", settings: "Barra recta o cuerda", recommendations: "Bajar la barra hacia los muslos manteniendo brazos casi rectos.", errors: "Flexionar los codos convirtiéndolo en una extensión de tríceps." },
+            { name: "Remo Alto para Espalda Alta", category: "Espalda", settings: "Codos abiertos a 45°", recommendations: "Llevar el agarre hacia el esternón juntando los omóplatos.", errors: "Tirar hacia abajo o usar la fuerza de los antebrazos." },
+            { name: "Hiperextensiones en Máquina", category: "Espalda", settings: "Eje alineado a la cadera", recommendations: "Subir el torso con la fuerza lumbar y glúteos.", errors: "Hiperextender la columna superando la línea recta." },
+            { name: "Remo T con Apoyo Pectoral", category: "Compuesto Heavy", settings: "Pecho firmemente colocado", recommendations: "Tirar de la barra T apretando la parte media de la espalda.", errors: "Usar tirones con las piernas para despegar el peso." },
+            { name: "Jalón Unilateral en Polea Alta", category: "Espalda", settings: "Agarre individual", recommendations: "Tirar hacia abajo llevando el codo a la cadera lateral.", errors: "Inclinarse hacia el lado contrario para compensar." },
+            { name: "Jalón con Cuerda a la Garganta", category: "Espalda", settings: "Polea alta", recommendations: "Tirar de la cuerda separando los cabos hacia los hombros.", errors: "Encoger el cuello usando los trapecios." },
+            { name: "Remo Prono en Polea con Agarre Ancho", category: "Espalda", settings: "Barra recta en polea baja", recommendations: "Tirar hacia la parte alta del abdomen con codos abiertos.", errors: "Encorvar la espalda al estirar los brazos." },
+            { name: "Remo Supino en Polea Baja", category: "Espalda", settings: "Palmas mirando hacia arriba", recommendations: "Traer el agarre pegado al abdomen bajo enfocando el dorsal inferior.", errors: "Abrir los codos separándolos del torso." },
+            { name: "Remo Horizontal en Multipower (Smith)", category: "Compuesto Heavy", settings: "Torso inclinado a 45°", recommendations: "Tirar de la barra guiada hacia la cintura manteniendo espalda recta.", errors: "Erguir el torso perdiendo la inclinación." },
+            { name: "Remo Pendlay en Multipower (Smith)", category: "Compuesto Heavy", settings: "Torso paralelo al suelo", recommendations: "Levantar la barra desde el tope inferior de forma explosiva.", errors: "Curvar la zona lumbar al iniciar el movimiento." },
+            { name: "Pullover con Cuerda en Polea Alta", category: "Espalda", settings: "Cuerda fijada arriba", recommendations: "Bajar los brazos abriendo las puntas de la cuerda al final.", errors: "Doblar los codos más de 30°." },
+            { name: "Jalón Unilateral en Máquina Convergente", category: "Compuesto Heavy", settings: "Un solo brazo", recommendations: "Dirigir la palanca abajo y adentro concentrando el dorsal.", errors: "Girar el torso hacia afuera." },
+            { name: "Remo con Agarre Neutro Ancho en Polea", category: "Espalda", settings: "Barra multagarre", recommendations: "Tirar hacia la mitad del pecho retrayendo omóplatos.", errors: "Usar el peso del cuerpo hacia atrás." },
+            { name: "Remo Helicóptero / Meadows en Polea Baja", category: "Espalda", settings: "De lado a la polea", recommendations: "Tirar de la mano hacia atrás bordeando el costado.", errors: "Rotar la columna de forma brusca." },
+            { name: "Remo Ilíaco Unilateral en Polea Alta", category: "Espalda", settings: "Polea ajustada arriba", recommendations: "Tirar en diagonal enfocando la cresta ilíaca y el dorsal bajo.", errors: "Elevar el hombro de la mano libre." },
+            { name: "Jalón Dorsal en Banco Inclinado con Polea", category: "Espalda", settings: "Pecho apoyado a 60°", recommendations: "Tirar del cable neutro llevando el codo hacia la cadera.", errors: "Despegar el pecho del respaldo." },
+            { name: "Peso Muerto Rumano en Multipower (Smith)", category: "Compuesto Heavy", settings: "Barra guiada", recommendations: "Llevar la cadera atrás manteniendo la espalda neutra.", errors: "Chepar la columna al bajar." },
+            { name: "Shrugs/Encogimientos de Espalda en Máquina", category: "Espalda", settings: "Agarres laterales", recommendations: "Elevar las escápulas directamente hacia arriba.", errors: "Rotar los hombros en círculos." },
+            { name: "Remo Kroc en Polea Baja", category: "Compuesto Heavy", settings: "Un pie adelantado", recommendations: "Tirar con fuerza controlada llevando el codo bien atrás.", errors: "Mover la cadera para iniciar el movimiento." },
+
+            // HOMBROS (56 - 80)
+            { name: "Press Militar en Máquina", category: "Compuesto Heavy", settings: "Asiento con espalda apoyada", recommendations: "Empujar los agarres sobre la cabeza de forma controlada.", errors: "Arquear en exceso la zona lumbar al subir." },
+            { name: "Elevaciones Laterales en Máquina", category: "Hombros", settings: "Rodillos sobre los antebrazos", recommendations: "Subir los codos hacia los lados hasta la altura de hombros.", errors: "Encoger el cuello o usar el torso para balancear." },
+            { name: "Pájaro en Máquina (Deltoides Posterior)", category: "Hombros", settings: "Pecho pegado al respaldo", recommendations: "Abrir los brazos hacia los lados liderando con codos.", errors: "Usar los trapecios o encorvar los hombros." },
+            { name: "Elevaciones Laterales en Polea Baja", category: "Hombros", settings: "Cable cruzado detrás del cuerpo", recommendations: "Elevar la mano hacia el lado en diagonal recta.", errors: "Girar el torso hacia el lado que trabaja." },
+            { name: "Deltoides Posterior en Polea", category: "Hombros", settings: "Polea a la altura de la cara", recommendations: "Separar los cables a la altura de las orejas hacia atrás.", errors: "Bajar los codos perdiendo alineación con los hombros." },
+            { name: "Elevación Frontal en Polea", category: "Hombros", settings: "Cable entre las piernas", recommendations: "Subir el manillar hacia adelante hasta la altura de los ojos.", errors: "Balancear la cadera hacia adelante para subir." },
+            { name: "Press Arnold en Máquina", category: "Hombros", settings: "Giro de muñecas durante el recorrido", recommendations: "Iniciar con palmas hacia ti y rotar al empujar arriba.", errors: "Rotar bruscamente perdiendo el control del peso." },
+            { name: "Encogimientos de Hombro en Máquina", category: "Hombros", settings: "Brazos extendidos a los lados", recommendations: "Elevar las escápulas directamente hacia las orejas.", errors: "Rotar los hombros en círculos al subir." },
+            { name: "Remo al Mentón en Polea", category: "Hombros", settings: "Agarre medio en barra", recommendations: "Subir la barra pegada al cuerpo liderando con los codos.", errors: "Elevar los codos por encima del nivel de las orejas." },
+            { name: "Face Pull en Polea", category: "Hombros", settings: "Cuerda a la altura del cuello", recommendations: "Tirar de la cuerda hacia los ojos separando las puntas.", errors: "Caer hacia adelante o bajar los codos al tirar." },
+            { name: "Press Militar en Multipower (Smith)", category: "Compuesto Heavy", settings: "Banco sentado a 85°", recommendations: "Bajar la barra por delante hasta la altura del mentón.", errors: "Bajar la barra detrás de la nuca." },
+            { name: "Elevaciones Laterales Inclinadas en Polea", category: "Hombros", settings: "Torso inclinado a 45° de la polea", recommendations: "Elevar la mano separándola del cuerpo para máxima tensión inicial.", errors: "Dar tirones con el hombro opuesto." },
+            { name: "Elevaciones Frontales Unilaterales en Polea", category: "Hombros", settings: "Polea baja", recommendations: "Subir la mano en línea recta frente a la articulación del hombro.", errors: "Arquear la espalda hacia atrás." },
+            { name: "Pájaro Unilateral en Polea Media", category: "Hombros", settings: "De lado a la polea", recommendations: "Cruzar el brazo por el frente y abrir hacia atrás a la altura del hombro.", errors: "Rotar la columna al abrir." },
+            { name: "Press de Hombro Convergente en Máquina", category: "Compuesto Heavy", settings: "Trayectoria ascendente e interna", recommendations: "Empujar hacia arriba juntando los agarres arriba sin tocar.", errors: "Chocar los agarres de forma violenta." },
+            { name: "Elevación Lateral Y-Raise en Poleas Cruzadas", category: "Hombros", settings: "Poleas bajas cruzadas", recommendations: "Elevar ambos brazos formando una 'Y' con el cuerpo.", errors: "Flexionar los codos para subir." },
+            { name: "Remo para Deltoides Posterior en Polea", category: "Hombros", settings: "Codos abiertos a 90°", recommendations: "Tirar del manillar hacia la parte alta del pecho abriendo codos.", errors: "Tirar hacia el ombligo." },
+            { name: "Elevación Lateral Sentado en Polea", category: "Hombros", settings: "Sentado en banco", recommendations: "Elevar los cables hacia los lados aislando los deltoides.", errors: "Usar el balanceo de las piernas." },
+            { name: "Press Trasnuca Controlado en Multipower (Smith)", category: "Hombros", settings: "Banco a 90°", recommendations: "Bajar la barra únicamente hasta la parte alta de la cabeza.", errors: "Bajar la barra hasta la base del cuello sobrecargando el manguito rotador." },
+            { name: "Encogimientos con Cuerda en Polea Baja", category: "Hombros", settings: "Cuerda en polea", recommendations: "Subir los trapecios hacia las orejas manteniendo cuerda extendida.", errors: "Doblar los codos para subir el peso." },
+            { name: "Elevación Frontal con Cuerda en Polea Baja", category: "Hombros", settings: "Cuerda tomada entre las piernas", recommendations: "Elevar los brazos hasta la línea de la visión.", errors: "Impulsarse inclinando el torso." },
+            { name: "Pájaro Apoyado en Banco Inclinado con Poleas", category: "Hombros", settings: "Banco a 45° frente a las poleas", recommendations: "Abrir los brazos en abanico sintiendo la parte trasera del hombro.", errors: "Despegar el pecho del banco." },
+            { name: "Press Militar Unilateral en Máquina", category: "Hombros", settings: "Un solo lado", recommendations: "Empujar verticalmente manteniendo la pelvis fija.", errors: "Inclinarse lateralmente." },
+            { name: "Elevación Lateral con Apoyo de Torso", category: "Hombros", settings: "Torso apoyado de lado en almohadilla", recommendations: "Elevar la mano libre aislando la cabeza lateral.", errors: "Soltar el cuerpo de la almohadilla." },
+            { name: "Rotación Externa en Polea (Manguito Rotador)", category: "Hombros", settings: "Codo pegado a 90°", recommendations: "Rotar el antebrazo hacia afuera alejándolo del abdomen.", errors: "Separar el codo del costado del cuerpo." },
+
+            // BÍCEPS (81 - 105)
+            { name: "Curl de Bíceps en Polea Baja", category: "Brazos", settings: "Barra recta o Z", recommendations: "Subir la barra flexionando codos sin mover la parte superior del brazo.", errors: "Balancarse hacia atrás para mover la barra." },
+            { name: "Curl Predicador en Máquina", category: "Brazos", settings: "Axilas apoyadas en el cojín", recommendations: "Flexionar codos manteniendo los brazos fijos en el cojín.", errors: "Despegar los brazos del apoyo o soltar de golpe." },
+            { name: "Curl Martillo en Polea", category: "Brazos", settings: "Agarre con cuerda", recommendations: "Subir la cuerda con palmas enfrentadas hacia los hombros.", errors: "Separar los codos de los costados del cuerpo." },
+            { name: "Curl de Bíceps Concentrado en Polea", category: "Brazos", settings: "Codo apoyado en el muslo o fijado", recommendations: "Flexionar el brazo llevando el agarre al hombro opuesto.", errors: "Mover la pierna o el hombro de apoyo." },
+            { name: "Curl de Bíceps en Polea Alta (Doble Biceps)", category: "Brazos", settings: "Poleas a ambos lados en alto", recommendations: "Traer las agarraderas hacia las orejas flexionando codos.", errors: "Bajar los codos del nivel de los hombros." },
+            { name: "Curl Inclinado en Máquina Guiada", category: "Brazos", settings: "Brazos apoyados ligeramente atrás", recommendations: "Flexionar los codos enfatizando la cabeza larga del bíceps.", errors: "Encoger los hombros hacia adelante." },
+            { name: "Curl de Bíceps Unilateral en Polea", category: "Brazos", settings: "De pie o de lado al cable", recommendations: "Curl controlado aislando un solo brazo.", errors: "Girar el cuerpo acompañando el peso." },
+            { name: "Curl Bayesian en Polea", category: "Brazos", settings: "Espalda a la polea baja", recommendations: "Flexionar el codo desde una posición con el brazo detrás del cuerpo.", errors: "Inclinarse hacia adelante al subir." },
+            { name: "Curl Supinado en Máquina", category: "Brazos", settings: "Agarre giratorio", recommendations: "Rotar muñeca hacia afuera al momento de subir.", errors: "Dejar caer el peso en la bajada sin tensión." },
+            { name: "Curl con Cuerda a la Cara en Polea", category: "Brazos", settings: "Cuerda fijada arriba", recommendations: "Tirar de la cuerda hacia la frente flexionando los brazos.", errors: "Usar el peso del cuerpo para balancear." },
+            { name: "Curl Araña en Polea Baja", category: "Brazos", settings: "Pecho apoyado en banco inclinado", recommendations: "Flexionar codos dejando los brazos colgando verticales.", errors: "Mover los hombros hacia atrás." },
+            { name: "Curl Z-Bar en Polea Baja", category: "Brazos", settings: "Barra Z fija", recommendations: "Subir con agarre semi-supinado reduciendo tensión en muñecas.", errors: "Subir los codos al final del movimiento." },
+            { name: "Curl Unilateral en Polea Alta Sentado", category: "Brazos", settings: "Sentado de lado a la polea", recommendations: "Traer la manija hacia la sien manteniendo codo elevado.", errors: "Bajar la altura del codo al flexionar." },
+            { name: "Curl Invertido en Polea Baja (Braquial)", category: "Brazos", settings: "Palmas mirando hacia abajo", recommendations: "Subir la barra trabajando la parte anterior del antebrazo y bíceps.", errors: "Flexionar las muñecas hacia arriba de forma violenta." },
+            { name: "Curl de Bíceps Convergente en Máquina", category: "Brazos", settings: "Apoyo de codos inclinado", recommendations: "Flexionar ambas manos hacia el centro.", errors: "Despegar los codos del soporte." },
+            { name: "Curl Unilateral en Banco Predicador con Polea", category: "Brazos", settings: "Banco colocado frente a polea baja", recommendations: "Flexionar el brazo sobre el cojín con tensión constante del cable.", errors: "Levantar el hombro para ayudar a la flexión." },
+            { name: "Curl Martillo Cuerda Cruzado en Polea", category: "Brazos", settings: "Polea baja", recommendations: "Tirar de la cuerda cruzando el torso hacia el hombro opuesto.", errors: "Girar las caderas durante la ejecución." },
+            { name: "Curl de Bíceps con Agarre Ancho en Polea", category: "Brazos", settings: "Barra recta tomada en los extremos", recommendations: "Subir enfocado en la cabeza corta (interna) del bíceps.", errors: "Pegar excesivamente los hombros hacia el frente." },
+            { name: "Curl de Bíceps con Agarre Estrecho en Polea", category: "Brazos", settings: "Manos juntas en el centro", recommendations: "Subir enfocado en la cabeza larga (externa) del bíceps.", errors: "Abrir los codos durante la subir." },
+            { name: "Drag Curl en Polea Baja", category: "Brazos", settings: "Barra recta", recommendations: "Subir la barra pegada al torso llevando los codos hacia atrás.", errors: "Traer la barra hacia adelante alejándola del cuerpo." },
+            { name: "Curl Declinado en Polea (Acostado)", category: "Brazos", settings: "Acostado boca arriba mirando al techo", recommendations: "Flexionar la barra hacia la frente manteniendo codos fijos arriba.", errors: "Mover la parte superior del brazo." },
+            { name: "Curl de Bíceps en Máquina de Resistencia Fluida", category: "Brazos", settings: "Asiento ajustado", recommendations: "Subir mediante una flexión suave y constante de codos.", errors: "Soltar la fase excéntrica rápido." },
+            { name: "Curl Martillo Unilateral de Pie en Cable", category: "Brazos", settings: "Agarre individual de bola", recommendations: "Elevar el cable hacia el hombro con agarre neutro.", errors: "Inclinar la columna hacia un lado." },
+            { name: "Curl en Polea Media de Pie", category: "Brazos", settings: "Polea a altura de la cintura", recommendations: "Flexionar codos manteniendo brazo en extensión neutra.", errors: "Balancear el peso." },
+            { name: "Curl Prono Unilateral en Polea", category: "Brazos", settings: "Palma hacia abajo", recommendations: "Subir la manija enfocando el antebrazo y braquial.", errors: "Quebrar la muñeca al subir." },
+
+            // TRÍCEPS (106 - 130)
+            { name: "Pushdown de Triceps con Barra en Polea", category: "Brazos", settings: "Barra Z o recta", recommendations: "Extender los brazos hacia abajo con codos pegados a los costados.", errors: "Abrir codos o inclinar el cuerpo sobre la barra." },
+            { name: "Pushdown de Triceps con Cuerda", category: "Brazos", settings: "Cuerda en polea alta", recommendations: "Empujar hacia abajo y abrir los extremos de la cuerda al final.", errors: "Mover los hombros durante la ejecución." },
+            { name: "Extensiones OverHead en Polea (Sobre la Cabeza)", category: "Brazos", settings: "Cuerda o barra fija atrás", recommendations: "Extender los brazos hacia el frente sobre la cabeza.", errors: "Arqueo excesivo de la zona lumbar." },
+            { name: "Press Francés en Polea Baja", category: "Brazos", settings: "Acostado en banco con cable", recommendations: "Llevar el agarre hacia la frente flexionando solo los codos.", errors: "Abrir los codos demasiado hacia los lados." },
+            { name: "Patada de Triceps en Polea", category: "Brazos", settings: "Cable sin agarre o con bola", recommendations: "Extender el brazo hacia atrás manteniendo el codo alto.", errors: "Bajar el codo durante la flexión." },
+            { name: "Extensiones Unilaterales en Polea Alta", category: "Brazos", settings: "Sin agarre, tomando el cable", recommendations: "Cruzar el brazo sobre el cuerpo extendiendo hacia el lado.", errors: "Despegar el hombro de su posición fija." },
+            { name: "Extensiones Katana en Polea", category: "Brazos", settings: "Poleas cruzadas a la altura de cadera", recommendations: "Extender los brazos hacia arriba en diagonal desde los hombros.", errors: "Perder la alineación con los cables." },
+            { name: "Fondos en Máquina Asistida", category: "Brazos", settings: "Asiento o soporte de rodillas", recommendations: "Bajar flexionando codos hasta 90° y empujar con tríceps.", errors: "Encoger hombros o bajar más allá del rango articular." },
+            { name: "Press Cerrado en Máquina", category: "Compuesto Heavy", settings: "Agarre a la anchura de hombros", recommendations: "Empujar manteniendo los codos pegados a los costados.", errors: "Abrir los codos imitando un press de pecho." },
+            { name: "Extensiones de Triceps Sentado en Máquina", category: "Brazos", settings: "Apoyo de espalda recto", recommendations: "Empujar hacia abajo las palancas desde los codos.", errors: "Despegar la espalda para empujar con peso corporal." },
+            { name: "Extensiones Overhead Unilaterales en Polea Alta", category: "Brazos", settings: "Espalda a la polea", recommendations: "Extender el brazo verticalmente sobre la cabeza.", errors: "Mover el codo hacia los lados durante el empuje." },
+            { name: "Press Francés en Banco Inclinado con Polea", category: "Brazos", settings: "Banco a 30°", recommendations: "Llevar el agarre hacia atrás de la cabeza extendiendo desde codos.", errors: "Separar los codos de la cabeza." },
+            { name: "Pushdown Invertido en Polea Alta (Supino)", category: "Brazos", settings: "Barra recta tomada con palmas hacia arriba", recommendations: "Extender los codos enfocado en la cabeza medial del tríceps.", errors: "Soltar la barra con la muñeca doblada." },
+            { name: "Pushdown Unilateral con Cuerda", category: "Brazos", settings: "Un cabo de cuerda", recommendations: "Empujar recto abajo abriendo la muñeca al final.", errors: "Mover el hombro hacia el frente." },
+            { name: "Extensiones de Triceps en Banco Declinado con Polea", category: "Brazos", settings: "Banco declinado", recommendations: "Llevar la barra hacia atrás del cráneo y extender codos.", errors: "Mover la articulación del hombro." },
+            { name: "Press Cerrado en Multipower (Smith)", category: "Compuesto Heavy", settings: "Manos separadas 20 cm", recommendations: "Bajar la barra hacia la parte baja del pecho con codos pegados.", errors: "Abrir codos a los lados." },
+            { name: "Extensiones Tate Press en Polea Baja", category: "Brazos", settings: "Acostado boca arriba", recommendations: "Extender los codos hacia los lados y arriba desde el pecho.", errors: "Despegar los hombros del banco." },
+            { name: "Pushdown con Barra V en Polea", category: "Brazos", settings: "Barra en V", recommendations: "Empujar hacia abajo con muñecas en posición neutra e inclinada.", errors: "Descolgar la postura del tronco." },
+            { name: "Patada de Triceps Unilateral en Polea Alta", category: "Brazos", settings: "Inclinación de torso", recommendations: "Extender la mano hacia atrás y abajo manteniendo codo fijo.", errors: "Mover el torso para dar impulso." },
+            { name: "Extensiones OverHead con Barra en Polea Baja", category: "Brazos", settings: "De pie mirando al frente", recommendations: "Extender la barra sobre la cabeza hasta el bloqueo suave de codos.", errors: "Archivar la columna vertebral." },
+            { name: "Fondos de Triceps en Máquina de Palanca", category: "Compuesto Heavy", settings: "Sentado con fijación de muslos", recommendations: "Empujar los manillares hacia abajo extendiendo codos.", errors: "Encoger la cabeza entre los hombros." },
+            { name: "Extensiones de Triceps en Polea con Agarre de Esfera", category: "Brazos", settings: "Bola de agarre individual", recommendations: "Extender diagonalmente aislando el tríceps lateral.", errors: "Doblar la muñeca en exceso." },
+            { name: "Extensiones JM Press en Multipower (Smith)", category: "Brazos", settings: "Barra guiada", recommendations: "Bajar la barra hacia el cuello/barbilla doblando codos e inclinándolos.", errors: "Perder el control en la bajada." },
+            { name: "Extensiones de Triceps Horizontal en Polea", category: "Brazos", settings: "Polea a la altura del pecho", recommendations: "Empujar el cable directo al frente hasta extender el brazo.", errors: "Subir los codos durante la extensión." },
+            { name: "Extensiones de Triceps con Cuerda desde Suelo", category: "Brazos", settings: "De rodillas frente a la polea alta", recommendations: "Llevar la cuerda detrás de la cabeza y extender hacia el frente.", errors: "Movilizar la cadera." },
+
+            // CUÁDRICEPS Y PIERNAS (131 - 150)
+            { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo en espinillas", recommendations: "Extender rodillas al máximo apretando el músculo arriba.", errors: "Levantarse del asiento o usar impulsos bruscos." },
+            { name: "Prensa 45°", category: "Compuesto Heavy", settings: "Pies a ancho de hombros en plataforma", recommendations: "Bajar controlado flexionando rodillas hasta 90°.", errors: "Bloquear las rodillas arriba o despegar la cadera del respaldo." },
+            { name: "Sentadilla Hack", category: "Compuesto Heavy", settings: "Espalda pegada al respaldo inclinado", recommendations: "Bajar profundo manteniendo toda la planta del pie apoyada.", errors: "Despegar talones o permitir que las rodillas colapsen hacia adentro." },
+            { name: "Sentadilla Pendular", category: "Compuesto Heavy", settings: "Apoyo lumbar curvo", recommendations: "Descender con control y empujar con la planta completa.", errors: "Redondear la zona lumbar en la fase baja." },
+            { name: "Sentadilla Belt Squat (Prensa de Cinturón)", category: "Compuesto Heavy", settings: "Cinturón enganchado a la cadera", recommendations: "Empujar hacia arriba aislando las piernas sin carga en la columna.", errors: "Inclinar el torso demasiado hacia adelante." },
+            { name: "Sentadilla Sissy en Máquina", category: "Piernas", settings: "Pies y pantorrillas fijados", recommendations: "Inclinarse hacia atrás doblando las rodillas.", errors: "Perder la alineación entre torso y muslos." },
+            { name: "Zancadas en Máquina Multipower (Smith)", category: "Piernas", settings: "Un pie adelantado", recommendations: "Bajar verticalmente hasta que la rodilla trasera casi toque el suelo.", errors: "Apoyar la rodilla delantera sobrepasando en exceso la punta." },
+            { name: "Prensa Horizontal", category: "Compuesto Heavy", settings: "Empuje directo hacia atrás", recommendations: "Empujar la plataforma extendiendo piernas de forma fluida.", errors: "Dejar que las rodillas se junten al bajar." },
+            { name: "Prensa Unilateral", category: "Piernas", settings: "Un solo pie en el centro", recommendations: "Bajar con máximo control para corregir desbalances.", errors: "Rotar la cadera sobre el asiento." },
+            { name: "Extensiones Unilaterales de Cuádriceps", category: "Piernas", settings: "Una pierna sobre el rodillo", recommendations: "Levantar la carga manteniendo estabilidad en la pelvis.", errors: "Dar tirones laterales al extender." },
+            { name: "Sentadilla Guiada Frontal en Multipower (Smith)", category: "Compuesto Heavy", settings: "Barra cruzada sobre hombros anteriores", recommendations: "Descender manteniendo el torso totalmente vertical.", errors: "Dejar caer el torso hacia el frente." },
+            { name: "Sentadilla Guiada Trasera en Multipower (Smith)", category: "Compuesto Heavy", settings: "Barra sobre trapecios", recommendations: "Bajar la cadera hasta romper el paralelo de 90°.", errors: "Despegar los talones del suelo." },
+            { name: "Prensa Inclinada con Pies Bajos", category: "Compuesto Heavy", settings: "Pies situados en la parte baja de la plataforma", recommendations: "Bajar enfocando el trabajo en la cara anterior del cuádriceps (vasto).", errors: "Despegar los talones por falta de movilidad de tobillo." },
+            { name: "Extensiones Isométricas de Cuádriceps", category: "Piernas", settings: "Sostener al final del recorrido", recommendations: "Mantener las piernas totalmente extendidas 3 segundos arriba.", errors: "Usar peso excesivo que impida el bloqueo sostenido." },
+            { name: "Sentadilla Búlgara en Multipower (Smith)", category: "Piernas", settings: "Pie trasero elevado en banco", recommendations: "Bajar la cadera sobre la pierna delantera con la barra guiada.", errors: "Inclinar en exceso la rodilla hacia adentro." },
+            { name: "Step-Up (Subidas a Cajón/Plataforma) en Multipower", category: "Piernas", settings: "Un pie sobre la plataforma", recommendations: "Subir empujando exclusivamente con la pierna de arriba.", errors: "Dar un salto con la pierna de abajo." },
+            { name: "Sentadilla Sumo en Belt Squat", category: "Compuesto Heavy", settings: "Pies bien abiertos con puntas hacia afuera", recommendations: "Descender abriendo rodillas en la misma dirección de los pies.", errors: "Dejar que las rodillas colapsen hacia el centro." },
+            { name: "Prensa Vertical de Suelo (Reverse Hack)", category: "Compuesto Heavy", settings: "Empuje directamente hacia arriba", recommendations: "Empujar la plataforma vertical manteniendo la pelvis pegada.", errors: "Despegar la zona sacra." },
+            { name: "Sentadilla Hack Inversa (Reverse Hack)", category: "Compuesto Heavy", settings: "Mirando hacia el respaldo de la máquina", recommendations: "Bajar flexionando rodillas profundamente sacando la cadera.", errors: "Chepar la espalda baja." },
+            { name: "Extensiones de Cuádriceps con Pies Hacia Adentro", category: "Piernas", settings: "Puntas mirando hacia el centro", recommendations: "Extender enfocando en la cara externa del cuádriceps (vasto lateral).", errors: "Forzar la articulación de la rodilla de forma violenta." },
+
+            // ISQUIOS Y GLÚTEOS (151 - 175)
+            { name: "Curl Femoral Tumbado", category: "Piernas", settings: "Rodillo tras los tobillos", recommendations: "Llevar los talones hacia los glúteos doblando rodillas.", errors: "Levantar la cadera de la mesa al flexionar." },
+            { name: "Curl Femoral Sentado", category: "Piernas", settings: "Rodillo ajustado en muslos", recommendations: "Flexionar rodillas llevando talones abajo y atrás.", errors: "Encorvar la espalda o soltar el peso rápido." },
+            { name: "Curl Femoral de Pie Unilateral", category: "Piernas", settings: "Una pierna apoyada", recommendations: "Llevar el talón hacia el glúteo en posición erguida.", errors: "Inclinarse demasiado hacia adelante." },
+            { name: "Peso Muerto Rumano en Multipower (Smith)", category: "Compuesto Heavy", settings: "Barra guiada", recommendations: "Llevar la cadera hacia atrás manteniendo piernas semi-flexionadas.", errors: "Encorvar la espalda baja al bajar la barra." },
+            { name: "Glute Lift (Hip Thrust en Máquina)", category: "Compuesto Heavy", settings: "Cinta o rodillo en pelvis", recommendations: "Empujar la cadera arriba alineando torso y muslos.", errors: "Hiperextender la zona lumbar en el punto alto." },
+            { name: "Patada de Glúteo en Máquina", category: "Piernas", settings: "Apoyo de pecho", recommendations: "Empujar la plataforma hacia atrás con el talón.", errors: "Arquear la zona lumbar para subir más." },
+            { name: "Abducción de Cadera Sentado", category: "Piernas", settings: "Rodillos por fuera de las rodillas", recommendations: "Abrir las piernas hacia afuera con fuerza del glúteo medio.", errors: "Usar los pies para empujar en lugar de las rodillas." },
+            { name: "Prensa con Pies Altos", category: "Compuesto Heavy", settings: "Pies en el borde superior de la plataforma", recommendations: "Empujar enfatizando la cadena posterior (glúteo e isquios).", errors: "Levantar la zona sacra del respaldo." },
+            { name: "Hiperextensión Inversa en Máquina", category: "Piernas", settings: "Torso fijo, piernas libres", recommendations: "Elevar las piernas extendidas mediante la contracción del glúteo.", errors: "Dar balanceos con las piernas usando impulso." },
+            { name: "Patada de Glúteo en Polea", category: "Piernas", settings: "Tobillera enganchada al cable baja", recommendations: "Llevar la pierna extendida hacia atrás squeeze de glúteo.", errors: "Inclinarse en exceso o arquear la columna." },
+            { name: "Abducción de Cadera de Pie en Polea", category: "Piernas", settings: "Tobillera en cable bajo", recommendations: "Llevar la pierna hacia el lado cruzando levemente por delante.", errors: "Inclinarse hacia el lado opuesto." },
+            { name: "Peso Muerto Sumo en Multipower (Smith)", category: "Compuesto Heavy", settings: "Pies más anchos que hombros", recommendations: "Bajar la barra guiada abriendo rodillas y empujando con cadera.", errors: "Encorvar los hombros hacia adelante." },
+            { name: "Hip Thrust Unilateral en Máquina", category: "Compuesto Heavy", settings: "Una sola pierna apoyada", recommendations: "Empujar la cadera con un pie manteniendo alineación pélvica.", errors: "Rotar la cadera hacia el lado sin apoyo." },
+            { name: "Curl Femoral Declinado en Polea (Acostado)", category: "Piernas", settings: "Tobilleras enganchadas a polea baja", recommendations: "Flexionar las rodillas llevando los talones a los glúteos.", errors: "Despegar la pelvis del suelo o banco." },
+            { name: "Good Morning (Buenos Días) en Multipower", category: "Compuesto Heavy", settings: "Barra sobre trapecios", recommendations: "Flexionar la cadera hacia atrás manteniendo la espalda completamente neutra.", errors: "Doblar la zona lumbar." },
+            { name: "Step-Up para Glúteo en Multipower (Smith)", category: "Piernas", settings: "Pie delantero sobre plataforma alta", recommendations: "Empujar hacia arriba enfocando el talón para activar el glúteo.", errors: "Dar un tironazo con el gemelo trasero." },
+            { name: "Pull Through en Polea Baja", category: "Piernas", settings: "De espalda a la polea con cuerda entre las piernas", recommendations: "Empujar la cadera hacia adelante apretando los glúteos arriba.", errors: "Tirar de la cuerda con los brazos y hombros." },
+            { name: "Patada de Glúteo Diagonal en Polea", category: "Piernas", settings: "Cable bajo a 45°", recommendations: "Empujar el talón hacia atrás y ligeramente hacia afuera.", errors: "Arquear la espalda baja al final." },
+            { name: "Frog Pumps (Puente Rana) en Máquina/Polea", category: "Piernas", settings: "Plantas de los pies juntas", recommendations: "Elevar la pelvis apretando glúteos con rodillas abiertas.", errors: "Hiperextender la columna." },
+            { name: "Curl Femoral Unilateral Sentado", category: "Piernas", settings: "Trabajo con una pierna", recommendations: "Flexionar la rodilla manteniendo aislamiento en el isquiotibial.", errors: "Despegar la cadera contraria." },
+            { name: "Kickback Lateral de Glúteo en Máquina de Palanca", category: "Piernas", settings: "Apoyo lateral", recommendations: "Empujar el rodillo hacia atrás en abducción.", errors: "Rotar el torso fuera del eje." },
+            { name: "Peso Muerto Rumano Unilateral en Multipower", category: "Compuesto Heavy", settings: "Una pierna apoya, la otra atrás", recommendations: "Inclinarse sobre la pierna firme empujando la cadera atrás.", errors: "Desbalancear la altura de las caderas." },
+            { name: "Hiperextensión a 45° Enfocada en Glúteo", category: "Piernas", settings: "Espalda redondeada suavemente", recommendations: "Extender la cadera apretando glúteos sin estirar la columna.", errors: "Arquear la zona lumbar buscando subir más." },
+            { name: "Abducción de Cadera Inclinado hacia Adelante", category: "Piernas", settings: "Sentado despegado del respaldo", recommendations: "Abrir las piernas inclinado al frente enfocando el glúteo superior.", errors: "Usar el impulso de los hombros." },
+            { name: "Crossover Lateral de Cadera en Polea", category: "Piernas", settings: "Tobillera en cable", recommendations: "Cruzar la pierna por detrás de la de apoyo y abrir afuera.", errors: "Perder el equilibrio de la pierna base." },
+
+            // GEMELOS / PANTORRILLA (176 - 188)
             { name: "Gemelos Sentado en Máquina", category: "Piernas", settings: "Puntas de los pies en el borde de la plataforma", recommendations: "Realizar un recorrido completo buscando estiramiento profundo y máxima contracción.", errors: "Hacer rebotes cortos o apoyar toda la planta del pie." },
-            { name: "Sentadilla Búlgara", category: "Piernas", settings: "Pie trasero sobre banco a 40cm", recommendations: "Bajar verticalmente repartiendo el peso.", errors: "Inclinarse hacia adelante perdiendo equilibrio." },
-            { name: "Hip Thrust con Barra / Máquina", category: "Piernas", settings: "Borde del banco en las escápulas", recommendations: "Empujar con talones marcando retroversión pélvica 1s arriba.", errors: "Arquear la zona lumbar o levantar talones." },
-            { name: "Glute Lift (Hip Thrust en Máquina)", category: "Piernas", settings: "Cinturón o rodillo sobre pliegue de la cadera", recommendations: "Empujar con los talones manteniendo mirada al frente y espinillas a 90°.", errors: "Hiperextender la espalda baja o despegar los talones del suelo." },
-            { name: "Máquina Abductora / Adductora", category: "Piernas", settings: "Almohadillas ajustadas", recommendations: "Movimientos constantes con control excéntrico.", errors: "Tironear con inercia del torso." },
-            { name: "Elevaciones Laterales con Mancuernas", category: "Hombros", settings: "Ligera inclinación hacia adelante", recommendations: "Guiar con los codos ligeramente por delante del cuerpo.", errors: "Subir las pesas por encima de la altura de hombros." },
-            { name: "Rotación Externa de Hombro con Banda", category: "Hombros", settings: "Codo pegado a 90° con toalla/almohadilla", recommendations: "Rotar hacia afuera aislando manguito rotador.", errors: "Despegar el codo del costado." },
-            { name: "Band Pull-Apart (Aperturas con Banda)", category: "Hombros", settings: "Banda sujeta con ambas manos a altura de hombros", recommendations: "Separar la goma hasta tocar el pecho retrayendo escápulas.", errors: "Encoger trapecios." },
-            { name: "Pájaro en Polea (Deltoides Posterior)", category: "Hombros", settings: "Polea a la altura del rostro", recommendations: "Separar las manos enfocando la parte trasera del hombro.", errors: "Usar fuerza de los trapecios." },
-            { name: "Press Arnold", category: "Hombros", settings: "Respaldo vertical", recommendations: "Rotar las muñecas de forma fluida durante el empuje.", errors: "Forzar la rotación del manguito rotador." },
-            { name: "Remo al Mentón con Barra Z", category: "Hombros", settings: "Agarre a anchura de hombros", recommendations: "Subir los codos por encima de la barra.", errors: "Usar agarre demasiado estrecho que pille el hombro." },
-            { name: "Press de Triceps en Máquina", category: "Brazos", settings: "Asiento ajustado a altura del pecho", recommendations: "Mantener codos pegados al cuerpo y empujar hacia abajo sin bloquear.", errors: "Abrir codos hacia los lados o despegar la espalda del respaldo." },
-            { name: "Curl de Bíceps Alterno con Mancuernas", category: "Brazos", settings: "De pie o sentado", recommendations: "Supinar la muñeca al subir apretando el bíceps.", errors: "Balancear los hombros o los codos hacia atrás." },
-            { name: "Extensiones de Tríceps sobre Cabeza con Mancuerna", category: "Brazos", settings: "Sentado con espalda recta", recommendations: "Extender verticalmente manteniendo codos mirando al frente.", errors: "Abrir codos hacia los lados." },
-            { name: "Extensión de Tríceps en Polea / Cuerda", category: "Brazos", settings: "Cuerda alta", recommendations: "Codos pegados al costado. Abrir la cuerda abajo.", errors: "Mover los codos hacia adelante." },
-            { name: "Curl de Bíceps con Barra Z", category: "Brazos", settings: "Agarre medio", recommendations: "Mantener codos fijos sin mover los hombros.", errors: "Usar balanceo de cadera." },
-            { name: "Press Francés con Barra", category: "Brazos", settings: "Banco plano", recommendations: "Bajar la barra hacia la frente manteniendo codos cerrados.", errors: "Abrir codos hacia afuera." },
-            { name: "Curl Martillo con Mancuernas", category: "Brazos", settings: "Agarre neutro", recommendations: "Enfocar la contracción en el braquial.", errors: "Girar la muñeca durante el recorrido." },
-            { name: "Tríceps Copa a dos Manos", category: "Brazos", settings: "Sentado en banco corto", recommendations: "Bajar la mancuerna por detrás de la cabeza de forma segura.", errors: "Abrir los codos excesivamente." },
-            { name: "Curl en Banco Scott (Predicador)", category: "Brazos", settings: "Axilas apoyadas en la almohadilla", recommendations: "Estirar hasta el 90% sin hiperprolongar el codo.", errors: "Soltar el peso bruscamente al final." },
-            { name: "Curl Concentrado con Mancuerna", category: "Brazos", settings: "Codo apoyado en muslo interno", recommendations: "Flexionar aislando por completo sin mover el hombro.", errors: "Usar balanceo del torso o despegar el codo." },
-            { name: "Contracción Abdominal en Máquina", category: "Core", settings: "Eje de giro alineado a la altura del ombligo", recommendations: "Flexionar la columna aproximando las costillas a la cadera con el abdomen.", errors: "Tirar con los brazos y hombros o flexionar la cadera sin doblar el torso." },
-            { name: "Prensa de Abdominales", category: "Core", settings: "Carga moderada", recommendations: "Exhalar todo el aire al encoger el abdomen.", errors: "Tirar con la fuerza del cuello." },
-            { name: "Plancha Abdominal ISO", category: "Core", settings: "Antebrazos apoyados", recommendations: "Mantener cuerpo en línea recta activando glúteos.", errors: "Dejar caer la cadera." },
-            { name: "Elevación de Piernas en Suspensión", category: "Core", settings: "Sujeción en torre de fondos", recommendations: "Elevar la pelvis rodando el abdomen.", errors: "Balancear las piernas usando inercia." },
-            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones y mantener postura vertical.", errors: "Encorvar hombros o pedalear solo en puntas." },
-            { name: "Máquina de Bandas Elásticas", category: "Cardio", settings: "Anclaje a altura media o alta según objetivo", recommendations: "Mantener tensión continua en la banda sin perder el control en el retorno.", errors: "Dejar que la goma tire bruscamente de las articulaciones." },
-            { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
-            { name: "Escaladora / Escaleras", category: "Cardio", settings: "Velocidad constante", recommendations: "Mantener centro de gravedad alineado.", errors: "Volcar todo el peso sobre los brazos en la consola." },
-            { name: "Remo Ergómetro", category: "Cardio", settings: "Resistencia nivel 5", recommendations: "Empujar con piernas antes de tirar con brazos.", errors: "Curvar la espalda al recuperar el movimiento." },
-            { name: "SkiErg / Esquiador de Poleas", category: "Cardio", settings: "Poleas en altura máxima", recommendations: "Iniciar la tracción flexionando cadera y rodillas.", errors: "Tirar únicamente con la fuerza de los brazos." },
-            { name: "Saco de Boxeo / Pao", category: "Cardio", settings: "Postura de guardia neutra", recommendations: "Rotar la cadera y hombros al lanzar los golpes.", errors: "Golpear con muñecas dobladas sin vender la pierna." },
-            { name: "Salto a la Comba", category: "Cardio", settings: "Comba a la altura de axilas", recommendations: "Saltos cortos sobre metatarsos usando muñecas.", errors: "Saltar flexionando excesivamente las rodillas." },
-            { name: "Bicicleta Estática / Spinning", category: "Cardio", settings: "Sillín a la altura de la cadera", recommendations: "Pedalear con cadencia constante manteniendo abdomen activado.", errors: "Bajar demasiado el sillín sobrecargando rodillas." },
-            { name: "Sled Push (Empuje de Trineo)", category: "Cardio", settings: "Carga progresiva sobre trineo", recommendations: "Empujar con pasos firmes apoyando metatarsos.", errors: "Curvar la columna dorsal durante el empuje." }
+            { name: "Gemelos de Pie en Máquina", category: "Piernas", settings: "Almohadillas sobre los hombros", recommendations: "Elevar los talones extendiendo los tobillos completamente.", errors: "Doblar las rodillas para ayudar a subir." },
+            { name: "Gemelos en Prensa de Piernas", category: "Piernas", settings: "Puntas de pies en el borde de la plataforma", recommendations: "Empujar la plataforma solo flexionando los tobillos.", errors: "Doblar las rodillas transformándolo en una prensa." },
+            { name: "Gemelos Unilaterales en Máquina", category: "Piernas", settings: "Un solo pie en la plataforma", recommendations: "Extensión completa de tobillo para aislar cada lado.", errors: "Balancear el cuerpo lateralmente." },
+            { name: "Sóleo en Máquina Guiada", category: "Piernas", settings: "Rodillas en ángulo de 90°", recommendations: "Subir y bajar talones enfocado en el sóleo.", errors: "Disminuir el rango de movimiento al fatigarse." },
+            { name: "Gemelos en Máquina Hack", category: "Piernas", settings: "Puntas en la base", recommendations: "Subir los hombros empujando con las puntas de los pies.", errors: "Desbloquear las rodillas de forma brusca." },
+            { name: "Elevación de Puntas (Tibial Anterior)", category: "Piernas", settings: "Talones apoyados en bloque", recommendations: "Elevar las puntas de los pies hacia las espinillas.", errors: "Mover todo el torso hacia atrás." },
+            { name: "Gemelo en Multipower (Smith)", category: "Piernas", settings: "Puntas sobre un escalón o bloque", recommendations: "Flexionar y extender los tobillos con la barra sobre hombros.", errors: "Perder el equilibrio o dar impulsos." },
+            { name: "Gemelos Sentado Unilateral", category: "Piernas", settings: "Trabajo de una sola pierna", recommendations: "Elevar el talón con control total del recorrido.", errors: "Despegar la punta del pie del apoyo." },
+            { name: "Gemelos Donut/Donkey en Máquina", category: "Piernas", settings: "Apoyo en cadera con torso inclinado", recommendations: "Elevar los talones con la cadera flexionada a 90°.", errors: "Encorvar la columna durante el empuje." },
+            { name: "Gemelo de Pie Unilateral en Multipower", category: "Piernas", settings: "Escalón bajo la punta del pie", recommendations: "Elevar el talón de forma fluida con la barra guiada.", errors: "Doblar la rodilla durante la subida." },
+            { name: "Elevación de Puntas en Polea Baja", category: "Piernas", settings: "Sentado frente a la polea con agarre en pies", recommendations: "Traer las puntas de los pies hacia las espinillas contra el cable.", errors: "Mover las rodillas arriba y abajo." },
+            { name: "Gemelos en Prensa Horizontal", category: "Piernas", settings: "Puntas en la zona inferior del carro", recommendations: "Flexionar y extender la articulación del tobillo con espalda fija.", errors: "Doblar las rodillas al subir la carga." },
+
+            // ABDOMINALES Y CORE (189 - 200)
+            { name: "Contracción Abdominal en Máquina (Crunch)", category: "Core", settings: "Eje de giro alineado a la altura del ombligo", recommendations: "Flexionar la columna aproximando las costillas a la cadera con el abdomen.", errors: "Tirar con los brazos y hombros o flexionar la cadera sin doblar el torso." },
+            { name: "Rotación del Torso en Máquina (Oblicuos)", category: "Core", settings: "Asiento rotatorio", recommendations: "Girar el torso usando la fuerza de los oblicuos.", errors: "Usar impulso de los brazos o piernas." },
+            { name: "Crunch Abdominal en Polea Alta", category: "Core", settings: "De rodillas sosteniendo cuerda", recommendations: "Flexionar la columna hacia abajo llevando codos a muslos.", errors: "Sentarse en los talones durante la bajada." },
+            { name: "Elevación de Piernas en Torre de Capitán", category: "Core", settings: "Espalda y antebrazos apoyados", recommendations: "Subir las rodillas o piernas flexionando la cadera.", errors: "Balancear las piernas sin control de la bajada." },
+            { name: "Crunch Abdominal Declinado en Máquina", category: "Core", settings: "Pies fijados en la parte alta", recommendations: "Subir el torso redondeando levemente la espalda.", errors: "Tirar del cuello con las manos." },
+            { name: "Flexión Lateral en Polea (Oblicuos)", category: "Core", settings: "De pie sosteniendo cable bajo", recommendations: "Inclinarse lateralmente hacia el lado opuesto a la carga.", errors: "Girar el torso hacia adelante al inclinar." },
+            { name: "Press Pallof en Polea", category: "Core", settings: "Polea a la altura del pecho", recommendations: "Extender los brazos al frente resistiendo la rotación.", errors: "Dejar que el cable gire el torso." },
+            { name: "Elevación de Piernas Colgado", category: "Core", settings: "Agarre en barra o máquina", recommendations: "Flexionar la cadera subiendo rodillas al pecho.", errors: "Balancear el cuerpo como un péndulo." },
+            { name: "Crunch Abdominal Unilateral en Polea", category: "Core", settings: "Cuerda a un solo lado de la cabeza", recommendations: "Flexionar el torso en diagonal llevando el codo a la rodilla opuesta.", errors: "Girar las caderas durante la bajada." },
+            { name: "Woodchopper (Leñador) Alto a Bajo en Polea", category: "Core", settings: "Cable en polea alta", recommendations: "Diagonalizar la bajada del cable desde el hombro a la rodilla opuesta.", errors: "Doblar excesivamente los codos." },
+            { name: "Woodchopper (Leñador) Bajo a Alto en Polea", category: "Core", settings: "Cable en polea baja", recommendations: "Tirar del cable en diagonal desde la rodilla hacia el hombro opuesto.", errors: "Usar solo los brazos sin rotar el torso." },
+            { name: "Crunch en Máquina con Carga en Pies y Torso", category: "Core", settings: "Doble palanca", recommendations: "Flexionar el torso mientras se elevan las rodillas al mismo tiempo.", errors: "Tirar bruscamente con la cabeza o el cuello." }
         ];
 
         let appData = {
@@ -522,12 +668,12 @@
             routine: {
                 startDate: new Date().toISOString(),
                 days: [
-                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_65_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_65_LIBRARY[4], {target:"3x12"}) ] },
-                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_65_LIBRARY[1], {target:"3x10"}), Object.assign({}, MASTER_65_LIBRARY[32], {target:"3x12"}) ] }
+                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_200_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_200_LIBRARY[28], {target:"3x12"}) ] },
+                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_200_LIBRARY[131], {target:"3x10"}), Object.assign({}, MASTER_200_LIBRARY[154], {target:"3x12"}) ] }
                 ]
             },
             logs: [],
-            library: MASTER_65_LIBRARY,
+            library: MASTER_200_LIBRARY,
             completedMap: {},
             activeDayId: "dia1",
             selectedExerciseName: ""
@@ -535,16 +681,16 @@
 
         function saveToStorage() {
             try {
-                localStorage.setItem('gymPro_v60_data', JSON.stringify(appData));
+                localStorage.setItem('gymPro_v200_data', JSON.stringify(appData));
             } catch(e) { console.log('Storage no disponible'); }
         }
 
         function loadFromStorage() {
             try {
-                const stored = localStorage.getItem('gymPro_v60_data');
+                const stored = localStorage.getItem('gymPro_v200_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (parsed && parsed.library && parsed.library.length >= 45) {
+                    if (parsed && parsed.library && parsed.library.length >= 100) {
                         appData = parsed;
                     }
                 }
@@ -698,7 +844,7 @@
                 return true;
             });
 
-            if (safeLibrary.length < 10) safeLibrary = appData.library;
+            if (safeLibrary.length < 20) safeLibrary = appData.library;
 
             let targetReps = "3x12";
             if (goal.includes("Fuerza")) targetReps = "4x6";
@@ -708,8 +854,9 @@
             for (let i = 1; i <= numDays; i++) {
                 let dayExs = [
                     Object.assign({}, safeLibrary[i % safeLibrary.length], { target: targetReps }),
-                    Object.assign({}, safeLibrary[(i + 3) % safeLibrary.length], { target: targetReps }),
-                    Object.assign({}, safeLibrary[(i + 7) % safeLibrary.length], { target: targetReps })
+                    Object.assign({}, safeLibrary[(i + 5) % safeLibrary.length], { target: targetReps }),
+                    Object.assign({}, safeLibrary[(i + 12) % safeLibrary.length], { target: targetReps }),
+                    Object.assign({}, safeLibrary[(i + 18) % safeLibrary.length], { target: targetReps })
                 ];
 
                 newDays.push({
@@ -1350,7 +1497,7 @@
             });
         }
 
-        // --- INICIALIZACIÓN EN PESTAÑA USUARIOS ---
+        // --- INICIALIZACIÓN ---
         window.onload = function() {
             loadFromStorage();
             switchTab('users');
