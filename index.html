@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gym Pro - PWA Móvil (209 Ejercicios)</title>
+    <title>Gym Pro - PWA Móvil (222 Ejercicios)</title>
     <!-- Tone.js para sintetizador de sonido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- PDF.js para lectura e importación de PDFs -->
@@ -277,9 +277,7 @@
             </div>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Selecciona Ejercicio Pendiente:</label>
-            <select id="exercise-select" onchange="onExerciseSelectChange()">
-                <option value="">Cargando ejercicios...</option>
-            </select>
+            <select id="exercise-select" onchange="onExerciseSelectChange()"></select>
 
             <div id="exercise-info-box" class="hidden" style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4;"></div>
 
@@ -357,7 +355,7 @@
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
-                <span>📚 Biblioteca del Sistema (209 Ejercicios)</span>
+                <span id="library-count-title">📚 Biblioteca del Sistema (222 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
 
@@ -386,7 +384,7 @@
                 <span>📄 Importar Rutina desde PDF</span>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 8px;">
-                Sube un archivo PDF con tu rutina. Extraeremos y detectaremos automáticamente los ejercicios que coincidan con la base de datos de 209 ejercicios.
+                Sube un archivo PDF con tu rutina. Extraeremos y detectaremos automáticamente los ejercicios que coincidan con la base de datos completa.
             </p>
             <input type="file" id="pdf-file-input" accept="application/pdf" onchange="importRoutineFromPDF(event)" style="margin-bottom: 0;">
         </div>
@@ -489,8 +487,8 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS MASTER COMPLETA (209 EJERCICIOS) ---
-        const MASTER_209_LIBRARY = [
+        // --- BASE DE DATOS MASTER COMPLETA (222 EJERCICIOS) ---
+        const MASTER_222_LIBRARY = [
             // PECHO
             { name: "Press de Pecho en Máquina Plana", category: "Compuesto Heavy", settings: "Asiento ajustado a altura de los pezones", recommendations: "Empujar hacia adelante apretando el pecho al final del recorrido.", errors: "Despegar la espalda baja o encoger los hombros hacia las orejas." },
             { name: "Press Inclinado en Máquina", category: "Compuesto Heavy", settings: "Asiento a altura de la clavícula", recommendations: "Enfocar el empuje hacia arriba para activar la porción superior del pecho.", errors: "Abrir demasiado los codos a 90° sobrecargando los hombros." },
@@ -518,6 +516,7 @@
             { name: "Floor Press en Multipower (Smith)", category: "Pecho", settings: "Acostado directamente en el suelo", recommendations: "Bajar la barra hasta que los tríceps toquen suavemente el suelo.", errors: "Chocar los codos con fuerza contra el suelo." },
             { name: "Dips de Pecho en Máquina Asistida", category: "Pecho", settings: "Torso ligeramente inclinado al frente", recommendations: "Bajar doblando codos con el cuerpo inclinado para enfocar el pecho.", errors: "Mantenerse totalmente vertical (enfoca en tríceps)." },
             { name: "Press de Pecho en Máquina", category: "Compuesto Heavy", settings: "Asiento ajustado a la altura exacta donde los agarres queden a nivel de la línea media del pecho (pezones).", recommendations: "Empujar hacia adelante hasta extender los brazos casi por completo, apretando el pectoral y controlando el retorno.", errors: "Despegar la espalda baja del respaldo, llevar las muñecas dobladas hacia atrás o encoger los hombros al empujar." },
+            { name: "Aperturas Pectorales en Máquina (Pec Deck)", category: "Pecho", settings: "Asiento a la altura en que las empuñaduras o cojines queden alineados con la mitad del pecho.", recommendations: "Juntar los brazos al frente como si abrazaras un árbol, haciendo una pausa al centro para sentir la contracción del pectoral.", errors: "Doblar demasiado los codos durante el trayecto, permitir que las manos vayan demasiado hacia atrás estirando en exceso los hombros o despegar la espalda." },
 
             // ESPALDA
             { name: "Jalón al Pecho Agarre Ancho", category: "Espalda", settings: "Barra tomada más ancha que los hombros", recommendations: "Traer la barra al pecho sacando el tórax.", errors: "Reclinarse en exceso hacia atrás o bajar la barra tras nuca." },
@@ -733,7 +732,7 @@
             activeUserIdx: -1,
             routine: { startDate: new Date().toISOString(), days: [] },
             logs: [],
-            library: MASTER_209_LIBRARY,
+            library: MASTER_222_LIBRARY,
             completedMap: {},
             activeDayId: "",
             selectedExerciseName: ""
@@ -741,13 +740,13 @@
 
         function saveToStorage() {
             try {
-                localStorage.setItem('gymPro_v209_clean_data', JSON.stringify(appData));
+                localStorage.setItem('gymPro_v222_clean_data', JSON.stringify(appData));
             } catch(e) { console.log('Storage no disponible'); }
         }
 
         function loadFromStorage() {
             try {
-                const stored = localStorage.getItem('gymPro_v209_clean_data');
+                const stored = localStorage.getItem('gymPro_v222_clean_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
                     if (parsed && parsed.library) appData = parsed;
@@ -1624,6 +1623,11 @@
 
                 return matchesText && matchesCategory;
             });
+
+            const countTitle = document.getElementById('library-count-title');
+            if (countTitle) {
+                countTitle.innerText = `📚 Biblioteca del Sistema (${appData.library.length} Ejercicios)`;
+            }
 
             if (filtered.length === 0) {
                 container.innerHTML = '<p style="color:var(--text-sec); font-size:0.85rem;">No se han encontrado ejercicios para este filtro o búsqueda.</p>';
