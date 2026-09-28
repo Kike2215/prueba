@@ -150,7 +150,7 @@
     <div class="header">
         <h1>GYM PRO</h1>
         <div style="display:flex; align-items:center; gap:8px;">
-            <span id="periodization-tag" class="ex-badge" style="color: var(--primary); border-color: var(--primary);">Ciclo: Día 1</span>
+            <span id="periodization-tag" class="ex-badge" style="color: var(--primary); border-color: var(--primary);">Ciclo: Activo</span>
         </div>
     </div>
 
@@ -161,15 +161,15 @@
         <div class="card" style="border-left: 4px solid var(--primary);">
             <div class="card-title">👤 Selección de Atleta / Usuario</div>
             <p style="font-size:0.85rem; color:var(--text-sec); margin-bottom:10px;">
-                Selecciona un usuario registrado para ir directamente a su plan o crea un nuevo perfil con la IA.
+                Selecciona un usuario registrado para ir a su plan o rellena el cuestionario para crear tu primer perfil.
             </p>
             
             <label style="font-size: 0.8rem; color: var(--text-sec);">Usuario Activo:</label>
             <select id="user-selector" onchange="onUserSelectChange()"></select>
 
             <div id="active-user-details" style="background:#0f172a; padding:12px; border-radius:8px; border:1px solid var(--border); margin-top:10px;">
-                <div style="font-weight:bold; color:var(--primary);" id="ud-name">Cargando...</div>
-                <div style="font-size:0.8rem; color:var(--text-sec); margin-top:4px;" id="ud-info">...</div>
+                <div style="font-weight:bold; color:var(--primary);" id="ud-name">Sin usuario seleccionado</div>
+                <div style="font-size:0.8rem; color:var(--text-sec); margin-top:4px;" id="ud-info">Rellena el cuestionario para generar un perfil.</div>
             </div>
 
             <div style="display:flex; gap:8px; margin-top:12px;">
@@ -353,20 +353,44 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA DE 209 EJERCICIOS CON BUSCADOR -->
+    <!-- PESTAÑA 4: BIBLIOTECA COMPLETA CON FILTRO POR GRUPO MUSCULAR -->
     <div id="tab-library" class="container hidden">
         <div class="card">
             <div class="card-title">
                 <span>📚 Biblioteca del Sistema (209 Ejercicios)</span>
                 <button class="btn btn-sm" onclick="openEditModal()">+ Nuevo Ejercicio</button>
             </div>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">Filtrar por Grupo Muscular / Categoría:</label>
+            <select id="library-category-filter" onchange="renderLibrary()">
+                <option value="ALL">Todas las Categorías</option>
+                <option value="Piernas">Piernas / Cuádriceps / Glúteos / Gemelos</option>
+                <option value="Brazos">Brazos / Bíceps / Tríceps</option>
+                <option value="Pecho">Pecho</option>
+                <option value="Espalda">Espalda</option>
+                <option value="Hombros">Hombros</option>
+                <option value="Core">Core / Abdominales</option>
+                <option value="Cardio">Cardio y Condicionamiento</option>
+                <option value="Compuesto Heavy">Compuesto Heavy</option>
+            </select>
+
             <input type="text" id="library-search-input" placeholder="🔍 Escribe para buscar ejercicio..." oninput="renderLibrary()" style="margin-bottom: 10px;">
             <div id="library-container"></div>
         </div>
     </div>
 
-    <!-- EDITOR MANUAL DE RUTINA -->
+    <!-- EDITOR MANUAL DE RUTINA CON IMPORTADOR DE PDF -->
     <div id="tab-editor" class="container hidden">
+        <div class="card" style="border-left: 4px solid var(--primary);">
+            <div class="card-title">
+                <span>📄 Importar Rutina desde PDF</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 8px;">
+                Sube un archivo PDF con tu rutina. Extraeremos y detectaremos automáticamente los ejercicios que coincidan con la base de datos de 209 ejercicios.
+            </p>
+            <input type="file" id="pdf-file-input" accept="application/pdf" onchange="importRoutineFromPDF(event)" style="margin-bottom: 0;">
+        </div>
+
         <div class="card">
             <div class="card-title">
                 <span>🛠️ Editor Manual de Rutina</span>
@@ -471,7 +495,7 @@
             { name: "Press de Pecho en Máquina Plana", category: "Compuesto Heavy", settings: "Asiento ajustado a altura de los pezones", recommendations: "Empujar hacia adelante apretando el pecho al final del recorrido.", errors: "Despegar la espalda baja o encoger los hombros hacia las orejas." },
             { name: "Press Inclinado en Máquina", category: "Compuesto Heavy", settings: "Asiento a altura de la clavícula", recommendations: "Enfocar el empuje hacia arriba para activar la porción superior del pecho.", errors: "Abrir demasiado los codos a 90° sobrecargando los hombros." },
             { name: "Press Declinado en Máquina", category: "Pecho", settings: "Asiento elevado para empujar hacia abajo", recommendations: "Llevar la carga hacia la zona inferior del pectoral.", errors: "Forzar la zona lumbar o usar tirones de brazo." },
-            { name: "Aperturas en Máquina (Pec Deck)", category: "Pecho", settings: "Agarres alineados con el pecho", recommendations: "Juntar las manos manteniendo un codo ligeramente flexionado.", errors: "Hiperextender los hombros hacia atrás al regresar." },
+            { name: "Aperturas en Máquina (Pec Deck)", category: "Pecho", settings: "Asiento a la altura en que las empuñaduras o cojines queden alineados con la mitad del pecho.", recommendations: "Juntar los brazos al frente como si abrazaras un árbol, haciendo una pausa al centro para sentir la contracción del pectoral.", errors: "Doblar demasiado los codos durante el trayecto, permitir que las manos vayan demasiado hacia atrás estirando en exceso los hombros o despegar la espalda." },
             { name: "Cruce de Poleas Altas", category: "Pecho", settings: "Poleas fijadas por encima de la cabeza", recommendations: "Empujar las manos hacia abajo y adelante cruzando ligeramente.", errors: "Inclinarse demasiado hacia adelante usando el peso del cuerpo." },
             { name: "Cruce de Poleas Bajas", category: "Pecho", settings: "Poleas fijadas a la altura del suelo", recommendations: "Elevar las manos hacia el centro y arriba apretando el pecho alto.", errors: "Tirar con la fuerza de los bíceps en lugar del pectoral." },
             { name: "Cruce de Poleas Medias", category: "Pecho", settings: "Poleas a la altura de los hombros", recommendations: "Traer las manos hacia el frente formando un abrazo amplio.", errors: "Encoger los trapecios o doblar demasiado los codos." },
@@ -493,6 +517,7 @@
             { name: "Aperturas Declinadas en Polea", category: "Pecho", settings: "Poleas fijadas a media altura", recommendations: "Juntar las manos hacia la cadera en trayectoria descendente.", errors: "Encorvar los hombros hacia adelante." },
             { name: "Floor Press en Multipower (Smith)", category: "Pecho", settings: "Acostado directamente en el suelo", recommendations: "Bajar la barra hasta que los tríceps toquen suavemente el suelo.", errors: "Chocar los codos con fuerza contra el suelo." },
             { name: "Dips de Pecho en Máquina Asistida", category: "Pecho", settings: "Torso ligeramente inclinado al frente", recommendations: "Bajar doblando codos con el cuerpo inclinado para enfocar el pecho.", errors: "Mantenerse totalmente vertical (enfoca en tríceps)." },
+            { name: "Press de Pecho en Máquina", category: "Compuesto Heavy", settings: "Asiento ajustado a la altura exacta donde los agarres queden a nivel de la línea media del pecho (pezones).", recommendations: "Empujar hacia adelante hasta extender los brazos casi por completo, apretando el pectoral y controlando el retorno.", errors: "Despegar la espalda baja del respaldo, llevar las muñecas dobladas hacia atrás o encoger los hombros al empujar." },
 
             // ESPALDA
             { name: "Jalón al Pecho Agarre Ancho", category: "Espalda", settings: "Barra tomada más ancha que los hombros", recommendations: "Traer la barra al pecho sacando el tórax.", errors: "Reclinarse en exceso hacia atrás o bajar la barra tras nuca." },
@@ -520,6 +545,12 @@
             { name: "Peso Muerto Rumano en Multipower (Smith)", category: "Compuesto Heavy", settings: "Barra guiada", recommendations: "Llevar la cadera atrás manteniendo la espalda neutra.", errors: "Chepar la columna al bajar." },
             { name: "Shrugs/Encogimientos de Espalda en Máquina", category: "Espalda", settings: "Agarres laterales", recommendations: "Elevar las escápulas directamente hacia arriba.", errors: "Rotar los hombros en círculos." },
             { name: "Remo Kroc en Polea Baja", category: "Compuesto Heavy", settings: "Un pie adelantado", recommendations: "Tirar con fuerza controlada llevando el codo bien atrás.", errors: "Mover la cadera para iniciar el movimiento." },
+            { name: "Extensión de Espalda en Máquina", category: "Espalda", settings: "Eje de rotación alineado con la cadera", recommendations: "Mantener columna neutra y empujar con glúteos y zona lumbar.", errors: "Hiperextender la columna al final o dar tirones bruscos." },
+            { name: "Jalón al Pecho", category: "Espalda", settings: "Rodillos ajustados firmemente sobre los muslos para evitar que la cadera se levante durante el ejercicio.", recommendations: "Tirar de la barra hacia la parte superior del pecho sacando el tórax y llevando los codos hacia abajo y hacia atrás.", errors: "Llevar la barra por detrás de la nuca, balancear el cuerpo hacia atrás para bajar la carga o tirar únicamente con los brazos." },
+            { name: "Dominadas Asistidas", category: "Espalda", settings: "Plataforma de asistencia ajustada", recommendations: "Subir hasta superar la barbilla completando el rango.", errors: "Kipping o impulso con piernas." },
+            { name: "Remo Sentado en Máquina", category: "Compuesto Heavy", settings: "Cojín del pecho ajustado para que los brazos queden extendidos al frente sin perder la postura recta de la columna.", recommendations: "Tirar del agarre llevando los codos hacia atrás cerca del torso, apretando la espalda media al final del recorrido.", errors: "Encoger los hombros hacia las orejas, encorvar la espalda al estirar los brazos o balancear el torso para ganar impulso." },
+            { name: "Remo Unilateral con Mancuerna", category: "Espalda", settings: "Apoyo en banco plano", recommendations: "Llevar la mancuerna hacia la cadera marcando el arco.", errors: "Rotar el torso excesivamente." },
+            { name: "Extensión de Espalda (Banco Hiperextensiones / Máquina)", category: "Espalda", settings: "Cojín o apoyo fijado justo por debajo de la cresta ilíaca (cadera) para permitir la flexión natural de la pelvis.", recommendations: "Subir el torso usando los glúteos e isquiotibiales hasta quedar en línea recta con las piernas, manteniendo el cuello neutro.", errors: "Hiperextender la columna arqueando la espalda en exceso arriba, dar tirones bruscos o mirar hacia arriba forzando las cervicales." },
 
             // HOMBROS
             { name: "Press Militar en Máquina", category: "Compuesto Heavy", settings: "Asiento con espalda apoyada", recommendations: "Empujar los agarres sobre la cabeza de forma controlada.", errors: "Arquear en exceso la zona lumbar al subir." },
@@ -547,6 +578,7 @@
             { name: "Press Militar Unilateral en Máquina", category: "Hombros", settings: "Un solo lado", recommendations: "Empujar verticalmente manteniendo la pelvis fija.", errors: "Inclinarse lateralmente." },
             { name: "Elevación Lateral con Apoyo de Torso", category: "Hombros", settings: "Torso apoyado de lado en almohadilla", recommendations: "Elevar la mano libre aislando la cabeza lateral.", errors: "Soltar el cuerpo de la almohadilla." },
             { name: "Rotación Externa en Polea (Manguito Rotador)", category: "Hombros", settings: "Codo pegado a 90°", recommendations: "Rotar el antebrazo hacia afuera alejándolo del abdomen.", errors: "Separar el codo del costado del cuerpo." },
+            { name: "Press de Hombro en Máquina", category: "Compuesto Heavy", settings: "Asiento a una altura donde los agarres comiencen ligeramente por encima de la altura de los hombros.", recommendations: "Empujar hacia arriba extendiendo los brazos sin bloquear los codos, manteniendo los abdominales activados.", errors: "Arquear en exceso la espalda baja para compensar el peso, dejar caer el peso de golpe o juntar los hombros hacia el cuello." },
 
             // BÍCEPS
             { name: "Curl de Bíceps en Polea Baja", category: "Brazos", settings: "Barra recta o Z", recommendations: "Subir la barra flexionando codos sin mover la parte superior del brazo.", errors: "Balancarse hacia atrás para mover la barra." },
@@ -574,6 +606,7 @@
             { name: "Curl Martillo Unilateral de Pie en Cable", category: "Brazos", settings: "Agarre individual de bola", recommendations: "Elevar el cable hacia el hombro con agarre neutro.", errors: "Inclinar la columna hacia un lado." },
             { name: "Curl en Polea Media de Pie", category: "Brazos", settings: "Polea a altura de la cintura", recommendations: "Flexionar codos manteniendo brazo en extensión neutra.", errors: "Balancear el peso." },
             { name: "Curl Prono Unilateral en Polea", category: "Brazos", settings: "Palma hacia abajo", recommendations: "Subir la manija enfocando el antebrazo y braquial.", errors: "Quebrar la muñeca al subir." },
+            { name: "Curl de Bíceps Independiente en Máquina", category: "Brazos", settings: "Asiento y cojín (Predicador) alineados para apoyar los tríceps cómodamente sin comprimir las axilas.", recommendations: "Flexionar los codos levantando la carga de forma independiente con cada brazo, apretando el bíceps en la parte alta.", errors: "Despegar los codos del cojín al subir, estirar los brazos de golpe al bajar arriesgando la articulación o balancear la columna." },
 
             // TRÍCEPS
             { name: "Pushdown de Triceps con Barra en Polea", category: "Brazos", settings: "Barra Z o recta", recommendations: "Extender los brazos hacia abajo con codos pegados a los costados.", errors: "Abrir codos o inclinar el cuerpo sobre la barra." },
@@ -601,6 +634,8 @@
             { name: "Extensiones JM Press en Multipower (Smith)", category: "Brazos", settings: "Barra guiada", recommendations: "Bajar la barra hacia el cuello/barbilla doblando codos e inclinándolos.", errors: "Perder el control en la bajada." },
             { name: "Extensiones de Triceps Horizontal en Polea", category: "Brazos", settings: "Polea a la altura del pecho", recommendations: "Empujar el cable directo al frente hasta extender el brazo.", errors: "Subir los codos durante la extensión." },
             { name: "Extensiones de Triceps con Cuerda desde Suelo", category: "Brazos", settings: "De rodillas frente a la polea alta", recommendations: "Llevar la cuerda detrás de la cabeza y extender hacia el frente.", errors: "Movilizar la cadera." },
+            { name: "Extensión de Tríceps en Polea / Máquina", category: "Brazos", settings: "Cojín o polea fijados de forma que la articulación del codo quede alineada y los brazos pegados al costado del torso.", recommendations: "Extender los brazos hacia abajo apretando los tríceps en la posición final y mantener los codos inmóviles en todo momento.", errors: "Mover los codos hacia adelante y hacia atrás al ejecutar, utilizar la cadera para hacer fuerza o despegar la espalda del apoyo." },
+            { name: "Press de Tríceps en Máquina", category: "Brazos", settings: "Asiento ajustado a una altura que permita mantener los codos a 90 grados al sujetar las empuñaduras.", recommendations: "Empujar los agarres hacia abajo hasta extender completamente los codos, focalizando la tensión en la parte posterior del brazo.", errors: "Encoger las escápulas y los hombros al empujar, separar los codos hacia los lados o usar el peso corporal dejando caer el pecho." },
 
             // CUÁDRICEPS Y PIERNAS
             { name: "Extensión de Cuádriceps", category: "Piernas", settings: "Rodillo en espinillas", recommendations: "Extender rodillas al máximo apretando el músculo arriba.", errors: "Levantarse del asiento o usar impulsos bruscos." },
@@ -629,7 +664,7 @@
             { name: "Curl Femoral Sentado", category: "Piernas", settings: "Rodillo ajustado en muslos", recommendations: "Flexionar rodillas llevando talones abajo y atrás.", errors: "Encorvar la espalda o soltar el peso rápido." },
             { name: "Curl Femoral de Pie Unilateral", category: "Piernas", settings: "Una pierna apoyada", recommendations: "Llevar el talón hacia el glúteo en posición erguida.", errors: "Inclinarse demasiado hacia adelante." },
             { name: "Peso Muerto Rumano en Multipower (Smith)", category: "Compuesto Heavy", settings: "Barra guiada", recommendations: "Llevar la cadera hacia atrás manteniendo piernas semi-flexionadas.", errors: "Encorvar la espalda baja al bajar la barra." },
-            { name: "Glute Lift (Hip Thrust en Máquina)", category: "Compuesto Heavy", settings: "Cinta o rodillo en pelvis", recommendations: "Empujar la cadera arriba alineando torso y muslos.", errors: "Hiperextender la zona lumbar en el punto alto." },
+            { name: "Glute Lift (Elevación de Glúteos / Hip Thrust en Máquina)", category: "Compuesto Heavy", settings: "Rodillo o cinturón de seguridad fijado con firmeza sobre la cadera y pies apoyados al ancho de hombros.", recommendations: "Empujar con los talones hacia arriba apretando fuertemente los glúteos en la cima durante un segundo antes de bajar.", errors: "Arquear la espalda baja en lugar de bascular la pelvis, despegar los talones del suelo o no completar la extensión de cadera arriba." },
             { name: "Patada de Glúteo en Máquina", category: "Piernas", settings: "Apoyo de pecho", recommendations: "Empujar la plataforma hacia atrás con el talón.", errors: "Arquear la zona lumbar para subir más." },
             { name: "Abducción de Cadera Sentado", category: "Piernas", settings: "Rodillos por fuera de las rodillas", recommendations: "Abrir las piernas hacia afuera con fuerza del glúteo medio.", errors: "Usar los pies para empujar en lugar de las rodillas." },
             { name: "Prensa con Pies Altos", category: "Compuesto Heavy", settings: "Pies en el borde superior de la plataforma", recommendations: "Empujar enfatizando la cadena posterior (glúteo e isquios).", errors: "Levantar la zona sacra del respaldo." },
@@ -650,9 +685,10 @@
             { name: "Hiperextensión a 45° Enfocada en Glúteo", category: "Piernas", settings: "Espalda redondeada suavemente", recommendations: "Extender la cadera apretando glúteos sin estirar la columna.", errors: "Arquear la zona lumbar buscando subir más." },
             { name: "Abducción de Cadera Inclinado hacia Adelante", category: "Piernas", settings: "Sentado despegado del respaldo", recommendations: "Abrir las piernas inclinado al frente enfocando el glúteo superior.", errors: "Usar el impulso de los hombros." },
             { name: "Crossover Lateral de Cadera en Polea", category: "Piernas", settings: "Tobillera en cable", recommendations: "Cruzar la pierna por detrás de la de apoyo y abrir afuera.", errors: "Perder el equilibrio de la pierna base." },
+            { name: "Pasos Laterales con Banda Elástica (Monster Walk)", category: "Piernas", settings: "Banda sobre las rodillas o tobillos", recommendations: "Mantener tensión constante en la goma sin juntar pies.", errors: "Juntar las rodillas hacia adentro (valgo)." },
 
             // GEMELOS / PANTORRILLA
-            { name: "Gemelos Sentado en Máquina", category: "Piernas", settings: "Puntas de los pies en el borde de la plataforma", recommendations: "Realizar un recorrido completo buscando estiramiento profundo y máxima contracción.", errors: "Hacer rebotes cortos o apoyar toda la planta del pie." },
+            { name: "Gemelos Sentado (Elevación de Talones)", category: "Piernas", settings: "Cojín de apoyo apoyado firmemente sobre la parte inferior de los muslos (no sobre las rodillas).", recommendations: "Elevar los talones lo más alto posible en máxima punta de pie, pausar un instante y bajar profundamente para estirar el gemelo.", errors: "Hacer rebotes rápidos sin control, utilizar un rango de movimiento recortado o no apoyar bien la bola del pie en la plataforma." },
             { name: "Gemelos de Pie en Máquina", category: "Piernas", settings: "Almohadillas sobre los hombros", recommendations: "Elevar los talones extendiendo los tobillos completamente.", errors: "Doblar las rodillas para ayudar a subir." },
             { name: "Gemelos en Prensa de Piernas", category: "Piernas", settings: "Puntas de pies en el borde de la plataforma", recommendations: "Empujar la plataforma solo flexionando los tobillos.", errors: "Doblar las rodillas transformándolo en una prensa." },
             { name: "Gemelos Unilaterales en Máquina", category: "Piernas", settings: "Un solo pie en la plataforma", recommendations: "Extensión completa de tobillo para aislar cada lado.", errors: "Balancear el cuerpo lateralmente." },
@@ -664,10 +700,9 @@
             { name: "Gemelos Donut/Donkey en Máquina", category: "Piernas", settings: "Apoyo en cadera con torso inclinado", recommendations: "Elevar los talones con la cadera flexionada a 90°.", errors: "Encorvar la columna durante el empuje." },
             { name: "Gemelo de Pie Unilateral en Multipower", category: "Piernas", settings: "Escalón bajo la punta del pie", recommendations: "Elevar el talón de forma fluida con la barra guiada.", errors: "Doblar la rodilla durante la subida." },
             { name: "Elevación de Puntas en Polea Baja", category: "Piernas", settings: "Sentado frente a la polea con agarre en pies", recommendations: "Traer las puntas de los pies hacia las espinillas contra el cable.", errors: "Mover las rodillas arriba y abajo." },
-            { name: "Gemelos en Prensa Horizontal", category: "Piernas", settings: "Puntas en la zona inferior del carro", recommendations: "Flexionar y extender la articulación del tobillo con espalda fija.", errors: "Doblar las rodillas al subir la carga." },
 
             // ABDOMINALES Y CORE
-            { name: "Contracción Abdominal en Máquina (Crunch)", category: "Core", settings: "Eje de giro alineado a la altura del ombligo", recommendations: "Flexionar la columna aproximando las costillas a la cadera con el abdomen.", errors: "Tirar con los brazos y hombros o flexionar la cadera sin doblar el torso." },
+            { name: "Contracción Abdominal en Máquina (Crunch)", category: "Core", settings: "Asiento ajustado para que el eje de rotación coincida con la parte media de tu abdomen.", recommendations: "Flexionar el torso enrollando el abdomen hacia el ombligo mientras tiras de la resistencia sin usar la fuerza del cuello.", errors: "Tirar del agarre con los brazos o la cabeza, usar impulso para bajar la carga o arquear repentinamente la columna al regresar." },
             { name: "Rotación del Torso en Máquina (Oblicuos)", category: "Core", settings: "Asiento rotatorio", recommendations: "Girar el torso usando la fuerza de los oblicuos.", errors: "Usar impulso de los brazos o piernas." },
             { name: "Crunch Abdominal en Polea Alta", category: "Core", settings: "De rodillas sosteniendo cuerda", recommendations: "Flexionar la columna hacia abajo llevando codos a muslos.", errors: "Sentarse en los talones durante la bajada." },
             { name: "Elevación de Piernas en Torre de Capitán", category: "Core", settings: "Espalda y antebrazos apoyados", recommendations: "Subir las rodillas o piernas flexionando la cadera.", errors: "Balancear las piernas sin control de la bajada." },
@@ -681,7 +716,7 @@
             { name: "Crunch en Máquina con Carga en Pies y Torso", category: "Core", settings: "Doble palanca", recommendations: "Flexionar el torso mientras se elevan las rodillas al mismo tiempo.", errors: "Tirar bruscamente con la cabeza o el cuello." },
 
             // CARDIO Y CONDICIONAMIENTO
-            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia nivel 4-6", recommendations: "Empujar activamente con los talones y mantener postura vertical.", errors: "Encorvar hombros o pedalear solo en puntas." },
+            { name: "Bicicleta Elíptica", category: "Cardio", settings: "Resistencia y zancada adaptadas a tu nivel, con toda la planta del pie apoyada sobre los pedales.", recommendations: "Mantener la postura erguida, empujar y tirar activamente con los brazos mientras mantienes un ritmo constante sin rebotar.", errors: "Apoyarse solo en las puntas de los pies, inclinarse demasiado hacia adelante sobre las empuñaduras o dejar que las rodillas colapsen hacia adentro." },
             { name: "Cinta de Correr", category: "Cardio", settings: "Inclinación 2-5%", recommendations: "Mantener zancada fluida apoyando el mediopie.", errors: "Agarrarse a los laterales o dar zancadas sobreextendidas." },
             { name: "Bicicleta Estática / Spinning", category: "Cardio", settings: "Sillín a la altura de la cadera", recommendations: "Pedalear con cadencia constante manteniendo abdomen activado.", errors: "Bajar demasiado el sillín sobrecargando rodillas." },
             { name: "Escaladora / Escaleras", category: "Cardio", settings: "Velocidad constante", recommendations: "Mantener centro de gravedad alineado sin apoyarse en consolas.", errors: "Volcar todo el peso sobre los brazos en los laterales." },
@@ -692,37 +727,30 @@
             { name: "Sled Push (Empuje de Trineo)", category: "Cardio", settings: "Carga progresiva sobre trineo", recommendations: "Empujar con pasos firmes apoyando metatarsos y torso inclinado.", errors: "Curvar la columna dorsal durante el empuje." }
         ];
 
+        // --- ARRANQUE LIMPIO ---
         let appData = {
-            users: [{ name: 'Atleta Principal', quiz: { level: 'Intermedio', goal: 'Hipertrofia', days: '4', injury: 'Ninguna' } }],
-            activeUserIdx: 0,
-            routine: {
-                startDate: new Date().toISOString(),
-                days: [
-                    { id: "dia1", isRest: false, name: "Día 1: Torso Pesado", exercises: [ Object.assign({}, MASTER_209_LIBRARY[0], {target:"3x10"}), Object.assign({}, MASTER_209_LIBRARY[28], {target:"3x12"}) ] },
-                    { id: "dia2", isRest: false, name: "Día 2: Pierna y Glúteo", exercises: [ Object.assign({}, MASTER_209_LIBRARY[131], {target:"3x10"}), Object.assign({}, MASTER_209_LIBRARY[154], {target:"3x12"}) ] }
-                ]
-            },
+            users: [],
+            activeUserIdx: -1,
+            routine: { startDate: new Date().toISOString(), days: [] },
             logs: [],
             library: MASTER_209_LIBRARY,
             completedMap: {},
-            activeDayId: "dia1",
+            activeDayId: "",
             selectedExerciseName: ""
         };
 
         function saveToStorage() {
             try {
-                localStorage.setItem('gymPro_v209_data', JSON.stringify(appData));
+                localStorage.setItem('gymPro_v209_clean_data', JSON.stringify(appData));
             } catch(e) { console.log('Storage no disponible'); }
         }
 
         function loadFromStorage() {
             try {
-                const stored = localStorage.getItem('gymPro_v209_data');
+                const stored = localStorage.getItem('gymPro_v209_clean_data');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (parsed && parsed.library && parsed.library.length >= 100) {
-                        appData = parsed;
-                    }
+                    if (parsed && parsed.library) appData = parsed;
                 }
             } catch(e) {}
         }
@@ -739,9 +767,8 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
             document.getElementById('tab-' + tabName).classList.remove('hidden');
-            if (el) {
-                el.classList.add('active');
-            } else {
+            if (el) el.classList.add('active');
+            else {
                 const targetNav = document.getElementById('nav-' + tabName);
                 if (targetNav) targetNav.classList.add('active');
             }
@@ -756,6 +783,17 @@
         function renderUsersTab() {
             const selector = document.getElementById('user-selector');
             selector.innerHTML = '';
+
+            if (appData.users.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "-1";
+                opt.innerText = "-- Sin usuarios creados --";
+                selector.appendChild(opt);
+                document.getElementById('ud-name').innerText = "Sin usuario activo";
+                document.getElementById('ud-info').innerText = "Crea tu primer perfil rellenando el cuestionario a continuación.";
+                return;
+            }
+
             appData.users.forEach((u, idx) => {
                 const opt = document.createElement('option');
                 opt.value = idx;
@@ -782,27 +820,35 @@
         }
 
         function onUserSelectChange() {
-            appData.activeUserIdx = parseInt(document.getElementById('user-selector').value);
-            saveToStorage();
-            renderUsersTab();
+            const val = parseInt(document.getElementById('user-selector').value);
+            if (val >= 0) {
+                appData.activeUserIdx = val;
+                saveToStorage();
+                renderUsersTab();
+            }
         }
 
         function confirmUserAndGoToPlan() {
+            if (appData.activeUserIdx < 0 || !appData.users[appData.activeUserIdx]) {
+                return showToast("⚠️ Crea primero un usuario con el cuestionario.");
+            }
             saveToStorage();
             showToast(`Entrando con ${appData.users[appData.activeUserIdx].name}...`);
             switchTab('workout');
         }
 
         function showNewUserForm() {
+            appData.activeUserIdx = -1;
             document.getElementById('q-name').value = '';
             document.getElementById('q-name').focus();
+            renderUsersTab();
             showToast("Introduce el nombre del nuevo atleta.");
         }
 
         function deleteCurrentActiveUser() {
-            if (appData.users.length <= 1) return showToast('No puedes borrar el único usuario.');
+            if (appData.users.length === 0) return showToast('No hay usuarios para borrar.');
             appData.users.splice(appData.activeUserIdx, 1);
-            appData.activeUserIdx = 0;
+            appData.activeUserIdx = appData.users.length > 0 ? 0 : -1;
             saveToStorage();
             renderUsersTab();
         }
@@ -823,7 +869,7 @@
                 injury: document.getElementById('q-injury').value
             };
 
-            if (appData.users[appData.activeUserIdx] && appData.users[appData.activeUserIdx].name === nameInput) {
+            if (appData.activeUserIdx >= 0 && appData.users[appData.activeUserIdx] && appData.users[appData.activeUserIdx].name === nameInput) {
                 appData.users[appData.activeUserIdx].quiz = quizData;
             } else {
                 appData.users.push({ name: nameInput, quiz: quizData });
@@ -912,9 +958,9 @@
         }
 
         function optimizeCurrentDayBiomechanics() {
-            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
-            if (!currentDay || currentDay.isRest || currentDay.exercises.length === 0) {
-                return showToast("⚠️ No hay ejercicios de musculación en este día para reordenar.");
+            const currentDay = appData.routine.days ? appData.routine.days.find(d => d.id === appData.activeDayId) : null;
+            if (!currentDay || currentDay.isRest || !currentDay.exercises || currentDay.exercises.length === 0) {
+                return showToast("⚠️ No hay ejercicios en este día para reordenar.");
             }
 
             const priorityMap = {
@@ -935,13 +981,82 @@
             });
 
             saveToStorage();
+            appData.selectedExerciseName = "";
             renderWorkoutTab();
             showToast("⚡ Día reordenado: Compuestos Heavy ➔ Aislamiento ➔ Cardio.");
+        }
+
+        function importRoutineFromPDF(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function() {
+                const typedarray = new Uint8Array(this.result);
+
+                if (typeof pdfjsLib === 'undefined') {
+                    return showToast("⚠️ PDF.js no disponible. Revisa tu conexión.");
+                }
+
+                pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+                    let totalPages = pdf.numPages;
+                    let textPromises = [];
+
+                    for (let i = 1; i <= totalPages; i++) {
+                        textPromises.push(
+                            pdf.getPage(i).then(page => page.getTextContent().then(content => {
+                                return content.items.map(item => item.str).join(' ');
+                            }))
+                        );
+                    }
+
+                    Promise.all(textPromises).then(pagesText => {
+                        let fullText = pagesText.join(' ').toLowerCase();
+                        let foundExercises = [];
+
+                        appData.library.forEach(masterEx => {
+                            let matchName = masterEx.name.toLowerCase();
+                            if (fullText.includes(matchName)) {
+                                foundExercises.push(Object.assign({}, masterEx, { target: "3x12" }));
+                            }
+                        });
+
+                        if (foundExercises.length === 0) {
+                            showToast("⚠️ No se detectaron ejercicios coincidentes en el PDF.");
+                            return;
+                        }
+
+                        if (!appData.routine.days) appData.routine.days = [];
+                        
+                        const newDayId = `dia${appData.routine.days.length + 1}`;
+                        appData.routine.days.push({
+                            id: newDayId,
+                            isRest: false,
+                            name: `Día ${appData.routine.days.length + 1}: Importado PDF`,
+                            exercises: foundExercises
+                        });
+
+                        appData.activeDayId = newDayId;
+                        saveToStorage();
+                        renderRoutineEditor();
+                        showToast(`📄 PDF importado: ¡${foundExercises.length} ejercicios añadidos!`);
+                    });
+                }).catch(err => {
+                    showToast("⚠️ Error al leer el archivo PDF.");
+                });
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         function renderDaysNav() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
+
+            if (!appData.routine.days || appData.routine.days.length === 0) {
+                container.innerHTML = '<p style="font-size:0.8rem; color:var(--text-sec);">Sin días programados. Genera un perfil o edita tu rutina.</p>';
+                return;
+            }
+
             appData.routine.days.forEach(day => {
                 const chip = document.createElement('div');
                 chip.className = `day-chip ${day.id === appData.activeDayId ? 'active' : ''}`;
@@ -959,18 +1074,27 @@
         function renderWorkoutTab() {
             renderClinicalGuidelines();
             renderDaysNav();
-            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            
+            const loggingCard = document.getElementById('logging-card');
+            const restDayViewCard = document.getElementById('rest-day-view-card');
+            const listContainer = document.getElementById('daily-exercises-list');
+
+            if (!appData.routine.days || appData.routine.days.length === 0) {
+                loggingCard.classList.add('hidden');
+                restDayViewCard.classList.add('hidden');
+                listContainer.innerHTML = '<div class="card" style="text-align:center;"><p style="color:var(--text-sec);">No hay rutina generada. Ve a "Usuario" para crear tu plan.</p></div>';
+                return;
+            }
+
+            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId) || appData.routine.days[0];
             if (!currentDay) return;
 
             document.getElementById('active-day-label').innerText = currentDay.name;
 
-            const loggingCard = document.getElementById('logging-card');
-            const restDayViewCard = document.getElementById('rest-day-view-card');
-
             if (currentDay.isRest) {
                 loggingCard.classList.add('hidden');
                 restDayViewCard.classList.remove('hidden');
-                document.getElementById('daily-exercises-list').innerHTML = '';
+                listContainer.innerHTML = '';
                 return;
             } else {
                 loggingCard.classList.remove('hidden');
@@ -1012,7 +1136,6 @@
                 select.innerHTML = '<option value="">🎉 ¡Todos los ejercicios completados!</option>';
             }
 
-            const listContainer = document.getElementById('daily-exercises-list');
             listContainer.innerHTML = '';
 
             currentDay.exercises.forEach(ex => {
@@ -1088,7 +1211,7 @@
             const lbl1 = document.getElementById('lbl-param-1');
             const lbl2 = document.getElementById('lbl-param-2');
 
-            if (!exName) {
+            if (!exName || !currentDay) {
                 infoBox.classList.add('hidden');
                 return;
             }
@@ -1118,7 +1241,7 @@
             const quiz = activeUser.quiz || {};
             document.getElementById('guidelines-badge').innerText = quiz.level || 'Intermedio';
 
-            let content = `• <strong>Atleta:</strong> ${activeUser.name || 'Atleta'}<br>`;
+            let content = `• <strong>Atleta:</strong> ${activeUser.name || 'Sin seleccionar'}<br>`;
             content += `• <strong>Cadencia Recomendada:</strong> 2s excéntrica / 1s concéntrica.<br>`;
             if (quiz.injury && quiz.injury !== 'Ninguna') {
                 content += `• <strong>Atención Articular:</strong> Cuidado focalizado en <strong>${quiz.injury}</strong>.`;
@@ -1245,10 +1368,14 @@
             document.getElementById('rest-card').classList.add('hidden');
         }
 
-        // --- EDITOR MANUAL CON CAMPO TOTALMENTE EN BLANCO AL AÑADIR ---
         function renderRoutineEditor() {
             const container = document.getElementById('routine-editor-container');
             container.innerHTML = '';
+
+            if (!appData.routine.days || appData.routine.days.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-sec); font-size:0.9rem;">No hay días creados. Pulsa "+ Día Entreno" o importa un PDF.</p>';
+                return;
+            }
 
             appData.routine.days.forEach((day, dIdx) => {
                 const dayCard = document.createElement('div');
@@ -1349,7 +1476,6 @@
             renderDaysNav();
         }
 
-        // AÑADE UN EJERCICIO 100% EN BLANCO A LA RUTINA
         function addExerciseToDay(dIdx) {
             appData.routine.days[dIdx].exercises.push({ name: "", target: "3x12", category: "Compuesto Heavy" });
             saveToStorage();
@@ -1475,18 +1601,32 @@
             ctx.stroke();
         }
 
+        // --- BIBLIOTECA CON FILTRO COMBINADO DE CATEGORÍA Y TEXTO ---
         function renderLibrary() {
             const container = document.getElementById('library-container');
             const searchVal = (document.getElementById('library-search-input')?.value || '').toLowerCase().trim();
+            const catFilter = document.getElementById('library-category-filter')?.value || 'ALL';
             container.innerHTML = '';
 
-            const filtered = appData.library.filter(ex => 
-                ex.name.toLowerCase().includes(searchVal) || 
-                (ex.category || '').toLowerCase().includes(searchVal)
-            );
+            const filtered = appData.library.filter(ex => {
+                const matchesText = ex.name.toLowerCase().includes(searchVal) || (ex.category || '').toLowerCase().includes(searchVal);
+                let matchesCategory = true;
+
+                if (catFilter !== 'ALL') {
+                    if (catFilter === 'Piernas') {
+                        matchesCategory = ['Piernas', 'Cuádriceps', 'Isquios', 'Glúteos', 'Gemelos'].includes(ex.category);
+                    } else if (catFilter === 'Brazos') {
+                        matchesCategory = ['Brazos', 'Bíceps', 'Tríceps'].includes(ex.category);
+                    } else {
+                        matchesCategory = ex.category === catFilter;
+                    }
+                }
+
+                return matchesText && matchesCategory;
+            });
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-sec); font-size:0.85rem;">No se han encontrado ejercicios con esa búsqueda.</p>';
+                container.innerHTML = '<p style="color:var(--text-sec); font-size:0.85rem;">No se han encontrado ejercicios para este filtro o búsqueda.</p>';
                 return;
             }
 
@@ -1538,7 +1678,7 @@
             document.getElementById('modal-suggestions').classList.add('hidden');
             document.getElementById('modal-search-input').value = exName;
             
-            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            const currentDay = appData.routine.days ? appData.routine.days.find(d => d.id === appData.activeDayId) : null;
             let activeExInDay = currentDay ? currentDay.exercises.find(e => e.name === exName) : null;
 
             if (exName) {
@@ -1601,7 +1741,7 @@
                 appData.library.push({ name, category, settings, recommendations, errors });
             }
 
-            const currentDay = appData.routine.days.find(d => d.id === appData.activeDayId);
+            const currentDay = appData.routine.days ? appData.routine.days.find(d => d.id === appData.activeDayId) : null;
             if (currentDay) {
                 const exInDay = currentDay.exercises.find(e => e.name === name);
                 if (exInDay) {
