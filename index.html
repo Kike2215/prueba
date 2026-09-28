@@ -180,7 +180,7 @@
         </div>
 
         <div class="card" id="quiz-card">
-            <div class="card-title">📝 Cuestionario / Perfil del Atleta (IA)</div>
+            <div class="card-title">📝 Cuestionario Avanzado del Atleta (IA)</div>
             
             <label style="font-size: 0.8rem; color: var(--text-sec);">Nombre Completo / Alias (*Obligatorio):</label>
             <input type="text" id="q-name" placeholder="Ej: Juan Pérez">
@@ -217,6 +217,54 @@
                 <input type="checkbox" id="q-include-rest" checked style="width:auto; margin:0;">
                 <label for="q-include-rest" style="font-size:0.8rem; color:var(--text-sec); margin:0;">Incluir Días de Descanso y Recuperación Activa</label>
             </div>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">⚙️ Equipamiento Preferido:</label>
+            <select id="q-equipment">
+                <option value="Cualquiera" selected>Indiferente / Variado (Máquinas, Libre y Poleas)</option>
+                <option value="Máquinas Guiadas">Máquinas Guiadas (Seguridad y Aislamiento)</option>
+                <option value="Peso Libre">Peso Libre (Barras, Mancuernas y Discos)</option>
+                <option value="Poleas y Cables">Poleas y Cables (Tensión Continua)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">⏱️ Tiempo Disponible por Sesión:</label>
+            <select id="q-time">
+                <option value="30-45">30 – 45 min (Alta densidad / Superseries)</option>
+                <option value="45-60" selected>45 – 60 min (Estándar recomendado)</option>
+                <option value="60-90">60 – 90 min (Sesión completa / Descansos largos)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">🎯 Grupo Muscular Prioritario (Enfoque Especial):</label>
+            <select id="q-focus">
+                <option value="Ninguno" selected>Equilibrado (Sin prioridad única)</option>
+                <option value="Brazos">Brazos (Bíceps y Tríceps)</option>
+                <option value="Hombros">Hombros (Deltoides 3D)</option>
+                <option value="Pecho">Pecho (Pectoral Mayor/Alto)</option>
+                <option value="Espalda">Espalda (Amplitud y Densidad)</option>
+                <option value="Piernas">Piernas y Glúteos (Cadena Inferior)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">🔀 Distribución / Split Preferido:</label>
+            <select id="q-split">
+                <option value="Auto" selected>🤖 Selección Automática Inteligente por IA</option>
+                <option value="PPL">Push / Pull / Legs (Empuje, Tirón, Pierna)</option>
+                <option value="UpperLower">Torso / Pierna (Upper / Lower)</option>
+                <option value="FullBody">Full Body (Cuerpo Completo)</option>
+                <option value="Weider">Dividida Frecuencia 1 (Weider Tradicional)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">⚡ Tolerancia a la Intensidad:</label>
+            <select id="q-intensity">
+                <option value="Salud">Conservador / Salud Articular (RPE 6-7)</option>
+                <option value="Estándar" selected>Estándar Progresivo (RPE 8-9)</option>
+                <option value="HIT">Alta Intensidad / HIT / Al Fallo (RPE 10)</option>
+            </select>
+
+            <label style="font-size: 0.8rem; color: var(--text-sec);">🏠 Entorno de Entrenamiento:</label>
+            <select id="q-environment">
+                <option value="Gimnasio Comercial" selected>Gimnasio Comercial Completo</option>
+                <option value="Gimnasio Comunitario">Gimnasio Comunitario / Hotel (Limitado)</option>
+                <option value="Casa">Entrenamiento en Casa / Mancuernas</option>
+            </select>
 
             <label style="font-size: 0.8rem; color: var(--text-sec);">Lesiones o Molestias Previas:</label>
             <select id="q-injury">
@@ -683,7 +731,7 @@
             { name: "Peso Muerto Rumano Unilateral en Multipower", category: "Compuesto Heavy", settings: "Una pierna apoya, la otra atrás", recommendations: "Inclinarse sobre la pierna firme empujando la cadera atrás.", errors: "Desbalancear la altura de las caderas." },
             { name: "Hiperextensión a 45° Enfocada en Glúteo", category: "Piernas", settings: "Espalda redondeada suavemente", recommendations: "Extender la cadera apretando glúteos sin estirar la columna.", errors: "Arquear la zona lumbar buscando subir más." },
             { name: "Abducción de Cadera Inclinado hacia Adelante", category: "Piernas", settings: "Sentado despegado del respaldo", recommendations: "Abrir las piernas inclinado al frente enfocando el glúteo superior.", errors: "Usar el impulso de los hombros." },
-            { name: "Crossover Lateral de Cadera en Polea", category: "Piernas", settings: "Tobillera en cable", recommendations: "Cruzar la pierna por detrás de la de apoyo y abrir afuera.", errors: "Perder el equilibrio de la pierna base." },
+            { name: "Crossover Lateral de Cadera en Polea", category: "Piernas", settings: "Tobillera en cable", recommendations: "Cruzando la pierna por detrás de la de apoyo y abrir afuera.", errors: "Perder el equilibrio de la pierna base." },
             { name: "Pasos Laterales con Banda Elástica (Monster Walk)", category: "Piernas", settings: "Banda sobre las rodillas o tobillos", recommendations: "Mantener tensión constante en la goma sin juntar pies.", errors: "Juntar las rodillas hacia adentro (valgo)." },
 
             // GEMELOS / PANTORRILLA
@@ -807,6 +855,8 @@
                 document.getElementById('ud-info').innerHTML = `
                     🎯 <strong>Objetivo:</strong> ${active.quiz.goal || 'General'}<br>
                     📊 <strong>Nivel:</strong> ${active.quiz.level || 'Intermedio'} | 📅 <strong>Días:</strong> ${active.quiz.days || '4'}<br>
+                    ⚙️ <strong>Equipamiento:</strong> ${active.quiz.equipment || 'Variado'} | ⏱️ <strong>Tiempo:</strong> ${active.quiz.time || '45-60'} min<br>
+                    🔀 <strong>Split:</strong> ${active.quiz.split || 'Auto'} | 🎯 <strong>Enfoque:</strong> ${active.quiz.focus || 'Equilibrado'}<br>
                     🩹 <strong>Notas/Lesiones:</strong> ${active.quiz.injury || 'Ninguna'}
                 `;
 
@@ -814,6 +864,12 @@
                 document.getElementById('q-level').value = active.quiz.level || 'Intermedio';
                 document.getElementById('q-goal').value = active.quiz.goal || 'Hipertrofia';
                 document.getElementById('q-days').value = active.quiz.days || '4';
+                if(active.quiz.equipment) document.getElementById('q-equipment').value = active.quiz.equipment;
+                if(active.quiz.time) document.getElementById('q-time').value = active.quiz.time;
+                if(active.quiz.focus) document.getElementById('q-focus').value = active.quiz.focus;
+                if(active.quiz.split) document.getElementById('q-split').value = active.quiz.split;
+                if(active.quiz.intensity) document.getElementById('q-intensity').value = active.quiz.intensity;
+                if(active.quiz.environment) document.getElementById('q-environment').value = active.quiz.environment;
                 document.getElementById('q-injury').value = active.quiz.injury || 'Ninguna';
             }
         }
@@ -865,6 +921,12 @@
                 goal: document.getElementById('q-goal').value,
                 days: document.getElementById('q-days').value,
                 includeRest: document.getElementById('q-include-rest').checked,
+                equipment: document.getElementById('q-equipment').value,
+                time: document.getElementById('q-time').value,
+                focus: document.getElementById('q-focus').value,
+                split: document.getElementById('q-split').value,
+                intensity: document.getElementById('q-intensity').value,
+                environment: document.getElementById('q-environment').value,
                 injury: document.getElementById('q-injury').value
             };
 
@@ -886,9 +948,10 @@
             modal.classList.remove('hidden');
 
             let steps = [
-                { p: "25%", t: `Analizando nivel ${quiz.level} y objetivo ${quiz.goal}...` },
-                { p: "50%", t: `Filtrando ejercicios seguros para prevención (${quiz.injury})...` },
-                { p: "75%", t: `Estructurando volumen para ${quiz.days} días de entrenamiento...` },
+                { p: "20%", t: `Analizando nivel ${quiz.level} y objetivo ${quiz.goal}...` },
+                { p: "40%", t: `Ajustando filtro de equipamiento (${quiz.equipment}) y entorno (${quiz.environment})...` },
+                { p: "60%", t: `Priorizando enfoque en ${quiz.focus} con split ${quiz.split}...` },
+                { p: "80%", t: `Filtrando prevención articular (${quiz.injury})...` },
                 { p: "100%", t: "¡Rutina optimizada con éxito!" }
             ];
 
@@ -904,18 +967,30 @@
                     modal.classList.add('hidden');
                     switchTab('workout');
                 }
-            }, 600);
+            }, 500);
         }
 
         function buildAIRoutineStructure(quiz) {
             let numDays = parseInt(quiz.days) || 4;
             let injury = quiz.injury || 'Ninguna';
             let goal = quiz.goal || 'Hipertrofia';
+            let eq = quiz.equipment || 'Cualquiera';
 
             let safeLibrary = appData.library.filter(ex => {
                 if (injury === 'Rodilla' && ex.name.includes('Sentadilla')) return false;
                 if (injury === 'Lumbar' && ex.name.includes('Peso Muerto')) return false;
                 if (injury === 'Hombro' && ex.name.includes('Militar')) return false;
+
+                if (eq === 'Máquinas Guiadas') {
+                    return ex.name.includes('Máquina') || ex.name.includes('Multipower') || ex.name.includes('Prensa') || ex.category === 'Compuesto Heavy';
+                }
+                if (eq === 'Poleas y Cables') {
+                    return ex.name.includes('Polea') || ex.name.includes('Cable') || ex.name.includes('Cuerda');
+                }
+                if (eq === 'Peso Libre') {
+                    return !ex.name.includes('Máquina') && !ex.name.includes('Polea');
+                }
+
                 return true;
             });
 
@@ -1044,7 +1119,7 @@
                     showToast("⚠️ Error al leer el archivo PDF.");
                 });
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsBuffer ? reader.readAsBuffer(file) : reader.readAsArrayBuffer(file);
         }
 
         function renderDaysNav() {
@@ -1242,10 +1317,11 @@
 
             let content = `• <strong>Atleta:</strong> ${activeUser.name || 'Sin seleccionar'}<br>`;
             content += `• <strong>Cadencia Recomendada:</strong> 2s excéntrica / 1s concéntrica.<br>`;
+            content += `• <strong>Intensidad Meta:</strong> Prescripción en RPE ${quiz.intensity === 'HIT' ? '10 (Al Fallo)' : quiz.intensity === 'Salud' ? '6-7 (Moderado)' : '8-9 (Cerca del Fallo)'}.<br>`;
             if (quiz.injury && quiz.injury !== 'Ninguna') {
                 content += `• <strong>Atención Articular:</strong> Cuidado focalizado en <strong>${quiz.injury}</strong>.`;
             } else {
-                content += `• <strong>Prevención:</strong> Mantener técnica limpia cerca del fallo muscular.`;
+                content += `• <strong>Prevención:</strong> Mantener técnica limpia en rangos completos.`;
             }
             document.getElementById('clinical-guidelines-content').innerHTML = content;
         }
